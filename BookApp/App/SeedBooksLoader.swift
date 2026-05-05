@@ -64,8 +64,16 @@ enum SeedBooksLoader {
 
     private static func seed(bookFolder: URL, importer: ImportService, context: ModelContext) async {
         let metaURL = bookFolder.appendingPathComponent("meta.json")
-        guard let metaData = try? Data(contentsOf: metaURL),
-              let meta = try? JSONDecoder().decode(SeedMeta.self, from: metaData) else {
+        let meta: SeedMeta
+        if let metaData = try? Data(contentsOf: metaURL),
+           let parsed = try? JSONDecoder().decode(SeedMeta.self, from: metaData) {
+            meta = parsed
+        } else if let inferred = inferMeta(from: bookFolder) {
+            // Partial generation (e.g. ran out of API credits) — synthesise
+            // a meta.json from whatever .txt files are present so the user
+            // still gets the original + any completed variants on the shelf.
+            meta = inferred
+        } else {
             return
         }
 
@@ -149,6 +157,105 @@ enum SeedBooksLoader {
         let descriptor = FetchDescriptor<Book>()
         guard let books = try? context.fetch(descriptor) else { return false }
         return books.contains { $0.notes.contains("seed:\(slug)") }
+    }
+
+    /// Recovers a usable `SeedMeta` from a book folder when its `meta.json`
+    /// was never written (the API run was interrupted partway). Curated
+    /// fallbacks for the three demo books cover the title / author /
+    /// categories; the variants list is rebuilt from any `.txt` files
+    /// actually present on disk.
+    private static func inferMeta(from bookFolder: URL) -> SeedMeta? {
+        let slug = bookFolder.lastPathComponent
+        guard let entries = try? FileManager.default.contentsOfDirectory(
+            at: bookFolder, includingPropertiesForKeys: nil
+        ) else { return nil }
+
+        guard let curated = curatedFallback(for: slug) else { return nil }
+
+        var inferred: [SeedVariant] = []
+        for url in entries where url.pathExtension.lowercased() == "txt" {
+            let name = url.deletingPathExtension().lastPathComponent
+            guard let v = curated.variantTemplates[name] else { continue }
+            inferred.append(SeedVariant(
+                file: url.lastPathComponent,
+                kind: v.kind,
+                target_pages: v.target_pages,
+                style_reference: v.style_reference,
+                model: v.model,
+                input_tokens: nil,
+                cached_input_tokens: nil,
+                output_tokens: nil,
+                cost_usd: nil
+            ))
+        }
+
+        return SeedMeta(
+            slug: slug,
+            title: curated.title,
+            author: curated.author,
+            categories: curated.categories,
+            themes: curated.themes,
+            source_words: nil,
+            source_pages_est: nil,
+            variants: inferred
+        )
+    }
+
+    /// Curated metadata for the three bundled demo books — used when the
+    /// generation pipeline didn't finish writing a meta.json.
+    private static func curatedFallback(for slug: String) -> CuratedSeed? {
+        switch slug {
+        case "republic-plato":
+            return CuratedSeed(
+                title: "The Republic", author: "Plato",
+                categories: ["Philosophy"],
+                themes: ["justice", "ideal state", "education", "the soul", "rulers"],
+                variantTemplates: [
+                    "compressed-25":   .init(kind: "compressed", target_pages: 25, style_reference: "",                  model: "claude-sonnet-4-6"),
+                    "compressed-75":   .init(kind: "compressed", target_pages: 75, style_reference: "",                  model: "claude-sonnet-4-6"),
+                    "restyled-gladwell": .init(kind: "styled",   target_pages: 75, style_reference: "Malcolm Gladwell",  model: "claude-opus-4-7"),
+                ]
+            )
+        case "prince-machiavelli":
+            return CuratedSeed(
+                title: "The Prince", author: "Niccolò Machiavelli",
+                categories: ["Philosophy", "Politics"],
+                themes: ["power", "statecraft", "fortune", "virtue", "leadership"],
+                variantTemplates: [
+                    "compressed-10":   .init(kind: "compressed", target_pages: 10, style_reference: "",                  model: "claude-sonnet-4-6"),
+                    "compressed-30":   .init(kind: "compressed", target_pages: 30, style_reference: "",                  model: "claude-sonnet-4-6"),
+                    "restyled-harari": .init(kind: "styled",     target_pages: 25, style_reference: "Yuval Noah Harari", model: "claude-opus-4-7"),
+                ]
+            )
+        case "beyond-good-evil-nietzsche":
+            return CuratedSeed(
+                title: "Beyond Good and Evil", author: "Friedrich Nietzsche",
+                categories: ["Philosophy"],
+                themes: ["morality", "the will to power", "truth", "religion", "self-overcoming"],
+                variantTemplates: [
+                    "compressed-20":  .init(kind: "compressed", target_pages: 20, style_reference: "",             model: "claude-sonnet-4-6"),
+                    "compressed-60":  .init(kind: "compressed", target_pages: 60, style_reference: "",             model: "claude-sonnet-4-6"),
+                    "restyled-didion": .init(kind: "styled",    target_pages: 50, style_reference: "Joan Didion",  model: "claude-opus-4-7"),
+                ]
+            )
+        default:
+            return nil
+        }
+    }
+}
+
+private struct CuratedSeed {
+    let title: String
+    let author: String
+    let categories: [String]
+    let themes: [String]
+    let variantTemplates: [String: VariantTemplate]
+
+    struct VariantTemplate {
+        let kind: String
+        let target_pages: Int
+        let style_reference: String
+        let model: String
     }
 }
 
