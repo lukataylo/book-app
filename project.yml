@@ -1,6 +1,6 @@
 name: BookApp
 options:
-  bundleIdPrefix: com.bookapp
+  bundleIdPrefix: com.lukataylor
   deploymentTarget:
     iOS: "18.0"
     macOS: "15.0"
@@ -18,7 +18,7 @@ settings:
     GENERATE_INFOPLIST_FILE: NO
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
-    PRODUCT_BUNDLE_IDENTIFIER: com.bookapp.app
+    PRODUCT_BUNDLE_IDENTIFIER: com.lukataylor.bookapp
     INFOPLIST_FILE: BookApp/Supporting/Info.plist
     CODE_SIGN_ENTITLEMENTS: BookApp/Supporting/BookApp.entitlements
     IPHONEOS_DEPLOYMENT_TARGET: "18.0"

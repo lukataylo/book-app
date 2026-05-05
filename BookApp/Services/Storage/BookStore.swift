@@ -5,7 +5,7 @@ import Foundation
 struct BookStore: Sendable {
     static let shared = BookStore()
 
-    private let containerID = "iCloud.com.bookapp.app"
+    private let containerID = "iCloud.com.lukataylor.bookapp"
 
     /// Root for all book originals and variants. Falls back to the local
     /// app-support directory when iCloud is signed out.

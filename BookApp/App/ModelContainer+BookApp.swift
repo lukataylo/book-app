@@ -20,7 +20,7 @@ extension ModelContainer {
             "BookAppStore",
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.com.bookapp.app")
+            cloudKitDatabase: .private("iCloud.com.lukataylor.bookapp")
         )
         return try ModelContainer(for: schema, configurations: [config])
     }

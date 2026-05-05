@@ -108,7 +108,7 @@ See [docs/llm-routing.md](llm-routing.md).
 
 #### `Storage/`
 
-`BookStore` owns the iCloud Drive container (`iCloud.com.bookapp.app`).
+`BookStore` owns the iCloud Drive container (`iCloud.com.lukataylor.bookapp`).
 Books and transformations are stored as files there; metadata stays in
 CloudKit. This keeps the CloudKit quota tiny while still giving you a
 shareable Files-app folder.
@@ -155,7 +155,7 @@ Swift 6 strict concurrency, complete checking.
 ## Persistence + sync
 
 `NSPersistentCloudKitContainer`-style: `ModelConfiguration` with
-`cloudKitDatabase: .private("iCloud.com.bookapp.app")`. SwiftData
+`cloudKitDatabase: .private("iCloud.com.lukataylor.bookapp")`. SwiftData
 handles the round-trip. The simulator without an iCloud account
 gracefully falls back to in-memory.
 

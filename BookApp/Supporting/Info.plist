@@ -45,7 +45,7 @@
     </array>
     <key>NSUbiquitousContainers</key>
     <dict>
-        <key>iCloud.com.bookapp.app</key>
+        <key>iCloud.com.lukataylor.bookapp</key>
         <dict>
             <key>NSUbiquitousContainerIsDocumentScopePublic</key>
             <true/>
