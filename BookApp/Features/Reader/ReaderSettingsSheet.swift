@@ -1,0 +1,79 @@
+import SwiftUI
+
+struct ReaderSettingsSheet: View {
+    /// `@Bindable` is the right wrapper for `@Observable` (`@Model`) classes
+    /// — `$settings.theme` produces a `Binding<ReaderTheme>` that SwiftUI
+    /// correctly observes for re-render. `@Binding` would compare class
+    /// identity, miss property changes, and leave the UI stale.
+    @Bindable var settings: ReaderSettings
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Theme") {
+                    Picker("Background", selection: $settings.theme) {
+                        ForEach(ReaderTheme.allCases, id: \.self) { t in
+                            Text(t.displayName).tag(t)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: settings.theme) { _, _ in persist() }
+                }
+                Section("Font") {
+                    Picker("Family", selection: $settings.font) {
+                        ForEach(ReaderFont.allCases, id: \.self) { f in
+                            Text(f.displayName).tag(f)
+                        }
+                    }
+                    .onChange(of: settings.font) { _, _ in persist() }
+
+                    Stepper(
+                        "Size: \(Int(settings.fontSize)) pt",
+                        value: $settings.fontSize,
+                        in: 12...28,
+                        step: 1,
+                        onEditingChanged: { _ in persist() }
+                    )
+                }
+                Section("Layout") {
+                    Picker("Margin", selection: $settings.margin) {
+                        ForEach(ReaderMargin.allCases, id: \.self) { m in
+                            Text(m.rawValue.capitalized).tag(m)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: settings.margin) { _, _ in persist() }
+
+                    HStack {
+                        Text("Line spacing")
+                        Slider(value: $settings.lineSpacing, in: 1.0...2.0, step: 0.1, onEditingChanged: { _ in persist() })
+                        Text(String(format: "%.1f", settings.lineSpacing))
+                            .monospacedDigit()
+                    }
+
+                    HStack {
+                        Text("Paragraph gap")
+                        Slider(value: $settings.paragraphSpacing, in: 4...32, step: 2, onEditingChanged: { _ in persist() })
+                        Text("\(Int(settings.paragraphSpacing))")
+                            .monospacedDigit()
+                    }
+
+                    Toggle("Hyphenation", isOn: $settings.hyphenation)
+                        .onChange(of: settings.hyphenation) { _, _ in persist() }
+                }
+            }
+            .navigationTitle("Reader settings")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func persist() {
+        try? modelContext.save()
+    }
+}

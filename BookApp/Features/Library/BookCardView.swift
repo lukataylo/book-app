@@ -1,0 +1,85 @@
+import SwiftUI
+
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+
+/// Single book on the shelf — cover image (or generated spine fallback),
+/// title, author. Sized for the shelf carousel; the same view is reused on
+/// the search results screen.
+struct BookCardView: View {
+    let book: Book
+    var width: CGFloat = 120
+    var showsTitle: Bool = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            cover
+                .frame(width: width, height: width * 1.5)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
+                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 4)
+
+            if showsTitle {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(book.title)
+                        .font(Typography.cardTitle)
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                        .lineLimit(2)
+                    Text(book.author)
+                        .font(Typography.secondary)
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                        .lineLimit(1)
+                }
+                .frame(width: width, alignment: .leading)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var cover: some View {
+        if let image = book.coverData.flatMap(Self.platformImage(from:)) {
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } else {
+            generatedCover
+        }
+    }
+
+    private var generatedCover: some View {
+        let color = Theme.BookSpine.color(for: book.categoryTags)
+        return ZStack(alignment: .bottomLeading) {
+            LinearGradient(
+                colors: [color.opacity(0.95), color.opacity(0.65)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                Text(book.title)
+                    .font(.system(size: 15, weight: .semibold, design: .serif))
+                    .foregroundStyle(.white)
+                    .lineLimit(3)
+                Text(book.author)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .lineLimit(1)
+            }
+            .padding(Theme.Spacing.s)
+        }
+    }
+
+    /// Platform-aware image decoder used by both compact and grid layouts.
+    /// Static so we don't capture `self` in the call site.
+    static func platformImage(from data: Data) -> Image? {
+        #if canImport(UIKit)
+        return UIImage(data: data).map { Image(uiImage: $0) }
+        #elseif canImport(AppKit)
+        return NSImage(data: data).map { Image(nsImage: $0) }
+        #else
+        return nil
+        #endif
+    }
+}

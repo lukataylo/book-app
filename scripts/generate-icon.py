@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Generate the BookApp app icon.
+
+Renders a confident serif "B" — an editorial wordmark — in deep amber
+on a warm cream radial gradient. Inspired by Apple's News and Books
+glyph treatments. One 1024x1024 master PNG is enough since iOS 17
+because Xcode auto-derives the smaller sizes.
+
+Run:  python3 scripts/generate-icon.py
+"""
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from pathlib import Path
+import math
+import os
+
+SIZE = 1024
+OUT = Path(__file__).parent.parent / "BookApp" / "Resources" / "Assets.xcassets" / "AppIcon.appiconset"
+OUT.mkdir(parents=True, exist_ok=True)
+
+# Palette — kept in sync with Theme.Palette.
+CREAM_TOP = (250, 244, 232)
+CREAM_BOT = (235, 222, 199)
+AMBER     = (194, 65, 12)     # ink tone, matches Theme.Palette.accent
+AMBER_DK  = (138, 40, 10)
+GLINT     = (255, 245, 220, 60)
+RULE_INK  = (138, 88, 40, 100)
+
+
+def radial_cream(size):
+    """Soft radial gradient, brighter in the upper-third."""
+    img = Image.new("RGB", (size, size), CREAM_TOP)
+    px = img.load()
+    cx, cy = size / 2, size * 0.42
+    max_d = math.sqrt((size / 2) ** 2 + (size * 0.6) ** 2)
+    for y in range(size):
+        for x in range(size):
+            d = math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / max_d
+            d = min(1.0, d)
+            r = int(CREAM_TOP[0] * (1 - d) + CREAM_BOT[0] * d)
+            g = int(CREAM_TOP[1] * (1 - d) + CREAM_BOT[1] * d)
+            b = int(CREAM_TOP[2] * (1 - d) + CREAM_BOT[2] * d)
+            px[x, y] = (r, g, b)
+    return img
+
+
+def find_serif_font(size_px):
+    candidates = [
+        "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Baskerville.ttc",
+        "/System/Library/Fonts/Supplemental/Hoefler Text.ttc",
+        "/System/Library/Fonts/NewYork.ttf",
+        "/Library/Fonts/Georgia.ttf",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                return ImageFont.truetype(path, size_px)
+            except OSError:
+                continue
+    return ImageFont.load_default()
+
+
+def main():
+    canvas = radial_cream(SIZE).convert("RGBA")
+
+    # Soft inner stroke — very subtle, gives the icon a contained feel.
+    inner = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    di = ImageDraw.Draw(inner)
+    di.rounded_rectangle(
+        (12, 12, SIZE - 12, SIZE - 12),
+        radius=180,
+        outline=(120, 80, 40, 24),
+        width=2,
+    )
+    canvas = Image.alpha_composite(canvas, inner)
+
+    # Light glint band across the upper portion — like sun on paper.
+    glint = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glint)
+    gd.ellipse(
+        (-SIZE * 0.4, -SIZE * 0.6, SIZE * 1.4, SIZE * 0.5),
+        fill=GLINT,
+    )
+    glint = glint.filter(ImageFilter.GaussianBlur(radius=80))
+    canvas = Image.alpha_composite(canvas, glint)
+
+    draw = ImageDraw.Draw(canvas, "RGBA")
+
+    # The mark: a single serif "B" — bold, optical center.
+    font_size = int(SIZE * 0.78)
+    font = find_serif_font(font_size)
+
+    text = "B"
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_w = bbox[2] - bbox[0]
+    text_h = bbox[3] - bbox[1]
+    # Optical centering: serif glyphs sit slightly low, so nudge up.
+    tx = (SIZE - text_w) / 2 - bbox[0]
+    ty = (SIZE - text_h) / 2 - bbox[1] - SIZE * 0.02
+
+    # Subtle drop shadow.
+    shadow = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shadow)
+    sd.text((tx + 4, ty + 12), text, font=font, fill=(60, 30, 8, 80))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=14))
+    canvas = Image.alpha_composite(canvas, shadow)
+    draw = ImageDraw.Draw(canvas, "RGBA")
+
+    # Main mark in amber.
+    draw.text((tx, ty), text, font=font, fill=AMBER + (255,))
+
+    # Dark amber inner shadow on the right edge of the B for ink depth.
+    edge = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    ed = ImageDraw.Draw(edge)
+    ed.text((tx + 5, ty + 4), text, font=font, fill=AMBER_DK + (90,))
+    edge_mask = Image.new("L", (SIZE, SIZE), 0)
+    em = ImageDraw.Draw(edge_mask)
+    em.text((tx, ty), text, font=font, fill=255)
+    edge.putalpha(edge_mask)
+    canvas = Image.alpha_composite(canvas, edge)
+    draw = ImageDraw.Draw(canvas, "RGBA")
+
+    # Two thin rules above and below the mark — typographic ornament.
+    rule_y_top = SIZE * 0.16
+    rule_y_bot = SIZE - rule_y_top
+    rule_inset = SIZE * 0.30
+    draw.line(
+        [(rule_inset, rule_y_top), (SIZE - rule_inset, rule_y_top)],
+        fill=RULE_INK, width=4,
+    )
+    draw.line(
+        [(rule_inset, rule_y_bot), (SIZE - rule_inset, rule_y_bot)],
+        fill=RULE_INK, width=4,
+    )
+    # Tiny diamond ornament centered on each rule.
+    for ry in (rule_y_top, rule_y_bot):
+        d = 10
+        draw.polygon(
+            [(SIZE / 2, ry - d), (SIZE / 2 + d, ry),
+             (SIZE / 2, ry + d), (SIZE / 2 - d, ry)],
+            fill=AMBER_DK + (200,),
+        )
+
+    final = canvas.convert("RGB")
+    out_path = OUT / "icon-1024.png"
+    final.save(out_path, "PNG", optimize=True)
+    print(f"Wrote {out_path}")
+
+    contents = """{
+  "images" : [
+    {
+      "filename" : "icon-1024.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+"""
+    (OUT / "Contents.json").write_text(contents)
+    print(f"Wrote {OUT/'Contents.json'}")
+
+
+if __name__ == "__main__":
+    main()
