@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct RootTabView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selection: Tab = .library
 
     enum Tab: Hashable { case library, search, learnings, settings }
@@ -23,6 +24,11 @@ struct RootTabView: View {
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(Tab.settings)
+        }
+        .task {
+            #if DEBUG
+            await DevSeed.runIfNeeded(modelContext: modelContext)
+            #endif
         }
     }
 }

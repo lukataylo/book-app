@@ -13,6 +13,8 @@ struct LibraryView: View {
     @State private var selectedBook: Book?
     @State private var importErrorMessage: String?
 
+    @FocusState private var searchFocused: Bool
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -33,6 +35,15 @@ struct LibraryView: View {
                 }
                 .padding(.top, Theme.Spacing.m)
             }
+            .scrollDismissesKeyboard(.immediately)
+            // Tap on the empty area below content closes the keyboard without
+            // blocking scroll gestures (background hit-test, not a tap on
+            // content rows).
+            .background(
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { searchFocused = false }
+            )
             .background(Theme.Palette.appBackground.ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -51,7 +62,7 @@ struct LibraryView: View {
                 }
             }
             .navigationDestination(item: $selectedBook) { book in
-                ReaderView(book: book)
+                BookDetailView(book: book)
             }
             .alert("Couldn't import", isPresented: Binding(
                 get: { importErrorMessage != nil },
@@ -83,16 +94,26 @@ struct LibraryView: View {
     }
 
     private var searchBar: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Theme.Palette.textSecondary)
             TextField("Search books, themes, learnings…", text: $searchText)
                 .textFieldStyle(.plain)
+                .focused($searchFocused)
+                .submitLabel(.done)
+                .onSubmit { searchFocused = false }
             if !searchText.isEmpty {
                 Button { searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
+            } else if searchFocused {
+                Button("Cancel") {
+                    searchFocused = false
+                }
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.Palette.textPrimary)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .padding(.horizontal, Theme.Spacing.m)
@@ -100,6 +121,7 @@ struct LibraryView: View {
         .background(Theme.Palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
         .padding(.horizontal, Theme.Spacing.l)
+        .animation(.easeInOut(duration: 0.18), value: searchFocused)
     }
 
     private var emptyState: some View {

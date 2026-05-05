@@ -1,9 +1,16 @@
 import SwiftUI
 import SwiftData
 
-/// "AI" entry point from the reader's bottom bar. Drives the full
-/// transformation flow: pick mode → set parameters → confirm cost → run with
-/// per-chunk progress → open the new variant.
+/// Full-screen transformation studio. Pushed from BookDetailView.
+///
+/// The user composes a transformation by enabling any combination of:
+///   • **Length** — compress to N pages or expand to N pages
+///   • **Style**  — rewrite in another author's voice
+///   • **Themes** — drop content matching specific themes
+///
+/// All three are independently toggle-able and run together in a single
+/// pipeline (the engine already supports combined directives in
+/// `PromptTemplates.transformChunk`).
 struct TransformationStudioView: View {
     let book: Book
     let sourceVariant: BookVariant
@@ -11,187 +18,420 @@ struct TransformationStudioView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    @State private var kind: VariantKind = .compressed
+    // Length
+    @State private var changeLength: Bool = true
     @State private var targetPages: Double = 20
+
+    // Style
+    @State private var changeStyle: Bool = false
     @State private var styleReference: String = ""
+
+    // Themes
+    @State private var omitThemes: Bool = false
     @State private var omittedThemes: [String] = []
+
+    // Model + run
     @State private var modelOverride: LLMModel?
     @State private var estimate: CostEstimate?
     @State private var progress: TransformationProgress?
     @State private var isRunning: Bool = false
     @State private var errorText: String?
 
+    @FocusState private var styleFieldFocused: Bool
+
     private let engine = TransformationEngine()
+    private let suggestedAuthors = [
+        "Malcolm Gladwell", "Joan Didion", "Hemingway",
+        "Susan Sontag", "James Baldwin", "Annie Dillard",
+        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin"
+    ]
 
     var body: some View {
-        NavigationStack {
-            Form {
-                kindSection
-                if kind == .compressed || kind == .expanded {
-                    lengthSection
-                }
-                if kind == .styled {
-                    styleSection
-                }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.l) {
+                hero
+                lengthSection
+                styleSection
                 themesSection
                 modelSection
                 if let estimate {
-                    estimateSection(estimate)
+                    estimateCard(estimate)
                 }
                 if let progress {
-                    progressSection(progress)
-                }
-                runSection
-            }
-            .navigationTitle("Transform")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    progressCard(progress)
                 }
             }
-            .alert("Couldn't transform", isPresented: Binding(
-                get: { errorText != nil },
-                set: { if !$0 { errorText = nil } }
-            )) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(errorText ?? "")
-            }
-            .onAppear { recomputeEstimate() }
-            .onChange(of: kind)             { _, _ in recomputeEstimate() }
-            .onChange(of: targetPages)      { _, _ in recomputeEstimate() }
-            .onChange(of: styleReference)   { _, _ in recomputeEstimate() }
-            .onChange(of: omittedThemes)    { _, _ in recomputeEstimate() }
-            .onChange(of: modelOverride)    { _, _ in recomputeEstimate() }
+            .padding(.horizontal, Theme.Spacing.l)
+            .padding(.top, Theme.Spacing.m)
+            .padding(.bottom, 120)   // leaves room for the floating CTA
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .background(Theme.Palette.appBackground.ignoresSafeArea())
+        .navigationTitle("Transform")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .safeAreaInset(edge: .bottom) {
+            runCTA
+                .padding(.horizontal, Theme.Spacing.l)
+                .padding(.vertical, Theme.Spacing.s)
+                .background(
+                    LinearGradient(
+                        colors: [Theme.Palette.appBackground.opacity(0),
+                                 Theme.Palette.appBackground.opacity(0.7),
+                                 Theme.Palette.appBackground],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+        }
+        .alert("Couldn't transform", isPresented: Binding(
+            get: { errorText != nil },
+            set: { if !$0 { errorText = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorText ?? "")
+        }
+        .onAppear { recomputeEstimate() }
+        .onChange(of: changeLength)   { _, _ in recomputeEstimate() }
+        .onChange(of: targetPages)    { _, _ in recomputeEstimate() }
+        .onChange(of: changeStyle)    { _, _ in recomputeEstimate() }
+        .onChange(of: styleReference) { _, _ in recomputeEstimate() }
+        .onChange(of: omitThemes)     { _, _ in recomputeEstimate() }
+        .onChange(of: omittedThemes)  { _, _ in recomputeEstimate() }
+        .onChange(of: modelOverride)  { _, _ in recomputeEstimate() }
+    }
+
+    // MARK: - Hero
+
+    private var hero: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(book.title)
+                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .foregroundStyle(Theme.Palette.textPrimary)
+                .lineLimit(2)
+            Text("\(book.totalPagesEstimate) pages · ~\(formatTokens(estimateInputTokens())) tokens")
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.Palette.textSecondary)
         }
     }
 
-    private var kindSection: some View {
-        Section("Mode") {
-            Picker("Kind", selection: $kind) {
-                Text("Compress").tag(VariantKind.compressed)
-                Text("Expand").tag(VariantKind.expanded)
-                Text("Re-style").tag(VariantKind.styled)
-                Text("Omit themes").tag(VariantKind.themeOmitted)
-            }
-            .pickerStyle(.segmented)
-        }
-    }
+    // MARK: - Length
 
     private var lengthSection: some View {
-        Section("Target length") {
-            HStack {
-                Text("\(Int(targetPages)) pages")
-                Slider(value: $targetPages, in: 10...max(20, Double(book.totalPagesEstimate) * 4), step: 5)
+        SectionCard(
+            title: "Length",
+            subtitle: changeLength ? lengthSummary() : "Keep the original length",
+            isOn: $changeLength
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("\(Int(targetPages)) pages")
+                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                    Spacer()
+                    Text(directionLabel())
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
+                Slider(value: $targetPages,
+                       in: 10...max(20, Double(book.totalPagesEstimate) * 4),
+                       step: 5)
+                Text("Original is ~\(book.totalPagesEstimate) pages.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.Palette.textSecondary)
             }
-            Text("Original is ~\(book.totalPagesEstimate) pages.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
+    private func lengthSummary() -> String {
+        let dir = directionLabel().lowercased()
+        return "\(dir) to \(Int(targetPages)) pages"
+    }
+
+    private func directionLabel() -> String {
+        if Int(targetPages) < book.totalPagesEstimate { return "Compress" }
+        if Int(targetPages) > book.totalPagesEstimate { return "Expand" }
+        return "Same length"
+    }
+
+    // MARK: - Style
+
     private var styleSection: some View {
-        Section("Style reference") {
-            TextField("Author or book to mimic (e.g. Malcolm Gladwell)", text: $styleReference)
-            Text("The model will rewrite every passage in this voice while keeping every key idea.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        SectionCard(
+            title: "Style",
+            subtitle: changeStyle && !styleReference.isEmpty
+                ? "Sound like \(styleReference)"
+                : "Keep the author's voice",
+            isOn: $changeStyle
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                TextField("e.g. Malcolm Gladwell", text: $styleReference)
+                    .focused($styleFieldFocused)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Theme.Palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Theme.Palette.divider, lineWidth: 0.5)
+                    )
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(suggestedAuthors, id: \.self) { name in
+                            Button {
+                                styleReference = name
+                            } label: {
+                                Text(name)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 7)
+                                    .background(
+                                        Capsule()
+                                            .fill(styleReference == name
+                                                  ? Theme.Palette.textPrimary.opacity(0.08)
+                                                  : .clear)
+                                    )
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Theme.Palette.divider, lineWidth: 0.5)
+                                    )
+                                    .foregroundStyle(Theme.Palette.textPrimary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.vertical, 1)
+                }
+
+                Text("The rewrite preserves every key idea while matching the chosen voice.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+            }
         }
     }
+
+    // MARK: - Themes
 
     @ViewBuilder
     private var themesSection: some View {
         if !book.detectedThemes.isEmpty {
-            Section("Omit themes") {
-                ForEach(book.detectedThemes, id: \.self) { theme in
-                    Toggle(theme, isOn: Binding(
-                        get: { omittedThemes.contains(theme) },
-                        set: { newValue in
-                            if newValue { omittedThemes.append(theme) }
-                            else { omittedThemes.removeAll { $0 == theme } }
+            SectionCard(
+                title: "Omit themes",
+                subtitle: omitThemes && !omittedThemes.isEmpty
+                    ? omittedThemes.joined(separator: ", ")
+                    : "Keep all themes",
+                isOn: $omitThemes
+            ) {
+                FlowLayout(spacing: 6) {
+                    ForEach(book.detectedThemes, id: \.self) { theme in
+                        let on = omittedThemes.contains(theme)
+                        Button {
+                            if on { omittedThemes.removeAll { $0 == theme } }
+                            else  { omittedThemes.append(theme) }
+                        } label: {
+                            HStack(spacing: 4) {
+                                if on { Image(systemName: "xmark").font(.system(size: 10, weight: .bold)) }
+                                Text(theme).font(.system(size: 12, weight: .medium))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .foregroundStyle(on ? .white : Theme.Palette.textPrimary)
+                            .background(
+                                Capsule().fill(on ? Color.black : Color.clear)
+                            )
+                            .overlay(
+                                Capsule().stroke(
+                                    on ? Color.black : Theme.Palette.divider,
+                                    lineWidth: 0.5
+                                )
+                            )
                         }
-                    ))
+                        .buttonStyle(.plain)
+                    }
                 }
             }
+        } else {
+            SectionCard(
+                title: "Omit themes",
+                subtitle: "Detected themes will appear after auto-tagging",
+                isOn: .constant(false),
+                disabled: true
+            ) { EmptyView() }
         }
     }
+
+    // MARK: - Model
 
     private var modelSection: some View {
-        Section("Model") {
-            Picker("Use", selection: $modelOverride) {
-                Text("Auto").tag(Optional<LLMModel>.none)
-                Text("Sonnet 4.6").tag(Optional(LLMModel.claudeSonnet4_6))
-                Text("Opus 4.7").tag(Optional(LLMModel.claudeOpus4_7))
-                Text("Haiku 4.5").tag(Optional(LLMModel.claudeHaiku4_5))
-                Text("On-device").tag(Optional(LLMModel.appleFoundation))
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Model")
+                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .foregroundStyle(Theme.Palette.textPrimary)
+            HStack {
+                Text("Use")
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                Spacer()
+                Picker("", selection: $modelOverride) {
+                    Text("Auto").tag(Optional<LLMModel>.none)
+                    Text("Sonnet 4.6").tag(Optional(LLMModel.claudeSonnet4_6))
+                    Text("Opus 4.7").tag(Optional(LLMModel.claudeOpus4_7))
+                    Text("Haiku 4.5").tag(Optional(LLMModel.claudeHaiku4_5))
+                    Text("On-device").tag(Optional(LLMModel.appleFoundation))
+                }
+                .pickerStyle(.menu)
+                .tint(Theme.Palette.textPrimary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Theme.Palette.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+
+    // MARK: - Estimate / progress
+
+    private func estimateCard(_ e: CostEstimate) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Estimate")
+                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .foregroundStyle(Theme.Palette.textPrimary)
+            VStack(spacing: 0) {
+                row("Chunks", "\(e.chunkCount)")
+                Divider().background(Theme.Palette.divider)
+                row("Input tokens", formatTokens(e.inputTokens))
+                Divider().background(Theme.Palette.divider)
+                row("Output tokens (est.)", formatTokens(e.estOutputTokens))
+                Divider().background(Theme.Palette.divider)
+                row("Model", e.model.displayName)
+                Divider().background(Theme.Palette.divider)
+                row("Cost (est.)", String(format: "$%.3f", e.usd), emphasize: true)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 4)
+            .background(Theme.Palette.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+
+    private func progressCard(_ p: TransformationProgress) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Running…")
+                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .foregroundStyle(Theme.Palette.textPrimary)
+            ProgressView(value: Double(p.chunkIndex), total: Double(max(1, p.chunkCount)))
+                .tint(.black)
+            HStack {
+                Text("\(p.phase) · chunk \(p.chunkIndex)/\(p.chunkCount)")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                Spacer()
+                Text(String(format: "$%.3f", p.costUSD))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Theme.Palette.textPrimary)
             }
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Theme.Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func estimateSection(_ e: CostEstimate) -> some View {
-        Section("Estimate") {
-            row("Chunks", "\(e.chunkCount)")
-            row("Input tokens", "\(e.inputTokens)")
-            row("Output tokens (est)", "\(e.estOutputTokens)")
-            row("Model", e.model.displayName)
-            row("Cost (est)", String(format: "$%.3f", e.usd))
+    private func row(_ label: String, _ value: String, emphasize: Bool = false) -> some View {
+        HStack {
+            Text(label).foregroundStyle(Theme.Palette.textSecondary)
+            Spacer()
+            Text(value)
+                .monospacedDigit()
+                .fontWeight(emphasize ? .semibold : .regular)
+                .foregroundStyle(Theme.Palette.textPrimary)
         }
+        .font(.system(size: 14))
+        .padding(.vertical, 11)
     }
 
-    private func progressSection(_ p: TransformationProgress) -> some View {
-        Section("Progress") {
-            row("Phase", "\(p.phase)")
-            row("Chunk", "\(p.chunkIndex)/\(p.chunkCount)")
-            row("Cost so far", String(format: "$%.3f", p.costUSD))
-            ProgressView(value: Double(p.chunkIndex), total: Double(max(1, p.chunkCount)))
-        }
-    }
+    // MARK: - Run CTA
 
-    private var runSection: some View {
-        Section {
-            Button {
-                Task { await run() }
-            } label: {
-                HStack {
-                    Spacer()
-                    if isRunning {
-                        ProgressView()
-                    } else {
-                        Text("Generate variant")
-                            .fontWeight(.semibold)
-                    }
-                    Spacer()
+    private var runCTA: some View {
+        Button {
+            Task { await run() }
+        } label: {
+            HStack {
+                if isRunning {
+                    ProgressView().tint(.white)
+                } else {
+                    Text(canRun ? generateLabel() : "Enable at least one option")
+                        .font(.system(size: 16, weight: .semibold))
                 }
             }
-            .disabled(isRunning)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(canRun ? Color.black : Color.black.opacity(0.4))
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
+        .buttonStyle(.plain)
+        .disabled(!canRun || isRunning)
     }
 
-    private func row(_ label: String, _ value: String) -> some View {
-        HStack {
-            Text(label).foregroundStyle(.secondary)
-            Spacer()
-            Text(value).monospacedDigit()
-        }
+    private func generateLabel() -> String {
+        var parts: [String] = []
+        if changeLength { parts.append(directionLabel().lowercased()) }
+        if changeStyle, !styleReference.isEmpty { parts.append("restyle") }
+        if omitThemes, !omittedThemes.isEmpty { parts.append("omit themes") }
+        if parts.isEmpty { return "Generate variant" }
+        return "Generate · \(parts.joined(separator: " + "))"
     }
+
+    private var canRun: Bool {
+        if isRunning { return false }
+        let lengthChange = changeLength && Int(targetPages) != book.totalPagesEstimate
+        let styleChange  = changeStyle && !styleReference.trimmingCharacters(in: .whitespaces).isEmpty
+        let themeChange  = omitThemes && !omittedThemes.isEmpty
+        return lengthChange || styleChange || themeChange
+    }
+
+    // MARK: - Pipeline glue
 
     private var ratio: Double {
         guard book.totalPagesEstimate > 0 else { return 1 }
+        if !changeLength { return 1 }
         return targetPages / Double(book.totalPagesEstimate)
     }
 
-    private var request: TransformationRequest {
+    private var resolvedKind: VariantKind {
+        if changeStyle, !styleReference.isEmpty { return .styled }
+        if omitThemes,  !omittedThemes.isEmpty  { return .themeOmitted }
+        if changeLength {
+            return Int(targetPages) < book.totalPagesEstimate ? .compressed : .expanded
+        }
+        return .original
+    }
+
+    private var transformRequest: TransformationRequest {
         TransformationRequest(
-            kind: kind,
+            kind: resolvedKind,
             targetRatio: ratio,
-            styleReference: styleReference,
-            omittedThemes: omittedThemes,
+            styleReference: changeStyle ? styleReference : "",
+            omittedThemes: omitThemes ? omittedThemes : [],
             modelOverride: modelOverride
         )
     }
 
     private func recomputeEstimate() {
-        estimate = engine.estimate(source: sourceVariant.contentText, request: request)
+        estimate = engine.estimate(source: sourceVariant.contentText, request: transformRequest)
+    }
+
+    private func estimateInputTokens() -> Int {
+        Chunker.tokenEstimate(sourceVariant.contentText)
+    }
+
+    private func formatTokens(_ n: Int) -> String {
+        if n >= 1_000_000 { return String(format: "%.1fM", Double(n) / 1_000_000) }
+        if n >= 1_000     { return "\(n / 1_000)k" }
+        return "\(n)"
     }
 
     private func run() async {
@@ -202,13 +442,95 @@ struct TransformationStudioView: View {
                 on: book,
                 sourceText: sourceVariant.contentText,
                 sourceVariant: sourceVariant,
-                request: request,
+                request: transformRequest,
                 context: modelContext,
                 progress: { p in self.progress = p }
             )
             dismiss()
         } catch {
             errorText = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - SectionCard
+
+private struct SectionCard<Content: View>: View {
+    let title: String
+    let subtitle: String
+    @Binding var isOn: Bool
+    var disabled: Bool = false
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                    Text(subtitle)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                Toggle("", isOn: $isOn)
+                    .labelsHidden()
+                    .tint(.black)
+                    .disabled(disabled)
+            }
+            if isOn && !disabled {
+                content()
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(14)
+        .background(Theme.Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .opacity(disabled ? 0.5 : 1)
+        .animation(.easeInOut(duration: 0.18), value: isOn)
+    }
+}
+
+// MARK: - FlowLayout (chip wrap)
+
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if rowWidth + size.width > maxWidth, rowWidth > 0 {
+                totalHeight += rowHeight + spacing
+                rowWidth = 0
+                rowHeight = 0
+            }
+            rowWidth += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+        totalHeight += rowHeight
+        return CGSize(width: maxWidth, height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if x + size.width > bounds.maxX, x > bounds.minX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            view.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
         }
     }
 }

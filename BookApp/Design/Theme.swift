@@ -23,20 +23,21 @@ enum Theme {
     }
 
     enum Palette {
-        // Warm, slightly off-white background — gives the app the same
-        // "newsprint" feel as Apple Books without copying it directly.
-        static let appBackground = Color(light: "F4F0E8", dark: "0E0D0B")
-        // Cards / sheets sit on top of the background.
-        static let surface       = Color(light: "FFFFFF", dark: "1B1916")
-        // Primary text: nearly black, high-contrast.
-        static let textPrimary   = Color(light: "16140F", dark: "F2EDE3")
-        // Secondary text: warmer than gray. Still 4.5:1 against the bg.
-        static let textSecondary = Color(light: "5C5246", dark: "BFB4A1")
-        // Accent: warm amber that reads as "ink" rather than "tech".
-        static let accent        = Color(light: "C2410C", dark: "F59E0B")
-        // Subtle elevation under book covers.
-        static let bookShadow    = Color.black.opacity(0.20)
-        static let divider       = Color(light: "E2DBCD", dark: "2A2622")
+        // Editorial black-and-white — refined, high-contrast, no warmth.
+        // Inspired by Things 3, Linear, the iOS Books reader's true-black mode.
+        static let appBackground = Color(light: "FFFFFF", dark: "000000")
+        // Lifted surface for cards / sheets.
+        static let surface       = Color(light: "F5F5F4", dark: "111111")
+        // Primary text: pure ink.
+        static let textPrimary   = Color(light: "0A0A0A", dark: "FAFAFA")
+        // Secondary text: 60% ink, still WCAG-AA against the surface.
+        static let textSecondary = Color(light: "6B7280", dark: "9CA3AF")
+        // Accent: pure ink. Used for the import button + active-tab tint.
+        static let accent        = Color(light: "0A0A0A", dark: "FAFAFA")
+        // Soft elevation under book covers.
+        static let bookShadow    = Color.black.opacity(0.18)
+        // Hairline dividers.
+        static let divider       = Color(light: "E5E5E5", dark: "1F1F1F")
     }
 
     enum BookSpine {

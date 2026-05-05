@@ -51,13 +51,20 @@ struct EPUBParser: BookParser {
             let resolved = resolve(href: spineRef, base: opfBase)
             guard let raw = try? await readEntry(archive, path: resolved) else { continue }
             let html = String(data: raw, encoding: .utf8) ?? String(data: raw, encoding: .isoLatin1) ?? ""
-            let plain = Self.htmlToPlainText(html)
+            let extracted = Self.extractChapter(html: html)
+            // Skip empty / image-only spine entries (cover.xhtml, blank pages).
+            guard extracted.body.split(whereSeparator: { $0.isWhitespace }).count >= 20 else { continue }
+            // Skip Project-Gutenberg license boilerplate that nobody wants to read.
+            if Self.looksLikeBoilerplate(extracted.body) { continue }
+
+            let title = extracted.heading ?? parsed.titleForHref[spineRef]
+                ?? URL(fileURLWithPath: spineRef).deletingPathExtension().lastPathComponent
             chapters.append(ParsedChapter(
-                title: parsed.titleForHref[spineRef] ?? URL(fileURLWithPath: spineRef).deletingPathExtension().lastPathComponent,
-                text: plain,
+                title: title,
+                text: extracted.body,
                 locator: spineRef
             ))
-            fullText += plain + "\n\n"
+            fullText += "# \(title)\n\n\(extracted.body)\n\n"
         }
 
         // Cover: the OPF's <meta name="cover" content="ITEM_ID" /> points at a
@@ -82,17 +89,22 @@ struct EPUBParser: BookParser {
         #endif
     }
 
-    /// Strip HTML tags + entities. Good enough for plain-text TTS / LLM input.
-    /// (Full EPUB rendering with themes is delegated to the navigator.)
+    /// Strip HTML tags + entities. Returns clean prose with paragraph breaks
+    /// (`\n\n`) but no in-paragraph hard breaks — `<br>` becomes a space, not
+    /// a newline, so prose flows correctly. Headings are preserved as their
+    /// own paragraphs (caller adds the `#` prefix when stitching the body).
     static func htmlToPlainText(_ html: String) -> String {
         var s = html
         s = s.replacingOccurrences(of: #"<script[\s\S]*?</script>"#, with: "", options: .regularExpression)
         s = s.replacingOccurrences(of: #"<style[\s\S]*?</style>"#, with: "", options: .regularExpression)
-        let blocks = ["</p>", "</div>", "</section>", "</h1>", "</h2>", "</h3>", "</h4>", "</li>"]
+        s = s.replacingOccurrences(of: #"<head[\s\S]*?</head>"#, with: "", options: .regularExpression)
+        // Block-closing tags become paragraph breaks.
+        let blocks = ["</p>", "</div>", "</section>", "</h1>", "</h2>", "</h3>", "</h4>", "</h5>", "</h6>", "</li>", "</blockquote>"]
         for tag in blocks {
             s = s.replacingOccurrences(of: tag, with: "\n\n", options: .caseInsensitive)
         }
-        s = s.replacingOccurrences(of: "<br[^>]*>", with: "\n", options: .regularExpression)
+        // <br> within prose: collapse to a space, not a newline. Keeps lines flowing.
+        s = s.replacingOccurrences(of: "<br[^>]*>", with: " ", options: .regularExpression)
         s = s.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
         let entities: [String: String] = [
             "&nbsp;": " ", "&amp;": "&", "&lt;": "<", "&gt;": ">",
@@ -101,9 +113,65 @@ struct EPUBParser: BookParser {
             "&lsquo;": "\u{2018}", "&rsquo;": "\u{2019}"
         ]
         for (k, v) in entities { s = s.replacingOccurrences(of: k, with: v) }
+        // Collapse runs of horizontal whitespace and newlines.
         s = s.replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
+        s = s.replacingOccurrences(of: " *\\n *", with: "\n", options: .regularExpression)
         s = s.replacingOccurrences(of: "\\n{3,}", with: "\n\n", options: .regularExpression)
         return s.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Extract `(heading, body)` from a chapter's HTML.
+    /// Heading is taken from the first `<h1>`/`<h2>`/`<h3>`. The body is the
+    /// rest of the chapter with the heading element removed so the rendered
+    /// page doesn't show the title twice.
+    static func extractChapter(html: String) -> (heading: String?, body: String) {
+        let pattern = #"<h([1-3])[^>]*>([\s\S]*?)</h\1>"#
+        var heading: String?
+        var bodyHTML = html
+        let ns = html as NSString
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+           let match = regex.firstMatch(in: html, range: NSRange(location: 0, length: ns.length)) {
+            let raw = ns.substring(with: match.range(at: 2))
+            let cleaned = htmlToPlainText(raw)
+                .replacingOccurrences(of: "\n", with: " ")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !cleaned.isEmpty, cleaned.count <= 120 {
+                heading = cleaned
+                // Strip the entire heading tag from the HTML so it isn't
+                // rendered again in the body.
+                bodyHTML = ns.replacingCharacters(in: match.range, with: "")
+            }
+        }
+        var body = htmlToPlainText(bodyHTML)
+        // Final guard: if the first plain-text paragraph matches the heading,
+        // drop it (some EPUBs put the title both in <h1> and in a sibling <p>).
+        if let h = heading {
+            let normHeading = h.lowercased().filter { !$0.isWhitespace }
+            let paragraphs = body.components(separatedBy: "\n\n")
+            if let first = paragraphs.first {
+                let normFirst = first.lowercased().filter { !$0.isWhitespace }
+                if normFirst == normHeading {
+                    body = paragraphs.dropFirst().joined(separator: "\n\n")
+                }
+            }
+        }
+        return (heading, body)
+    }
+
+    /// Heuristic: spine entries that are just Project Gutenberg license / preamble.
+    static func looksLikeBoilerplate(_ text: String) -> Bool {
+        let head = text.prefix(800).lowercased()
+        let signals = [
+            "project gutenberg",
+            "this ebook is for the use of anyone",
+            "you may copy it, give it away or re-use",
+            "start of the project gutenberg ebook",
+            "end of the project gutenberg ebook",
+            "produced by",
+            "transcriber's note"
+        ]
+        let hits = signals.reduce(0) { $0 + (head.contains($1) ? 1 : 0) }
+        return hits >= 2
     }
 
     // MARK: - Private
