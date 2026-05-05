@@ -15,8 +15,25 @@ final class ReaderViewModel {
     var sheet: Sheet?
 
     enum Sheet: Identifiable {
-        case readerSettings, ttsSettings, speedReader, transformations, learnings
+        case readerSettings, ttsSettings, speedReader, transformations, learnings, chapters
         var id: String { String(describing: self) }
+    }
+
+    /// Pre-computed chapter index for the current variant. Driven by `# Heading`
+    /// markers in `contentText`; works identically for the original EPUB and
+    /// any AI-transformed variant since both keep heading lines.
+    var chapters: [ChapterMark] {
+        var marks: [ChapterMark] = []
+        for (idx, p) in paragraphs.enumerated() where p.hasPrefix("# ") {
+            let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+            marks.append(ChapterMark(title: title, paragraphIndex: idx))
+        }
+        return marks
+    }
+
+    struct ChapterMark: Hashable {
+        let title: String
+        let paragraphIndex: Int
     }
 
     init(book: Book, variant: BookVariant? = nil) {

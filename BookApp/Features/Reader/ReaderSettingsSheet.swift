@@ -62,6 +62,18 @@ struct ReaderSettingsSheet: View {
 
                     Toggle("Hyphenation", isOn: $settings.hyphenation)
                         .onChange(of: settings.hyphenation) { _, _ in persist() }
+
+                    Toggle("Drop caps at chapter starts", isOn: $settings.dropCaps)
+                        .onChange(of: settings.dropCaps) { _, _ in persist() }
+                }
+                Section("Scroll") {
+                    Toggle("Page-by-page", isOn: $settings.paginatedScroll)
+                        .onChange(of: settings.paginatedScroll) { _, _ in persist() }
+                    Text(settings.paginatedScroll
+                         ? "Each scroll snaps to the next viewport — like turning a page."
+                         : "Continuous scroll — read at your own pace.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
             .navigationTitle("Reader settings")

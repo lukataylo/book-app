@@ -51,6 +51,11 @@ final class ReaderSettings {
     var paragraphSpacing: Double = 8
     var hyphenation: Bool = true
     var pageTurnAnimation: Bool = true
+    /// When `true`, the reader's `ScrollView` snaps to viewport boundaries so
+    /// each scroll lands on a "page" rather than mid-paragraph.
+    var paginatedScroll: Bool = false
+    /// Drop caps on the first paragraph after a `# Heading` line.
+    var dropCaps: Bool = true
 
     init(id: UUID = UUID()) {
         self.id = id

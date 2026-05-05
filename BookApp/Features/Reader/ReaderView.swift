@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Reader UI — clean reflowable text with a glassy floating control bar,
 /// tap-to-page zones, and a scroll-progress indicator at the top.
@@ -27,6 +30,8 @@ struct ReaderView: View {
     @State private var viewportHeight: CGFloat = 1
     @State private var scrollPosition = ScrollPosition()
     @State private var ttsEngine = TTSEngine.shared
+    @State private var savedToast: String?
+    @StateObject private var stats = ReadingStats.shared
 
     init(book: Book, variant: BookVariant? = nil) {
         self.book = book
@@ -60,9 +65,21 @@ struct ReaderView: View {
                     .foregroundStyle(textColor.opacity(0.85))
                     .lineLimit(1)
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel?.sheet = .chapters
+                } label: {
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(textColor.opacity(0.85))
+                }
+                .accessibilityLabel("Chapters")
+            }
         }
         .statusBarHidden(!showsChrome)
         .preferredColorScheme(settings.theme == .dark || settings.theme == .black ? .dark : .light)
+        .onAppear { stats.start() }
+        .onDisappear { stats.stop() }
     }
 
     @ViewBuilder
@@ -71,8 +88,8 @@ struct ReaderView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: settings.paragraphSpacing) {
-                        ForEach(Array(blocks.enumerated()), id: \.offset) { idx, block in
-                            blockView(block)
+                        ForEach(Array(blocksWithContext.enumerated()), id: \.offset) { idx, item in
+                            blockView(item.block, isFirstAfterHeading: item.firstAfterHeading)
                                 .id(idx)
                         }
                         // Bottom spacer so content can scroll above the bar.
@@ -80,6 +97,9 @@ struct ReaderView: View {
                     }
                     .padding(.horizontal, settings.margin.horizontalPadding)
                     .padding(.top, Theme.Spacing.l)
+                    .frame(maxWidth: 720, alignment: .leading)         // measure cap
+                    .frame(maxWidth: .infinity, alignment: .center)    // centre on iPad
+                    .scrollTargetLayout()
                     .background(
                         GeometryReader { geo in
                             Color.clear
@@ -87,6 +107,7 @@ struct ReaderView: View {
                         }
                     )
                 }
+                .modifier(PagingModifier(enabled: settings.paginatedScroll))
                 .onPreferenceChange(ContentHeightKey.self) { contentHeight = max(1, $0) }
                 .scrollPositionTracking(progress: $scrollProgress, container: $viewportHeight)
                 .scrollPosition($scrollPosition)
@@ -124,6 +145,18 @@ struct ReaderView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(2)
             }
+
+            if let toast = savedToast {
+                Text(toast)
+                    .font(.system(size: 13, weight: .semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .padding(.bottom, 110)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .zIndex(3)
+                    .accessibilityLabel(toast)
+            }
         }
         .sheet(item: Binding(
             get: { viewModel.sheet },
@@ -145,29 +178,48 @@ struct ReaderView: View {
                     .presentationDetents([.medium, .large])
             case .learnings:
                 BookLearningsView(book: book)
+            case .chapters:
+                ChapterListSheet(
+                    chapters: viewModel.chapters.map {
+                        ChapterListSheet.ChapterMark(title: $0.title, paragraphIndex: $0.paragraphIndex)
+                    },
+                    currentParagraph: viewModel.currentParagraph
+                ) { chapter in
+                    viewModel.currentParagraph = chapter.paragraphIndex
+                }
+                .presentationDetents([.medium, .large])
             }
         }
     }
 
     // MARK: - Block model
 
-    private enum Block: Hashable {
+    enum Block: Hashable {
         case heading(String)
         case paragraph(String)
     }
 
-    private var blocks: [Block] {
+    /// All blocks in reading order, paired with whether they are the first
+    /// paragraph after a `# Heading` (for drop-cap rendering).
+    private var blocksWithContext: [(block: Block, firstAfterHeading: Bool)] {
         guard let viewModel else { return [] }
-        return viewModel.paragraphs.map { p in
+        var result: [(Block, Bool)] = []
+        var prevWasHeading = false
+        for p in viewModel.paragraphs {
             if p.hasPrefix("# ") {
-                return .heading(String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces))
+                let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                result.append((.heading(title), false))
+                prevWasHeading = true
+            } else {
+                result.append((.paragraph(p), prevWasHeading))
+                prevWasHeading = false
             }
-            return .paragraph(p)
         }
+        return result
     }
 
     @ViewBuilder
-    private func blockView(_ block: Block) -> some View {
+    private func blockView(_ block: Block, isFirstAfterHeading: Bool) -> some View {
         switch block {
         case .heading(let text):
             Text(text)
@@ -176,11 +228,91 @@ struct ReaderView: View {
                 .padding(.top, Theme.Spacing.l)
                 .padding(.bottom, Theme.Spacing.xs)
         case .paragraph(let text):
-            Text(text)
-                .font(Typography.reader(settings.font, size: settings.fontSize))
-                .foregroundStyle(textColor)
+            Text(paragraphAttributed(text, dropCap: isFirstAfterHeading && settings.dropCaps))
                 .lineSpacing((settings.lineSpacing - 1) * settings.fontSize)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.enabled)
+                .contextMenu {
+                    Button {
+                        saveLearning(text: text)
+                    } label: {
+                        Label("Save as Learning", systemImage: "lightbulb.fill")
+                    }
+                    Button {
+                        saveAnnotation(text: text)
+                    } label: {
+                        Label("Highlight", systemImage: "highlighter")
+                    }
+                    Button {
+                        UIPasteboard.general.string = text
+                    } label: {
+                        Label("Copy paragraph", systemImage: "doc.on.doc")
+                    }
+                }
+        }
+    }
+
+    /// Build the paragraph as an `AttributedString` so the body font + drop
+    /// cap can co-exist on the same `Text` view (avoids HStack drop-cap
+    /// hacks that don't reflow with the rest of the line).
+    private func paragraphAttributed(_ text: String, dropCap: Bool) -> AttributedString {
+        var attr = AttributedString(text)
+        attr.font = Typography.reader(settings.font, size: settings.fontSize)
+        attr.foregroundColor = textColor
+        guard dropCap, !text.isEmpty else { return attr }
+        let firstStart = attr.startIndex
+        let firstEnd   = attr.index(firstStart, offsetByCharacters: 1)
+        attr[firstStart..<firstEnd].font = .system(
+            size: settings.fontSize * 2.4,
+            weight: .semibold,
+            design: .serif
+        )
+        attr[firstStart..<firstEnd].foregroundColor = textColor
+        return attr
+    }
+
+    // MARK: - Save actions
+
+    private func saveLearning(text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let learning = KeyLearning(
+            book: book,
+            text: String(trimmed.prefix(500)),
+            chapterRef: currentChapterTitle(),
+            userEdited: true
+        )
+        modelContext.insert(learning)
+        try? modelContext.save()
+        showToast("Saved to learnings")
+    }
+
+    private func saveAnnotation(text: String) {
+        let annotation = Annotation(
+            book: book,
+            variantID: viewModel?.currentVariant.id,
+            quotedText: String(text.prefix(800)),
+            note: "",
+            color: .yellow
+        )
+        modelContext.insert(annotation)
+        try? modelContext.save()
+        showToast("Highlight saved")
+    }
+
+    private func currentChapterTitle() -> String {
+        guard let vm = viewModel else { return "" }
+        let chapters = vm.chapters
+        guard !chapters.isEmpty else { return "" }
+        let current = vm.currentParagraph
+        let active = chapters.last(where: { $0.paragraphIndex <= current })
+        return active?.title ?? ""
+    }
+
+    private func showToast(_ message: String) {
+        withAnimation(.easeOut(duration: 0.18)) { savedToast = message }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            withAnimation(.easeIn(duration: 0.2)) { savedToast = nil }
         }
     }
 
@@ -215,6 +347,14 @@ struct ReaderView: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 4) {
+                // Mini "now playing" strip when narrating — replaces the static
+                // page indicator with the paragraph snippet currently being read.
+                if isPlaying, !ttsEngine.currentText.isEmpty {
+                    miniPlayerStrip()
+                        .padding(.horizontal, 18)
+                        .padding(.bottom, 2)
+                }
+
                 HStack(spacing: 0) {
                     // Page / state indicator on the far left.
                     Text(isPlaying ? "Listening" : progressText())
@@ -263,8 +403,21 @@ struct ReaderView: View {
         }
     }
 
+    /// "12 min left" computed from `book.totalWordsEstimate` and the user's
+    /// scroll progress, assuming a 250 wpm reading rate. Falls back to a
+    /// page-based count if word counts aren't populated yet.
     private func progressText() -> String {
         let pct = scrollProgress.clamped()
+        let totalWords = book.totalWordsEstimate
+        if totalWords > 250 {
+            let remaining = max(0, Double(totalWords) * (1.0 - pct))
+            let mins = Int(remaining / 250)
+            if mins == 0 { return "Almost done" }
+            if mins < 60 { return "\(mins) min left" }
+            let h = mins / 60
+            let m = mins % 60
+            return m == 0 ? "\(h) h left" : "\(h)h \(m)m left"
+        }
         let pages = max(1, book.totalPagesEstimate)
         let currentPage = max(1, Int(pct * Double(pages)).clampedToPages(pages))
         return "\(currentPage) / \(pages)"
@@ -301,6 +454,45 @@ struct ReaderView: View {
             try? modelContext.save()
             settings = s
         }
+    }
+
+    /// Compact "now reading" strip — paragraph snippet + skip controls, shown
+    /// only while TTSEngine is playing.
+    @ViewBuilder
+    private func miniPlayerStrip() -> some View {
+        let snippet = ttsEngine.currentText.replacingOccurrences(of: "\n", with: " ")
+        HStack(spacing: 10) {
+            Image(systemName: "waveform")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(textColor.opacity(0.85))
+            Text(snippet)
+                .font(.system(size: 13, weight: .regular, design: .serif))
+                .foregroundStyle(textColor.opacity(0.95))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                ttsEngine.skipBackward()
+            } label: {
+                Image(systemName: "backward.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 28, height: 22)
+            }
+            Button {
+                ttsEngine.skipForward()
+            } label: {
+                Image(systemName: "forward.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 28, height: 22)
+            }
+        }
+        .foregroundStyle(textColor.opacity(0.85))
+        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(textColor.opacity(0.10), lineWidth: 0.5)
+        )
     }
 }
 
@@ -400,6 +592,21 @@ private extension Double {
 
 private extension Int {
     func clampedToPages(_ total: Int) -> Int { Swift.max(1, Swift.min(total, self)) }
+}
+
+/// Conditional paging behaviour — applies `.scrollTargetBehavior(.paging)`
+/// only when `enabled`. Default `.viewAligned` is implicit when off.
+private struct PagingModifier: ViewModifier {
+    let enabled: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if enabled {
+            content.scrollTargetBehavior(.paging)
+        } else {
+            content
+        }
+    }
 }
 
 /// Tracks vertical scroll progress (0…1) plus the viewport height so the

@@ -6,10 +6,35 @@ struct SettingsView: View {
     @State private var apiKey: String = ""
     @State private var keySaved: Bool = false
     @State private var monthlySpend: Double = 0
+    @StateObject private var stats = ReadingStats.shared
 
     var body: some View {
         NavigationStack {
             Form {
+                Section("Reading") {
+                    HStack {
+                        Text("Current streak")
+                        Spacer()
+                        Text(stats.currentStreak == 1 ? "1 day" : "\(stats.currentStreak) days")
+                            .foregroundStyle(stats.currentStreak > 0 ? Theme.Palette.textPrimary : Theme.Palette.textSecondary)
+                            .monospacedDigit()
+                    }
+                    HStack {
+                        Text("This week")
+                        Spacer()
+                        Text(formatMinutes(stats.minutesThisWeek))
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("All time")
+                        Spacer()
+                        Text(formatMinutes(stats.minutesAllTime))
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("AI") {
                     SecureField("Anthropic API key", text: $apiKey)
                         .textContentType(.password)
@@ -66,5 +91,12 @@ struct SettingsView: View {
         monthlySpend = variants
             .filter { cal.isDate($0.generatedAt, equalTo: now, toGranularity: .month) }
             .reduce(0) { $0 + $1.costUSD }
+    }
+
+    private func formatMinutes(_ mins: Int) -> String {
+        if mins < 60 { return "\(mins) min" }
+        let h = mins / 60
+        let m = mins % 60
+        return m == 0 ? "\(h) h" : "\(h)h \(m)m"
     }
 }
