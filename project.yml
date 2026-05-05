@@ -47,8 +47,15 @@ targets:
         excludes:
           - "Supporting/Info.plist"
           - "Supporting/BookApp.entitlements"
-    resources:
-      - path: BookApp/Resources
+          - "Resources/SeedBooks"     # added below as folder reference
+      # Folder-reference (blue folder) for SeedBooks so each book's files
+      # — including identically-named `original.epub`, `cover.jpg`,
+      # `meta.json` — survive into the .app bundle under their parent slug
+      # rather than colliding at the bundle root. SeedBooksLoader walks
+      # this directory at first launch.
+      - path: BookApp/Resources/SeedBooks
+        type: folder
+        buildPhase: resources
         optional: true
     dependencies:
       - package: Readium

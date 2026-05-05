@@ -41,3 +41,4 @@ ApiKeys.plist
 
 # User-specific Anthropic key file (key lives in Keychain at runtime)
 .anthropic_key
+scripts/__pycache__/

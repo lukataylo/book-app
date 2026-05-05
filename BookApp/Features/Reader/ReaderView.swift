@@ -24,6 +24,8 @@ struct ReaderView: View {
     @State private var showsChrome: Bool = true
     @State private var scrollProgress: Double = 0
     @State private var contentHeight: CGFloat = 1
+    @State private var viewportHeight: CGFloat = 1
+    @State private var scrollPosition = ScrollPosition()
 
     init(book: Book, variant: BookVariant? = nil) {
         self.book = book
@@ -72,8 +74,8 @@ struct ReaderView: View {
                             blockView(block)
                                 .id(idx)
                         }
-                        // Bottom spacer so content can scroll above the floating bar.
-                        Color.clear.frame(height: 120)
+                        // Bottom spacer so content can scroll above the bar.
+                        Color.clear.frame(height: 90)
                     }
                     .padding(.horizontal, settings.margin.horizontalPadding)
                     .padding(.top, Theme.Spacing.l)
@@ -85,13 +87,15 @@ struct ReaderView: View {
                     )
                 }
                 .onPreferenceChange(ContentHeightKey.self) { contentHeight = max(1, $0) }
-                .scrollPositionTracking(progress: $scrollProgress)
+                .scrollPositionTracking(progress: $scrollProgress, container: $viewportHeight)
+                .scrollPosition($scrollPosition)
                 .onChange(of: viewModel.currentParagraph) { _, newValue in
                     withAnimation { proxy.scrollTo(newValue, anchor: .top) }
                 }
             }
 
-            // Tap zones for page navigation. They sit BEHIND the chrome via zIndex.
+            // Tap zones — left pages back one viewport, right pages forward,
+            // centre toggles chrome.
             HStack(spacing: 0) {
                 tapZone(action: .pageBack)
                 tapZone(action: .toggleChrome)
@@ -99,7 +103,7 @@ struct ReaderView: View {
             }
             .zIndex(0)
 
-            // Scroll progress: thin line at the very top.
+            // Top progress hairline.
             VStack(spacing: 0) {
                 ProgressBar(progress: scrollProgress, tint: textColor.opacity(0.6))
                     .frame(height: 2)
@@ -110,7 +114,6 @@ struct ReaderView: View {
             .allowsHitTesting(false)
             .ignoresSafeArea(edges: .top)
 
-            // iOS Books-style bottom bar: gradient fade + minimal black-on-light row.
             if showsChrome {
                 bottomBar(viewModel: viewModel)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -193,12 +196,27 @@ struct ReaderView: View {
         switch action {
         case .toggleChrome:
             withAnimation(.easeOut(duration: 0.18)) { showsChrome.toggle() }
-        case .pageForward, .pageBack:
-            // ScrollView page-by-viewport — relies on the ScrollView's
-            // built-in animation. We adjust scrollProgress by ~0.05 of the
-            // total which approximates a viewport on most devices.
-            // (A fully paginated reader is on the roadmap.)
-            break
+        case .pageForward:
+            advanceByViewport(forward: true)
+        case .pageBack:
+            advanceByViewport(forward: false)
+        }
+    }
+
+    /// Move the scroll position by one viewport (~ a "page"), with animation.
+    private func advanceByViewport(forward: Bool) {
+        guard let vm = viewModel else { return }
+        let total = max(1, contentHeight - viewportHeight)
+        let currentY = scrollProgress * Double(total)
+        let step = Double(viewportHeight) * 0.92      // ~one viewport, slight overlap
+        let nextY = max(0, min(Double(total), currentY + (forward ? step : -step)))
+        let nextProgress = nextY / Double(total)
+        // Translate progress back to a paragraph index for ScrollViewReader to scroll to.
+        let paragraphCount = max(1, vm.paragraphs.count)
+        let targetIndex = max(0, min(paragraphCount - 1, Int(nextProgress * Double(paragraphCount))))
+        withAnimation(.easeOut(duration: 0.22)) {
+            scrollPosition.scrollTo(y: nextY)
+            vm.currentParagraph = targetIndex
         }
     }
 
@@ -214,27 +232,27 @@ struct ReaderView: View {
         let isDark = settings.theme == .dark || settings.theme == .black
         let bg = backgroundColor
 
-        ZStack(alignment: .bottom) {
-            // Gradient fade lifts the controls off the prose for legibility.
+        VStack(spacing: 0) {
+            // Gradient fade lifts the controls off the prose so the bar's
+            // contents stay legible regardless of underlying text.
             LinearGradient(
-                colors: [bg.opacity(0), bg.opacity(0.6), bg.opacity(0.95), bg],
+                colors: [bg.opacity(0), bg.opacity(0.55), bg.opacity(0.92), bg],
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 180)
+            .frame(height: 84)
             .allowsHitTesting(false)
 
-            VStack(spacing: 8) {
-                HStack(spacing: 12) {
+            VStack(spacing: 6) {
+                HStack(spacing: 10) {
                     // Page indicator on the left.
                     Text(progressText())
-                        .font(.system(size: 13, weight: .medium, design: .monospaced))
-                        .foregroundStyle(textColor.opacity(0.65))
-                        .frame(minWidth: 64, alignment: .leading)
+                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .foregroundStyle(textColor.opacity(0.6))
+                        .frame(minWidth: 56, alignment: .leading)
 
-                    Spacer(minLength: 8)
-
-                    // Read · Listen segmented pill (sits on a hairline-bordered capsule).
+                    // Read · Listen segmented pill — given enough room that
+                    // "Listen" never wraps.
                     SegmentedPill(
                         items: [.init(label: "Read", icon: nil),
                                 .init(label: "Listen", icon: nil)],
@@ -243,10 +261,10 @@ struct ReaderView: View {
                     ) { idx in
                         if idx == 1 { viewModel.sheet = .ttsSettings }
                     }
+                    .layoutPriority(1)
 
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 6)
 
-                    // Trailing icon set: Speed · Aa · AI.
                     IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
                         viewModel.sheet = .speedReader
                     }
@@ -257,23 +275,22 @@ struct ReaderView: View {
                         viewModel.sheet = .transformations
                     }
                 }
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 14)
 
-                // Collapse chevron — tapping it hides the bar (same as tapping centre of page).
+                // Tiny collapse chevron — small, unobtrusive.
                 Button {
                     withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
                 } label: {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(textColor.opacity(0.4))
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 14)
+                        .frame(width: 36, height: 18)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.bottom, 6)
+            .padding(.bottom, 2)
+            .background(bg)
         }
-        .frame(height: 180, alignment: .bottom)
     }
 
     private func progressText() -> String {
@@ -417,28 +434,39 @@ private extension Int {
     func clampedToPages(_ total: Int) -> Int { Swift.max(1, Swift.min(total, self)) }
 }
 
-/// Tracks vertical scroll progress (0…1) by reading the scroll offset against
-/// the content height. Backed by `scrollPosition(_:)` on iOS 17+ and a
-/// preference-key fallback otherwise.
+/// Tracks vertical scroll progress (0…1) plus the viewport height so the
+/// reader can page-flip by one viewport on tap.
 private extension View {
-    func scrollPositionTracking(progress: Binding<Double>) -> some View {
-        self.modifier(ScrollProgressModifier(progress: progress))
+    func scrollPositionTracking(
+        progress: Binding<Double>,
+        container: Binding<CGFloat>
+    ) -> some View {
+        self.modifier(ScrollProgressModifier(progress: progress, container: container))
     }
 }
 
 private struct ScrollProgressModifier: ViewModifier {
     @Binding var progress: Double
+    @Binding var container: CGFloat
+
     func body(content: Content) -> some View {
         content
-            .background(GeometryReader { outer in
-                Color.clear
-                    .onChange(of: outer.size) { _, _ in /* layout pass */ }
-            })
-            .onScrollGeometryChange(for: Double.self) { geo in
-                let total = max(1, geo.contentSize.height - geo.containerSize.height)
-                return Double(geo.contentOffset.y) / Double(total)
+            .onScrollGeometryChange(for: ScrollGeo.self) { geo in
+                ScrollGeo(
+                    offset: geo.contentOffset.y,
+                    contentSize: geo.contentSize.height,
+                    containerSize: geo.containerSize.height
+                )
             } action: { _, newValue in
-                progress = newValue
+                let total = max(1, newValue.contentSize - newValue.containerSize)
+                progress  = Double(newValue.offset) / Double(total)
+                container = newValue.containerSize
             }
+    }
+
+    private struct ScrollGeo: Equatable {
+        var offset: CGFloat
+        var contentSize: CGFloat
+        var containerSize: CGFloat
     }
 }

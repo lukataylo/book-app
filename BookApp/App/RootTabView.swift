@@ -26,7 +26,11 @@ struct RootTabView: View {
                 .tag(Tab.settings)
         }
         .task {
+            // Production demo content — runs once on first launch.
+            await SeedBooksLoader.runIfNeeded(modelContext: modelContext)
             #if DEBUG
+            // Dev convenience: any EPUB / PDF dropped into the simulator's
+            // Documents/_seed/ folder gets imported on next launch.
             await DevSeed.runIfNeeded(modelContext: modelContext)
             #endif
         }

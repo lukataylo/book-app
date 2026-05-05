@@ -12,7 +12,7 @@ import UIKit
 /// versions). Tapping a variant opens the reader. The "Generate variant"
 /// CTA opens the Transformation Studio.
 struct BookDetailView: View {
-    let book: Book
+    @Bindable var book: Book
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss

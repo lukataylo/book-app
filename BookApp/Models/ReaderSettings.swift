@@ -19,9 +19,9 @@ enum ReaderMargin: String, Codable, CaseIterable, Sendable {
 
     var horizontalPadding: Double {
         switch self {
-        case .narrow: return 16
-        case .medium: return 28
-        case .wide:   return 44
+        case .narrow: return 22
+        case .medium: return 34
+        case .wide:   return 52
         }
     }
 }
@@ -44,11 +44,11 @@ enum ReaderFont: String, Codable, CaseIterable, Sendable {
 final class ReaderSettings {
     var id: UUID = UUID()
     var fontRaw: String = ReaderFont.iowanOldStyle.rawValue
-    var fontSize: Double = 18
-    var lineSpacing: Double = 1.4
+    var fontSize: Double = 19
+    var lineSpacing: Double = 1.55
     var marginRaw: String = ReaderMargin.medium.rawValue
     var themeRaw: String = ReaderTheme.light.rawValue
-    var paragraphSpacing: Double = 12
+    var paragraphSpacing: Double = 8
     var hyphenation: Bool = true
     var pageTurnAnimation: Bool = true
 

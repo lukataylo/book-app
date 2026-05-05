@@ -1,0 +1,48 @@
+{
+  "slug": "prince-machiavelli",
+  "title": "The Prince",
+  "author": "Niccol\u00f2 Machiavelli",
+  "language": "en",
+  "categories": [
+    "Philosophy",
+    "Politics"
+  ],
+  "themes": [
+    "power",
+    "statecraft",
+    "fortune",
+    "virtue",
+    "leadership"
+  ],
+  "source_words": 49605,
+  "source_pages_est": 198,
+  "variants": [
+    {
+      "file": "compressed-10.txt",
+      "kind": "compressed",
+      "target_pages": 10,
+      "style_reference": "",
+      "model": "claude-sonnet-4-6",
+      "skipped_existing": true
+    },
+    {
+      "file": "compressed-30.txt",
+      "kind": "compressed",
+      "target_pages": 30,
+      "style_reference": "",
+      "model": "claude-sonnet-4-6",
+      "skipped_existing": true
+    },
+    {
+      "file": "restyled-harari.txt",
+      "kind": "styled",
+      "target_pages": 25,
+      "style_reference": "Yuval Noah Harari",
+      "model": "claude-opus-4-7",
+      "input_tokens": 194,
+      "cached_input_tokens": 0,
+      "output_tokens": 6998,
+      "cost_usd": 0.5278
+    }
+  ]
+}

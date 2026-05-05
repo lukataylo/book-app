@@ -57,14 +57,24 @@ struct EPUBParser: BookParser {
             // Skip Project-Gutenberg license boilerplate that nobody wants to read.
             if Self.looksLikeBoilerplate(extracted.body) { continue }
 
-            let title = extracted.heading ?? parsed.titleForHref[spineRef]
+            // Only emit a `# Heading` marker when we actually parsed a real
+            // heading. Filename-style spine hrefs (`1232-h-1.htm`,
+            // hash-prefixed slugs) make terrible chapter titles when shown
+            // verbatim, so we leave them out of the body and only keep them
+            // for the chapters index.
+            let titleForIndex = extracted.heading
+                ?? parsed.titleForHref[spineRef]
                 ?? URL(fileURLWithPath: spineRef).deletingPathExtension().lastPathComponent
             chapters.append(ParsedChapter(
-                title: title,
+                title: titleForIndex,
                 text: extracted.body,
                 locator: spineRef
             ))
-            fullText += "# \(title)\n\n\(extracted.body)\n\n"
+            if let h = extracted.heading {
+                fullText += "# \(h)\n\n\(extracted.body)\n\n"
+            } else {
+                fullText += "\(extracted.body)\n\n"
+            }
         }
 
         // Cover: the OPF's <meta name="cover" content="ITEM_ID" /> points at a
@@ -117,7 +127,43 @@ struct EPUBParser: BookParser {
         s = s.replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
         s = s.replacingOccurrences(of: " *\\n *", with: "\n", options: .regularExpression)
         s = s.replacingOccurrences(of: "\\n{3,}", with: "\n\n", options: .regularExpression)
+        // Project Gutenberg HTML often wraps every visual line in its own
+        // `<p>` tag, which produces a cascade of half-sentence paragraphs
+        // after our `</p>` → `\n\n` substitution. Merge any "paragraph"
+        // that doesn't end with sentence-terminating punctuation into the
+        // next one.
+        s = mergeFragmentedParagraphs(s)
         return s.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Joins consecutive paragraphs whose first does not end with `.`, `!`,
+    /// `?`, `:`, `”`, `"`, `…`, or a closing quote so the running text
+    /// reflows like prose instead of a per-line dump.
+    private static func mergeFragmentedParagraphs(_ text: String) -> String {
+        let parts = text.components(separatedBy: "\n\n")
+        guard parts.count > 1 else { return text }
+        let terminals: Set<Character> = [".", "!", "?", ":", "”", "\"", "…", "’", "'", ")"]
+        var out: [String] = []
+        var buffer = ""
+        for part in parts {
+            let trimmed = part.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty { continue }
+            // Headings (start with "# ") and very long paragraphs always end
+            // a paragraph regardless of trailing punctuation.
+            let isHeading = trimmed.hasPrefix("# ")
+            if isHeading {
+                if !buffer.isEmpty { out.append(buffer); buffer = "" }
+                out.append(trimmed)
+                continue
+            }
+            buffer = buffer.isEmpty ? trimmed : "\(buffer) \(trimmed)"
+            if let last = trimmed.last, terminals.contains(last), buffer.count > 40 {
+                out.append(buffer)
+                buffer = ""
+            }
+        }
+        if !buffer.isEmpty { out.append(buffer) }
+        return out.joined(separator: "\n\n")
     }
 
     /// Extract `(heading, body)` from a chapter's HTML.
