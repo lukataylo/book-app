@@ -110,6 +110,10 @@ enum SeedBooksLoader {
         book.author = meta.author
         if !meta.categories.isEmpty { book.categoryTags = meta.categories }
         if !meta.themes.isEmpty     { book.detectedThemes = meta.themes }
+        // Tag the book with its seed slug so `bookAlreadyImported` can detect
+        // a re-run even if the UserDefaults completion flag is wiped (e.g.
+        // user reinstalls from a backup but keeps the SwiftData store).
+        book.notes = "seed:\(meta.slug)"
 
         // Fallback cover when the parser didn't pick one up.
         if book.coverData == nil,

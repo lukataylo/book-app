@@ -15,7 +15,7 @@ final class ReaderViewModel {
     var sheet: Sheet?
 
     enum Sheet: Identifiable {
-        case readerSettings, ttsSettings, speedReader, transformations, learnings, chapters
+        case readerSettings, ttsSettings, speedReader, transformations, chapters
         var id: String { String(describing: self) }
     }
 

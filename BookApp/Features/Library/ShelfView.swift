@@ -34,11 +34,8 @@ struct ShelfView: View {
                     }
                 }
                 Spacer()
-                if books.count > 4 {
-                    Button("See all") {}
-                        .font(Typography.micro)
-                        .foregroundStyle(Theme.Palette.accent)
-                }
+                // "See all" used to live here but pointed nowhere — leaving it
+                // out until there's a filtered category screen to push to.
             }
             .padding(.horizontal, Theme.Spacing.l)
 

@@ -31,6 +31,7 @@ struct ReaderView: View {
     @State private var scrollPosition = ScrollPosition()
     @State private var ttsEngine = TTSEngine.shared
     @State private var savedToast: String?
+    @State private var persistTask: Task<Void, Never>?
     @StateObject private var stats = ReadingStats.shared
 
     init(book: Book, variant: BookVariant? = nil) {
@@ -114,6 +115,12 @@ struct ReaderView: View {
                 .onChange(of: viewModel.currentParagraph) { _, newValue in
                     withAnimation { proxy.scrollTo(newValue, anchor: .top) }
                 }
+                .onChange(of: scrollProgress) { _, newValue in
+                    // Debounce progress writes — every observable scroll tick
+                    // shouldn't pound the model context. We persist after the
+                    // scroll has come to rest (handled by debounce task).
+                    schedulePersistProgress(percent: newValue)
+                }
             }
 
             // When the chrome is hidden the whole content area becomes a
@@ -176,8 +183,6 @@ struct ReaderView: View {
             case .transformations:
                 TransformationStudioView(book: book, sourceVariant: viewModel.currentVariant)
                     .presentationDetents([.medium, .large])
-            case .learnings:
-                BookLearningsView(book: book)
             case .chapters:
                 ChapterListSheet(
                     chapters: viewModel.chapters.map {
@@ -308,6 +313,24 @@ struct ReaderView: View {
         return active?.title ?? ""
     }
 
+    /// Debounced reading-progress persist. Cancels any in-flight write and
+    /// queues a fresh one 600ms in the future. The first scroll tick of a
+    /// session also bumps `lastOpenedAt` so the library sort is meaningful.
+    private func schedulePersistProgress(percent: Double) {
+        guard let vm = viewModel else { return }
+        persistTask?.cancel()
+        let pct = max(0, min(1, percent))
+        persistTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            guard !Task.isCancelled else { return }
+            vm.updateProgress(
+                percent: pct,
+                locator: "scroll:\(Int(pct * 1_000_000))",
+                in: modelContext
+            )
+        }
+    }
+
     private func showToast(_ message: String) {
         withAnimation(.easeOut(duration: 0.18)) { savedToast = message }
         Task { @MainActor in
@@ -318,8 +341,17 @@ struct ReaderView: View {
 
     // MARK: - TTS controls
 
+    /// Tap on Listen — reuse the user's saved voice + rate + pitch + sleep
+    /// timer rather than starting from blank defaults each time.
     private func toggleListen(viewModel: ReaderViewModel) {
-        ttsEngine.configure(settings: TTSSettings())  // load defaults if no SwiftData row yet
+        let descriptor = FetchDescriptor<TTSSettings>()
+        let saved = (try? modelContext.fetch(descriptor).first) ?? {
+            let s = TTSSettings()
+            modelContext.insert(s)
+            try? modelContext.save()
+            return s
+        }()
+        ttsEngine.configure(settings: saved)
         ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
     }
 

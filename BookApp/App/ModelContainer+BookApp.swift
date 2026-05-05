@@ -16,12 +16,25 @@ extension ModelContainer {
             TTSSettings.self,
             SpeedReaderSettings.self
         ])
+        // CloudKit + simulator without code signing → instant SIGTRAP in
+        // `[PFCloudKitContainerProvider containerWithIdentifier:options:]`
+        // because the entitlement isn't applied. Disk-only on simulator,
+        // CloudKit-private on real devices.
+        #if targetEnvironment(simulator)
+        let config = ModelConfiguration(
+            "BookAppStore",
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
+        )
+        #else
         let config = ModelConfiguration(
             "BookAppStore",
             schema: schema,
             isStoredInMemoryOnly: false,
             cloudKitDatabase: .private("iCloud.com.lukataylor.bookapp")
         )
+        #endif
         return try ModelContainer(for: schema, configurations: [config])
     }
 

@@ -8,7 +8,6 @@ struct TTSSettingsSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var settings = TTSSettings()
-    @State private var sleepMinutes: Int = 0
     @State private var engine = TTSEngine.shared
 
     var body: some View {
@@ -70,7 +69,10 @@ struct TTSSettingsSheet: View {
                 }
 
                 Section("Sleep timer") {
-                    Picker("Stop after", selection: $sleepMinutes) {
+                    Picker("Stop after", selection: Binding(
+                        get: { settings.sleepTimerMinutes },
+                        set: { settings.sleepTimerMinutes = $0; persist() }
+                    )) {
                         Text("Off").tag(0)
                         Text("5 min").tag(5)
                         Text("15 min").tag(15)
@@ -78,7 +80,7 @@ struct TTSSettingsSheet: View {
                         Text("1 hour").tag(60)
                     }
                     .pickerStyle(.segmented)
-                    .onChange(of: sleepMinutes) { _, m in
+                    .onChange(of: settings.sleepTimerMinutes) { _, m in
                         engine.startSleepTimer(minutes: m)
                     }
                 }

@@ -7,21 +7,33 @@ struct BookStore: Sendable {
 
     private let containerID = "iCloud.com.lukataylor.bookapp"
 
-    /// Root for all book originals and variants. Falls back to the local
-    /// app-support directory when iCloud is signed out.
+    /// Root for all book originals and variants. Falls back through three
+    /// progressively more-tolerant locations:
+    ///   1. iCloud Drive ubiquity container (when iCloud is signed in)
+    ///   2. Application Support / BookApp / (when sandboxed write works)
+    ///   3. NSTemporaryDirectory / BookApp (last-resort, ephemeral)
+    /// We never crash on container resolution — readers shouldn't lose their
+    /// place because of an iCloud handshake failure.
     var rootURL: URL {
         if let cloud = FileManager.default.url(forUbiquityContainerIdentifier: containerID) {
-            return cloud.appendingPathComponent("Documents", isDirectory: true)
+            let docs = cloud.appendingPathComponent("Documents", isDirectory: true)
+            try? FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+            return docs
         }
-        // swiftlint:disable:next force_try
-        let fallback = try! FileManager.default.url(
+        if let appSupport = try? FileManager.default.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: true
-        ).appendingPathComponent("BookApp", isDirectory: true)
-        try? FileManager.default.createDirectory(at: fallback, withIntermediateDirectories: true)
-        return fallback
+        ) {
+            let dir = appSupport.appendingPathComponent("BookApp", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            return dir
+        }
+        let tmp = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent("BookApp", isDirectory: true)
+        try? FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        return tmp
     }
 
     func bookFolder(for bookID: UUID, create: Bool = true) -> URL {
