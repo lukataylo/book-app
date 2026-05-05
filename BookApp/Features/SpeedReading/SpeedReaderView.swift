@@ -115,31 +115,77 @@ struct SpeedReaderView: View {
     }
 
     private var controls: some View {
-        VStack(spacing: Theme.Spacing.s) {
-            HStack {
-                Text("\(settings.wpm) WPM")
-                    .font(.system(size: 14, design: .monospaced))
-                    .foregroundStyle(Theme.Palette.textSecondary)
+        VStack(spacing: Theme.Spacing.l) {
+            // WPM front and centre — big serif numeral, presets either side,
+            // slider underneath for fine adjustment.
+            VStack(spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("\(settings.wpm)")
+                        .font(.system(size: 56, weight: .semibold, design: .serif))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                        .monospacedDigit()
+                    Text("words / min")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
+
+                // Preset chips for fast adjustment.
+                HStack(spacing: 8) {
+                    ForEach([200, 300, 500, 800, 1100], id: \.self) { wpm in
+                        Button {
+                            settings.wpm = wpm
+                            persist()
+                        } label: {
+                            Text("\(wpm)")
+                                .font(.system(size: 12, weight: .semibold))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    Capsule().fill(
+                                        settings.wpm == wpm
+                                            ? Theme.Palette.textPrimary.opacity(0.10)
+                                            : Color.clear
+                                    )
+                                )
+                                .overlay(
+                                    Capsule().stroke(
+                                        Theme.Palette.divider, lineWidth: 0.5
+                                    )
+                                )
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
                 Slider(
                     value: Binding(
                         get: { Double(settings.wpm) },
-                        set: { settings.wpm = Int($0); persist() }
+                        set: { settings.wpm = Int(($0 / 25).rounded()) * 25; persist() }
                     ),
                     in: 150...1200,
                     step: 25
                 )
+                .tint(Theme.Palette.textPrimary)
             }
-            HStack(spacing: Theme.Spacing.l) {
+            .padding(.horizontal, Theme.Spacing.s)
+
+            // Playback row.
+            HStack(spacing: 36) {
                 Button { jumpBackOneSentence() } label: {
-                    Image(systemName: "arrow.uturn.backward.circle.fill").font(.system(size: 36))
+                    Image(systemName: "arrow.uturn.backward.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Theme.Palette.textSecondary)
                 }
                 Button { isRunning ? stop() : start() } label: {
                     Image(systemName: isRunning ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(Theme.Palette.accent)
+                        .font(.system(size: 68))
+                        .foregroundStyle(Theme.Palette.textPrimary)
                 }
                 Button { skipForward() } label: {
-                    Image(systemName: "forward.circle.fill").font(.system(size: 36))
+                    Image(systemName: "forward.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Theme.Palette.textSecondary)
                 }
             }
         }

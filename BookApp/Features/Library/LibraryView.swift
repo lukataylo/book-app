@@ -50,8 +50,8 @@ struct LibraryView: View {
                     Button {
                         presentingPicker = true
                     } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
+                        Image(systemName: "plus")
+                            .font(.system(size: 22, weight: .medium))
                             .foregroundStyle(Theme.Palette.accent)
                     }
                 }

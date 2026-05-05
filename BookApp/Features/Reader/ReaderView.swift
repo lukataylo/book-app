@@ -26,6 +26,7 @@ struct ReaderView: View {
     @State private var contentHeight: CGFloat = 1
     @State private var viewportHeight: CGFloat = 1
     @State private var scrollPosition = ScrollPosition()
+    @State private var ttsEngine = TTSEngine.shared
 
     init(book: Book, variant: BookVariant? = nil) {
         self.book = book
@@ -94,14 +95,18 @@ struct ReaderView: View {
                 }
             }
 
-            // Tap zones — left pages back one viewport, right pages forward,
-            // centre toggles chrome.
-            HStack(spacing: 0) {
-                tapZone(action: .pageBack)
-                tapZone(action: .toggleChrome)
-                tapZone(action: .pageForward)
+            // When the chrome is hidden the whole content area becomes a
+            // tap target to bring it back. While chrome is visible we don't
+            // attach gestures to the body so the bar's buttons receive every
+            // touch cleanly.
+            if !showsChrome {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.18)) { showsChrome = true }
+                    }
             }
-            .zIndex(0)
 
             // Top progress hairline.
             VStack(spacing: 0) {
@@ -179,45 +184,11 @@ struct ReaderView: View {
         }
     }
 
-    // MARK: - Tap navigation
+    // MARK: - TTS controls
 
-    private enum TapAction { case pageBack, toggleChrome, pageForward }
-
-    private func tapZone(action: TapAction) -> some View {
-        Color.clear
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                handle(action)
-            }
-    }
-
-    private func handle(_ action: TapAction) {
-        switch action {
-        case .toggleChrome:
-            withAnimation(.easeOut(duration: 0.18)) { showsChrome.toggle() }
-        case .pageForward:
-            advanceByViewport(forward: true)
-        case .pageBack:
-            advanceByViewport(forward: false)
-        }
-    }
-
-    /// Move the scroll position by one viewport (~ a "page"), with animation.
-    private func advanceByViewport(forward: Bool) {
-        guard let vm = viewModel else { return }
-        let total = max(1, contentHeight - viewportHeight)
-        let currentY = scrollProgress * Double(total)
-        let step = Double(viewportHeight) * 0.92      // ~one viewport, slight overlap
-        let nextY = max(0, min(Double(total), currentY + (forward ? step : -step)))
-        let nextProgress = nextY / Double(total)
-        // Translate progress back to a paragraph index for ScrollViewReader to scroll to.
-        let paragraphCount = max(1, vm.paragraphs.count)
-        let targetIndex = max(0, min(paragraphCount - 1, Int(nextProgress * Double(paragraphCount))))
-        withAnimation(.easeOut(duration: 0.22)) {
-            scrollPosition.scrollTo(y: nextY)
-            vm.currentParagraph = targetIndex
-        }
+    private func toggleListen(viewModel: ReaderViewModel) {
+        ttsEngine.configure(settings: TTSSettings())  // load defaults if no SwiftData row yet
+        ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
     }
 
     // MARK: - Bottom bar (iOS Books style)
@@ -231,64 +202,63 @@ struct ReaderView: View {
     private func bottomBar(viewModel: ReaderViewModel) -> some View {
         let isDark = settings.theme == .dark || settings.theme == .black
         let bg = backgroundColor
+        let isPlaying = ttsEngine.isPlaying
 
         VStack(spacing: 0) {
-            // Gradient fade lifts the controls off the prose so the bar's
-            // contents stay legible regardless of underlying text.
+            // Gradient fade so the bar reads as floating chrome over the page.
             LinearGradient(
                 colors: [bg.opacity(0), bg.opacity(0.55), bg.opacity(0.92), bg],
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 84)
+            .frame(height: 64)
             .allowsHitTesting(false)
 
-            VStack(spacing: 6) {
-                HStack(spacing: 10) {
-                    // Page indicator on the left.
-                    Text(progressText())
+            VStack(spacing: 4) {
+                HStack(spacing: 0) {
+                    // Page / state indicator on the far left.
+                    Text(isPlaying ? "Listening" : progressText())
                         .font(.system(size: 12, weight: .medium, design: .monospaced))
-                        .foregroundStyle(textColor.opacity(0.6))
-                        .frame(minWidth: 56, alignment: .leading)
+                        .foregroundStyle(textColor.opacity(isPlaying ? 0.85 : 0.55))
+                        .frame(minWidth: 80, alignment: .leading)
+                        .padding(.leading, 18)
 
-                    // Read · Listen segmented pill — given enough room that
-                    // "Listen" never wraps.
-                    SegmentedPill(
-                        items: [.init(label: "Read", icon: nil),
-                                .init(label: "Listen", icon: nil)],
-                        activeIndex: 0,
-                        isDark: isDark
-                    ) { idx in
-                        if idx == 1 { viewModel.sheet = .ttsSettings }
-                    }
-                    .layoutPriority(1)
+                    Spacer(minLength: 0)
 
-                    Spacer(minLength: 6)
-
-                    IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
-                        viewModel.sheet = .speedReader
+                    // Action cluster — direct buttons, evenly spaced.
+                    HStack(spacing: 22) {
+                        ListenButton(isPlaying: isPlaying, isDark: isDark) {
+                            toggleListen(viewModel: viewModel)
+                        } onLongPress: {
+                            viewModel.sheet = .ttsSettings
+                        }
+                        IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
+                            viewModel.sheet = .speedReader
+                        }
+                        IconBarButton(systemImage: "textformat.size", isDark: isDark) {
+                            viewModel.sheet = .readerSettings
+                        }
+                        IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
+                            viewModel.sheet = .transformations
+                        }
                     }
-                    IconBarButton(systemImage: "textformat.size", isDark: isDark) {
-                        viewModel.sheet = .readerSettings
-                    }
-                    IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
-                        viewModel.sheet = .transformations
-                    }
+                    .padding(.trailing, 18)
                 }
-                .padding(.horizontal, 14)
+                .frame(height: 48)
 
-                // Tiny collapse chevron — small, unobtrusive.
+                // Tiny collapse chevron centred under the row.
                 Button {
                     withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
                 } label: {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(textColor.opacity(0.4))
-                        .frame(width: 36, height: 18)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(textColor.opacity(0.35))
+                        .frame(width: 44, height: 18)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.bottom, 2)
+            .padding(.bottom, 4)
             .background(bg)
         }
     }
@@ -336,51 +306,52 @@ struct ReaderView: View {
 
 // MARK: - Bar components
 
-/// Two-state pill segmented control (Read · Listen).
-private struct SegmentedPill: View {
-    struct Item { let label: String; let icon: String? }
-    let items: [Item]
-    let activeIndex: Int
+/// Listen button — primary play / pause. Tap toggles TTS, long-press
+/// opens the TTS settings sheet.
+private struct ListenButton: View {
+    let isPlaying: Bool
     let isDark: Bool
-    let onSelect: (Int) -> Void
+    let onTap: () -> Void
+    let onLongPress: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
-                Button {
-                    onSelect(idx)
-                } label: {
-                    Text(item.label)
-                        .font(.system(size: 13, weight: .semibold))
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
-                        .frame(minWidth: 70)
-                        .foregroundStyle(
-                            idx == activeIndex
-                                ? (isDark ? Color.black : Color.white)
-                                : (isDark ? Color.white.opacity(0.7) : Color.black.opacity(0.6))
-                        )
-                        .background(
-                            ZStack {
-                                if idx == activeIndex {
-                                    Capsule()
-                                        .fill(isDark ? Color.white : Color.black)
-                                }
-                            }
-                        )
-                }
-                .buttonStyle(.plain)
-            }
+        Button {
+            onTap()
+        } label: {
+            Image(systemName: isPlaying ? "pause.fill" : "waveform")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(
+                    isPlaying
+                        ? (isDark ? Color.black : Color.white)
+                        : (isDark ? Color.white : Color.black)
+                )
+                .frame(width: 40, height: 40)
+                .background(
+                    Circle().fill(
+                        isPlaying
+                            ? (isDark ? Color.white : Color.black)
+                            : Color.clear
+                    )
+                )
+                .overlay(
+                    Circle().stroke(
+                        isPlaying
+                            ? Color.clear
+                            : (isDark ? Color.white.opacity(0.20) : Color.black.opacity(0.14)),
+                        lineWidth: 0.5
+                    )
+                )
         }
-        .padding(3)
-        .background(
-            Capsule()
-                .stroke(isDark ? Color.white.opacity(0.18) : Color.black.opacity(0.12), lineWidth: 0.5)
+        .buttonStyle(.plain)
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.4).onEnded { _ in onLongPress() }
         )
+        .accessibilityLabel(isPlaying ? "Pause narration" : "Listen")
+        .accessibilityHint("Long-press for voice settings")
     }
 }
 
-/// Round-icon control with no chrome — used for brightness, Aa, AI.
+/// Plain round-icon control — used for Speed, Aa, AI.
 private struct IconBarButton: View {
     let systemImage: String
     let isDark: Bool
@@ -390,12 +361,9 @@ private struct IconBarButton: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.75))
-                .frame(width: 36, height: 36)
-                .background(
-                    Circle()
-                        .stroke(isDark ? Color.white.opacity(0.14) : Color.black.opacity(0.08), lineWidth: 0.5)
-                )
+                .foregroundStyle(isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.78))
+                .frame(width: 38, height: 38)
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
     }

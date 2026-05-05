@@ -117,6 +117,11 @@ enum SeedBooksLoader {
             book.coverData = coverData
         }
 
+        // Pre-populated key learnings — created independently of variants so
+        // every book has them on first launch even when the rest of the
+        // generation pipeline didn't finish.
+        seedLearnings(book: book, bookFolder: bookFolder)
+
         // Variants — one BookVariant per .txt file in meta.json.
         var addedCount = 0
         for v in meta.variants {
@@ -147,6 +152,27 @@ enum SeedBooksLoader {
 
         do { try context.save() } catch {
             print("[SeedBooks] save failed for \(meta.slug): \(error)")
+        }
+    }
+
+    /// Reads `learnings.json` (curated array of `{text, chapter}` records)
+    /// from the book's seed folder and creates `KeyLearning` rows. Silent
+    /// no-op if the file is missing — partially-seeded books still get
+    /// their original variant.
+    private static func seedLearnings(book: Book, bookFolder: URL) {
+        let url = bookFolder.appendingPathComponent("learnings.json")
+        guard let data = try? Data(contentsOf: url),
+              let entries = try? JSONDecoder().decode([SeedLearning].self, from: data) else {
+            return
+        }
+        for entry in entries {
+            let learning = KeyLearning(
+                book: book,
+                text: entry.text,
+                chapterRef: entry.chapter,
+                userEdited: false
+            )
+            book.modelContext?.insert(learning)
         }
     }
 
@@ -270,6 +296,11 @@ private struct SeedMeta: Decodable {
     let source_words: Int?
     let source_pages_est: Int?
     let variants: [SeedVariant]
+}
+
+private struct SeedLearning: Decodable {
+    let text: String
+    let chapter: String
 }
 
 private struct SeedVariant: Decodable {

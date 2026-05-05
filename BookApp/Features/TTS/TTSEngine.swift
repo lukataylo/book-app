@@ -41,6 +41,22 @@ final class TTSEngine: NSObject {
         self.settings = settings
     }
 
+    /// Whether playback can be resumed without restarting from the top.
+    var hasLoadedContent: Bool { !paragraphs.isEmpty }
+
+    /// Single entry-point used by the reader's Listen button: pause if
+    /// playing, resume if paused on something we already loaded, or kick
+    /// off a fresh play with the given paragraphs.
+    func togglePlayback(paragraphs: [String]) {
+        if isPlaying {
+            pause()
+        } else if hasLoadedContent {
+            resume()
+        } else {
+            play(paragraphs: paragraphs)
+        }
+    }
+
     func play(paragraphs: [String], startAt index: Int = 0) {
         self.paragraphs = paragraphs
         self.currentParagraph = max(0, min(index, paragraphs.count - 1))
