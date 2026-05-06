@@ -10,19 +10,24 @@ options:
   groupSortPosition: top
   developmentLanguage: en
 
+configFiles:
+  Debug: BookApp/Supporting/Default.xcconfig
+  Release: BookApp/Supporting/Default.xcconfig
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     GENERATE_INFOPLIST_FILE: NO
-    DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
     PRODUCT_BUNDLE_IDENTIFIER: com.lukataylor.bookapp
     INFOPLIST_FILE: BookApp/Supporting/Info.plist
     CODE_SIGN_ENTITLEMENTS: BookApp/Supporting/BookApp.entitlements
     IPHONEOS_DEPLOYMENT_TARGET: "18.0"
     MACOSX_DEPLOYMENT_TARGET: "15.0"
+    # DEVELOPMENT_TEAM is supplied by Default.xcconfig, which optionally
+    # includes Local.xcconfig (gitignored). See Local.xcconfig.example.
 
 packages:
   Readium:

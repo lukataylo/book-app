@@ -1,0 +1,10 @@
+// Default build settings — committed, safe defaults.
+// Local overrides go in Local.xcconfig (gitignored, optional).
+// Common override: your Apple Developer team id. See Local.xcconfig.example.
+
+#include? "Local.xcconfig"
+
+// If Local.xcconfig is present, it can override DEVELOPMENT_TEAM,
+// CODE_SIGN_IDENTITY, etc. If not, these stay empty and code signing
+// uses Xcode's defaults — fine for the simulator, fails for real devices.
+DEVELOPMENT_TEAM = $(LOCAL_DEVELOPMENT_TEAM)

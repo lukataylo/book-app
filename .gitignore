@@ -42,3 +42,6 @@ ApiKeys.plist
 # User-specific Anthropic key file (key lives in Keychain at runtime)
 .anthropic_key
 scripts/__pycache__/
+
+# Local Apple Developer team override
+BookApp/Supporting/Local.xcconfig

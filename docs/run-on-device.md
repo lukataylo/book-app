@@ -21,6 +21,23 @@ once.
    - **Paid Apple Developer ($99/yr):** keep iCloud, but create a new
      container in the Developer portal to match your bundle ID.
 
+## Step 0 — set your team id once (recommended)
+
+`xcodegen generate` overwrites the Xcode project, which means the **Team**
+field you pick in *Signing & Capabilities* gets blanked every time you
+regenerate. To make your team id stick:
+
+```bash
+cp BookApp/Supporting/Local.xcconfig.example BookApp/Supporting/Local.xcconfig
+# Edit BookApp/Supporting/Local.xcconfig and replace ABCDE12345 with your
+# actual 10-character team id from
+#   https://developer.apple.com/account/resources/identifiers
+xcodegen generate
+```
+
+`Local.xcconfig` is gitignored — your team id stays out of the repo.
+Future `xcodegen generate` runs honour whatever's in it.
+
 ## Step 1 — pick a unique bundle ID
 
 `com.bookapp.app` is generic and will clash with anything else under your

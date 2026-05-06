@@ -1,0 +1,16 @@
+// Local.xcconfig.example — copy to Local.xcconfig and fill in your team id.
+//
+// Why: Apple Developer team ids vary per account. Hard-coding one in
+// project.yml means anyone who pulls the repo has to wipe it. This file
+// lets you keep your team id local and gitignored.
+//
+// To use:
+//   cp BookApp/Supporting/Local.xcconfig.example BookApp/Supporting/Local.xcconfig
+//   open BookApp/Supporting/Local.xcconfig          # paste your team id
+//   xcodegen generate                                # picks it up automatically
+//
+// Find your team id at:
+//   https://developer.apple.com/account/resources/identifiers
+// (it's the 10-character string next to your name at the top right).
+
+LOCAL_DEVELOPMENT_TEAM = ABCDE12345
