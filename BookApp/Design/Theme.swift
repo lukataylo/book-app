@@ -53,11 +53,17 @@ enum Theme {
             "Default":          Color(hex: "475569")
         ]
 
+        /// Slate-grey fallback. Hard-coded so this function is total —
+        /// the dictionary literal could in principle be edited to drop
+        /// the "Default" key, and we don't want a missing palette entry
+        /// to crash every cover render.
+        private static let defaultSpine = Color(hex: "475569")
+
         static func color(for tags: [String]) -> Color {
             for tag in tags {
                 if let c = palette[tag] { return c }
             }
-            return palette["Default"]!
+            return palette["Default"] ?? defaultSpine
         }
     }
 }

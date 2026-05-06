@@ -17,6 +17,8 @@ struct BookmarksGalleryView: View {
     @State private var filter: Filter = .all
     @State private var bookFilter: UUID? = nil
     @State private var query: String = ""
+    @State private var debouncedQuery: String = ""
+    @State private var debounceTask: Task<Void, Never>?
     @State private var selectedBook: Book?
 
     enum Filter: String, CaseIterable, Identifiable {
@@ -64,6 +66,18 @@ struct BookmarksGalleryView: View {
             .navigationDestination(item: $selectedBook) { book in
                 BookDetailView(book: book)
             }
+            // Debounce — annotation/bookmark search runs over the entire
+            // saved-passage list across all books; rescanning per keystroke
+            // makes typing feel sluggish.
+            .onChange(of: query) { _, newValue in
+                debounceTask?.cancel()
+                debounceTask = Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    guard !Task.isCancelled else { return }
+                    debouncedQuery = newValue
+                }
+            }
+            .onAppear { debouncedQuery = query }
         }
     }
 
@@ -195,7 +209,7 @@ struct BookmarksGalleryView: View {
         if let bid = bookFilter {
             items = items.filter { $0.book?.id == bid }
         }
-        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        let q = debouncedQuery.trimmingCharacters(in: .whitespaces).lowercased()
         if !q.isEmpty {
             items = items.filter {
                 $0.body.lowercased().contains(q)

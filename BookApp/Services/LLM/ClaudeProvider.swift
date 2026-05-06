@@ -8,12 +8,34 @@ import Foundation
 final actor ClaudeProvider: LLMProvider {
     let id: LLMProviderID = .anthropic
 
+    /// Hard-coded URL is well-formed but we still avoid the `!` so a
+    /// future typo can't crash the app — the fallback is provider
+    /// unavailability, not termination.
+    private static let endpointURL: URL = {
+        URL(string: "https://api.anthropic.com/v1/messages") ?? URL(fileURLWithPath: "/")
+    }()
+
     private let session: URLSession
-    private let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
+    private let endpoint: URL
     private let apiVersion = "2023-06-01"
 
-    init(session: URLSession = .shared) {
-        self.session = session
+    init(session: URLSession? = nil) {
+        // Default session has no per-request timeout. Long Claude calls
+        // can run 60+ s, but we still need an upper bound so a hung
+        // network connection doesn't keep a Task alive forever and
+        // prevent cancellation. 120s request / 180s resource is the same
+        // shape Anthropic's own SDK ships.
+        if let provided = session {
+            self.session = provided
+        } else {
+            let cfg = URLSessionConfiguration.default
+            cfg.timeoutIntervalForRequest = 120
+            cfg.timeoutIntervalForResource = 180
+            cfg.waitsForConnectivity = true
+            cfg.httpMaximumConnectionsPerHost = 4
+            self.session = URLSession(configuration: cfg)
+        }
+        self.endpoint = Self.endpointURL
     }
 
     func isAvailable() async -> Bool {

@@ -9,6 +9,7 @@ struct TTSSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var settings = TTSSettings()
     @State private var engine = TTSEngine.shared
+    @State private var persistTask: Task<Void, Never>?
 
     var body: some View {
         NavigationStack {
@@ -114,18 +115,20 @@ struct TTSSettingsSheet: View {
     }
 
     private func load() {
-        let descriptor = FetchDescriptor<TTSSettings>()
-        if let existing = try? modelContext.fetch(descriptor).first {
-            settings = existing
-        } else {
-            modelContext.insert(settings)
-            try? modelContext.save()
-        }
+        settings = SettingsStore.shared.tts(in: modelContext)
     }
 
     private func persist() {
         engine.configure(settings: settings)
-        try? modelContext.save()
+        // Pickers / steppers in this sheet fire many times per gesture.
+        // Coalesce the SwiftData save so we don't block the main thread
+        // on CloudKit sync mid-drag.
+        persistTask?.cancel()
+        persistTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            try? modelContext.save()
+        }
     }
 
     private func qualityLabel(_ q: AVSpeechSynthesisVoiceQuality) -> String {

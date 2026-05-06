@@ -2,19 +2,32 @@ import Foundation
 
 /// Owns the on-disk + iCloud Drive locations for book files and transformation outputs.
 /// SwiftData stores metadata only; the binaries live here.
-struct BookStore: Sendable {
+///
+/// Reference type so `rootURL` can be resolved exactly once and cached —
+/// `FileManager.url(forUbiquityContainerIdentifier:)` does a synchronous
+/// I/O hop to verify the iCloud token, and the reader was hammering it
+/// per inline image render. The container location is fixed for the life
+/// of the process so it's safe to cache aggressively.
+final class BookStore: @unchecked Sendable {
     static let shared = BookStore()
 
     private let containerID = "iCloud.com.lukataylor.bookapp"
+    /// Cached root after first resolution. `@unchecked Sendable` is correct
+    /// here because the only mutation happens once inside `init` and every
+    /// subsequent access is a pure read.
+    let rootURL: URL
 
-    /// Root for all book originals and variants. Falls back through three
-    /// progressively more-tolerant locations:
+    private init() {
+        self.rootURL = Self.resolveRootURL(containerID: "iCloud.com.lukataylor.bookapp")
+    }
+
+    /// Falls back through three progressively more-tolerant locations:
     ///   1. iCloud Drive ubiquity container (when iCloud is signed in)
     ///   2. Application Support / BookApp / (when sandboxed write works)
     ///   3. NSTemporaryDirectory / BookApp (last-resort, ephemeral)
     /// We never crash on container resolution — readers shouldn't lose their
     /// place because of an iCloud handshake failure.
-    var rootURL: URL {
+    private static func resolveRootURL(containerID: String) -> URL {
         if let cloud = FileManager.default.url(forUbiquityContainerIdentifier: containerID) {
             let docs = cloud.appendingPathComponent("Documents", isDirectory: true)
             try? FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)

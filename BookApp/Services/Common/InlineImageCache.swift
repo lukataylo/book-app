@@ -1,11 +1,18 @@
 import Foundation
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
-/// In-memory cache for inline EPUB images so the reader doesn't re-decode
-/// every figure on every scroll frame. `UIImage(contentsOfFile:)` lazily
-/// decodes the JPEG only when the image is rendered, which means each
-/// scroll re-paint of a figure can stutter for 8–30ms on older devices.
+/// In-memory cache for inline EPUB images.
+///
+/// Two-tier API:
+///   - `cached(at:)` is a synchronous fast-path that hits the NSCache and
+///     returns immediately when the figure has already been decoded.
+///   - `prepare(at:)` does the JPEG decode + `preparingForDisplay()` on a
+///     background actor and writes back into the cache. Use this from a
+///     `.task` so the first scroll-into-view doesn't stutter on the main
+///     thread (the previous implementation could hang the run loop for
+///     50–200 ms per figure on first paint).
 ///
 /// `NSCache` gives us free memory-pressure eviction — when iOS warns
 /// about memory, the OS purges entries automatically. We don't need to
@@ -19,20 +26,56 @@ enum InlineImageCache {
         return c
     }()
 
-    /// Load and cache the image at `url`. Returns nil if the file is
-    /// missing or the bytes can't be decoded.
-    static func image(at url: URL) -> UIImage? {
+    static func cached(at url: URL) -> UIImage? {
+        cache.object(forKey: url.path as NSString)
+    }
+
+    /// Decode + warm the cache off the main actor. Returns the cached
+    /// image (now decoded) so the call site can update its @State directly.
+    static func prepare(at url: URL) async -> UIImage? {
         let key = url.path as NSString
         if let cached = cache.object(forKey: key) { return cached }
-        guard let image = UIImage(contentsOfFile: url.path) else { return nil }
-        // Pre-decode once on first load so the first scroll-into-view is
-        // smooth — `UIImage(contentsOfFile:)` defers decode until draw.
-        let decoded = image.preparingForDisplay() ?? image
-        let cost = Int(decoded.size.width * decoded.size.height * 4)
-        cache.setObject(decoded, forKey: key, cost: max(cost, 1))
-        return decoded
+        let path = url.path
+        let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
+            guard let raw = UIImage(contentsOfFile: path) else { return nil }
+            return raw.preparingForDisplay() ?? raw
+        }.value
+        guard let img = decoded else { return nil }
+        let cost = Int(img.size.width * img.size.height * 4)
+        cache.setObject(img, forKey: key, cost: max(cost, 1))
+        return img
     }
 
     static func clear() { cache.removeAllObjects() }
+}
+
+/// Image view used by the reader for inline EPUB figures. Defers the
+/// JPEG decode to a background task so the first scroll past a figure
+/// doesn't hitch.
+struct InlineFigureImage: View {
+    let url: URL
+
+    @State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                // Reserve a thin placeholder so the surrounding paragraph
+                // layout doesn't jump when the bitmap arrives.
+                Color.clear.frame(height: 1)
+            }
+        }
+        .task(id: url) {
+            if let cached = InlineImageCache.cached(at: url) {
+                self.image = cached
+                return
+            }
+            self.image = await InlineImageCache.prepare(at: url)
+        }
+    }
 }
 #endif

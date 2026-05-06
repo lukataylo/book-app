@@ -116,6 +116,15 @@ struct ReaderView: View {
             // open of a book gets a stuttering scroll from the ghost
             // ticker mutating viewModel.currentParagraph.
             stopSpeedTicker()
+            // Cancel debounced background tasks that captured this
+            // reader's session — leaving them running risks writing the
+            // previous book's progress over the next reader's state, or
+            // racing against a fresh `currentParagraph` value the user
+            // hasn't actually scrolled to.
+            persistTask?.cancel()
+            persistTask = nil
+            toastTask?.cancel()
+            toastTask = nil
         }
     }
 
@@ -347,26 +356,21 @@ struct ReaderView: View {
         mode == .speed ? textColor.opacity(0.40) : textColor
     }
 
-    /// Render an inline EPUB image extracted on import. Returns an empty view
-    /// when the bytes are missing — figures sometimes go missing from
-    /// re-zipped EPUBs and we don't want a broken-image placeholder.
-    /// Goes through `InlineImageCache` so the JPEG decode happens once
-    /// per session rather than on every scroll frame.
+    /// Render an inline EPUB image extracted on import. Goes through
+    /// `InlineFigureImage`, which decodes the JPEG on a background task
+    /// (preparingForDisplay can hang the main thread for 50–200 ms on
+    /// older devices). Layout reserves space the moment the figure block
+    /// is reached so the surrounding paragraphs don't jump when the
+    /// bitmap arrives.
     @ViewBuilder
     private func inlineImage(filename: String) -> some View {
         let url = BookStore.shared.imagesFolder(for: book.id, create: false)
             .appendingPathComponent(filename)
-        if let ui = InlineImageCache.image(at: url) {
-            Image(uiImage: ui)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                .padding(.vertical, Theme.Spacing.s)
-                .accessibilityLabel("Figure")
-        } else {
-            EmptyView()
-        }
+        InlineFigureImage(url: url)
+            .frame(maxWidth: .infinity)
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .padding(.vertical, Theme.Spacing.s)
+            .accessibilityLabel("Figure")
     }
 
     /// Build the paragraph as an `AttributedString` so the body font, drop
@@ -537,13 +541,7 @@ struct ReaderView: View {
     /// Tap on Listen — reuse the user's saved voice + rate + pitch + sleep
     /// timer rather than starting from blank defaults each time.
     private func toggleListen(viewModel: ReaderViewModel) {
-        let descriptor = FetchDescriptor<TTSSettings>()
-        let saved = (try? modelContext.fetch(descriptor).first) ?? {
-            let s = TTSSettings()
-            modelContext.insert(s)
-            try? modelContext.save()
-            return s
-        }()
+        let saved = SettingsStore.shared.tts(in: modelContext)
         ttsEngine.configure(settings: saved)
         ttsEngine.configureNowPlaying(
             title: book.title,
@@ -858,18 +856,7 @@ struct ReaderView: View {
     // MARK: - Speed mode
 
     private func ensureSpeedSettings() {
-        let descriptor = FetchDescriptor<SpeedReaderSettings>()
-        if let existing = try? modelContext.fetch(descriptor).first {
-            speedSettings = existing
-        } else {
-            modelContext.insert(speedSettings)
-            // First-time save can take 100-300ms while SwiftData flushes
-            // to disk + queues iCloud sync; defer it so the speed bar
-            // appears immediately on tap.
-            Task { @MainActor in
-                try? modelContext.save()
-            }
-        }
+        speedSettings = SettingsStore.shared.speed(in: modelContext)
     }
 
     private func persistSpeedSettings() {
@@ -1101,15 +1088,10 @@ struct ReaderView: View {
 
     @MainActor
     private func ensureReaderSettings() {
-        let descriptor = FetchDescriptor<ReaderSettings>()
-        if let existing = try? modelContext.fetch(descriptor).first {
-            settings = existing
-        } else {
-            let s = ReaderSettings()
-            modelContext.insert(s)
-            try? modelContext.save()
-            settings = s
-        }
+        // Settings are app-wide singletons; SettingsStore caches the
+        // resolved instance so repeated reader opens don't pay the
+        // FetchDescriptor cost.
+        settings = SettingsStore.shared.reader(in: modelContext)
     }
 
 }

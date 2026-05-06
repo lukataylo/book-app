@@ -67,6 +67,8 @@ final class TTSEngine: NSObject {
         super.init()
         synth.delegate = self
         configureRemoteControls()
+        configureAudioInterruptionHandling()
+        configureRouteChangeHandling()
         // Audio session is configured + activated lazily on first play —
         // doing it at init() can race with app launch and silently fail.
     }
@@ -236,6 +238,19 @@ final class TTSEngine: NSObject {
         }
         settings.rate = Double(next)
         applyLiveSettingChange()
+        persistSettingsChange()
+    }
+
+    /// Mini-player rate / pitch / voice tweaks update the live `settings`
+    /// instance but were never written back to SwiftData — a force-quit
+    /// would lose the change. Push the model context to save (best
+    /// effort; the settings row is a singleton so we don't need to
+    /// re-resolve it).
+    private func persistSettingsChange() {
+        let ctx = settings.modelContext
+        Task { @MainActor in
+            try? ctx?.save()
+        }
     }
 
     func startSleepTimer(minutes: Int) {
@@ -343,6 +358,67 @@ final class TTSEngine: NSObject {
         #if canImport(UIKit)
         let session = AVAudioSession.sharedInstance()
         try? session.setActive(false, options: [.notifyOthersOnDeactivation])
+        #endif
+    }
+
+    /// Subscribe to system audio-interruption events (incoming phone call,
+    /// Siri, FaceTime, another app starting playback). Without this the
+    /// synth keeps "speaking" silently while the system has taken away
+    /// our audio focus, and on resume the user sees a paused state with
+    /// no obvious way back to where they were.
+    private func configureAudioInterruptionHandling() {
+        #if canImport(UIKit)
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            guard let info = note.userInfo,
+                  let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+            Task { @MainActor in
+                switch type {
+                case .began:
+                    // System took our audio focus — pause so the
+                    // play / pause UI mirrors reality.
+                    if self.isPlaying { self.pause() }
+                case .ended:
+                    let opts = (info[AVAudioSessionInterruptionOptionKey] as? UInt).map {
+                        AVAudioSession.InterruptionOptions(rawValue: $0)
+                    } ?? []
+                    if opts.contains(.shouldResume), self.hasLoadedContent {
+                        self.resume()
+                    }
+                @unknown default:
+                    break
+                }
+            }
+        }
+        #endif
+    }
+
+    /// Pause when a route change indicates the previous output went away
+    /// (AirPods unplugged, Bluetooth speaker disconnected). Apple's HIG
+    /// requires this — `routeChangeReason` `.oldDeviceUnavailable` should
+    /// stop playback so audio doesn't suddenly blast out of the iPhone
+    /// speaker into the user's pocket.
+    private func configureRouteChangeHandling() {
+        #if canImport(UIKit)
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            guard let info = note.userInfo,
+                  let raw = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                  let reason = AVAudioSession.RouteChangeReason(rawValue: raw) else { return }
+            guard reason == .oldDeviceUnavailable else { return }
+            Task { @MainActor in
+                if self.isPlaying { self.pause() }
+            }
+        }
         #endif
     }
 

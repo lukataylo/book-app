@@ -56,6 +56,15 @@ struct BookCardView: View {
 
     @ViewBuilder
     private var cover: some View {
+        #if canImport(UIKit)
+        if let data = book.coverData {
+            CachedCoverImage(bookID: book.id, data: data) {
+                generatedCover
+            }
+        } else {
+            generatedCover
+        }
+        #else
         if let image = book.coverData.flatMap(Self.platformImage(from:)) {
             image
                 .resizable()
@@ -63,6 +72,7 @@ struct BookCardView: View {
         } else {
             generatedCover
         }
+        #endif
     }
 
     private var generatedCover: some View {

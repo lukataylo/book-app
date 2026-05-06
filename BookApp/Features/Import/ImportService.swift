@@ -115,15 +115,19 @@ final class ImportService {
             throw ImportError.persistFailed(error)
         }
 
-        // Auto-tag categories asynchronously, but on the main actor with the
-        // existing model context so we don't fight a separately-instantiated
-        // CloudKit-backed container.
+        // Auto-tag categories asynchronously. We capture the book's UUID
+        // (a Sendable value) rather than the model object itself, so a
+        // user deleting the book mid-tag doesn't leave us writing to an
+        // orphaned instance. The Task re-fetches by ID and bails when
+        // the book is gone.
         let sampleSnippet = String(parsed.fullText.prefix(2_000))
-        let bookSnapshot = book
+        let bookID = book.id
+        let title = parsed.title
+        let author = parsed.author
         Task { [weak self] in
             guard let self else { return }
-            await self.autoTag(book: bookSnapshot, sample: sampleSnippet,
-                               title: parsed.title, author: parsed.author)
+            await self.autoTag(bookID: bookID, sample: sampleSnippet,
+                               title: title, author: author)
         }
 
         return book
@@ -139,24 +143,30 @@ final class ImportService {
     }
 
     /// Best-effort auto-tagging. Runs the local LLM, parses the JSON reply,
-    /// writes back to the same `Book` instance via the same context. Silent on
-    /// failure — tags can be edited manually later.
-    private func autoTag(book: Book, sample: String, title: String, author: String) async {
+    /// re-fetches the book from SwiftData (so we don't write to an
+    /// orphaned instance if the user deleted the book during the call)
+    /// and writes back to the same context. Silent on failure — tags can
+    /// be edited manually later.
+    private func autoTag(bookID: UUID, sample: String, title: String, author: String) async {
         let (system, user) = PromptTemplates.categoryTagging(title: title, author: author, sample: sample)
         let req = LLMRequest(system: system, user: user, maxOutputTokens: 512,
                              temperature: 0.2, model: .appleFoundation)
         do {
             let resp = try await router.run(.categoryTagging, request: req,
                                             sourceTokens: Chunker.tokenEstimate(sample))
-            applyTags(to: book, from: resp.text)
+            applyTags(toBookID: bookID, from: resp.text)
         } catch {
             // Tagging is best-effort — silently fail.
         }
     }
 
-    private func applyTags(to book: Book, from json: String) {
+    private func applyTags(toBookID id: UUID, from json: String) {
         guard let data = json.data(using: .utf8),
               let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+        let descriptor = FetchDescriptor<Book>(
+            predicate: #Predicate { $0.id == id }
+        )
+        guard let book = try? modelContext.fetch(descriptor).first else { return }
         let categories = payload["categories"] as? [String] ?? []
         let themes = payload["themes"] as? [String] ?? []
         book.categoryTags = categories

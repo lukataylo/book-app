@@ -19,14 +19,26 @@ enum SeedBooksLoader {
 
     private static let resourceFolder = "SeedBooks"
     private static let doneKey        = "SeedBooks.completed-v1"
+    private static let inProgressKey  = "SeedBooks.inProgress-v1"
 
     static func runIfNeeded(modelContext: ModelContext) async {
         if UserDefaults.standard.bool(forKey: doneKey) { return }
+
+        // Detect crashed-mid-seed: a previous launch flipped the flag
+        // but never made it to the end. Roll the partial state back so
+        // we don't end up with duplicate books or half-imported variants
+        // when the loader runs again.
+        if UserDefaults.standard.bool(forKey: inProgressKey) {
+            rollbackPartialSeed(modelContext: modelContext)
+            UserDefaults.standard.removeObject(forKey: inProgressKey)
+        }
+        UserDefaults.standard.set(true, forKey: inProgressKey)
 
         guard let resourceURL = bundledFolderURL() else {
             // Bundle missing — likely Debug build with no seed assets. Mark
             // done so we don't keep checking.
             UserDefaults.standard.set(true, forKey: doneKey)
+            UserDefaults.standard.removeObject(forKey: inProgressKey)
             return
         }
 
@@ -38,6 +50,7 @@ enum SeedBooksLoader {
                 .sorted { $0.lastPathComponent < $1.lastPathComponent }
         } catch {
             UserDefaults.standard.set(true, forKey: doneKey)
+            UserDefaults.standard.removeObject(forKey: inProgressKey)
             return
         }
 
@@ -48,6 +61,27 @@ enum SeedBooksLoader {
         }
 
         UserDefaults.standard.set(true, forKey: doneKey)
+        UserDefaults.standard.removeObject(forKey: inProgressKey)
+    }
+
+    /// Best-effort cleanup of a half-finished seed run from the previous
+    /// launch. We can't tell which specific book got partially inserted
+    /// without a per-book idempotency record, so we conservatively remove
+    /// ALL books whose `importedAt` is within the last 5 minutes — the
+    /// seed loader is the only thing that can have inserted a fresh book
+    /// that close to the (still-running) launch sequence on a first
+    /// install. User-imported books will not match because the user
+    /// can't have completed a picker flow before this code runs.
+    private static func rollbackPartialSeed(modelContext: ModelContext) {
+        let cutoff = Date.now.addingTimeInterval(-5 * 60)
+        let descriptor = FetchDescriptor<Book>(
+            predicate: #Predicate { $0.importedAt >= cutoff }
+        )
+        guard let recent = try? modelContext.fetch(descriptor) else { return }
+        for book in recent {
+            modelContext.delete(book)
+        }
+        try? modelContext.save()
     }
 
     /// Look up `Resources/SeedBooks` inside the app bundle.
