@@ -33,6 +33,12 @@ struct ReaderView: View {
     @State private var savedToast: String?
     @State private var persistTask: Task<Void, Never>?
     @State private var mode: ReaderMode = .read
+    // Speed-mode inline state
+    @State private var speedWordIndex: Int = 0
+    @State private var speedParagraphIndex: Int = 0
+    @State private var speedIsRunning: Bool = false
+    @State private var speedTickerTask: Task<Void, Never>?
+    @State private var speedSettings = SpeedReaderSettings()
     @StateObject private var stats = ReadingStats.shared
 
     init(book: Book, variant: BookVariant? = nil) {
@@ -91,7 +97,11 @@ struct ReaderView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: settings.paragraphSpacing) {
                         ForEach(Array(blocksWithContext.enumerated()), id: \.offset) { idx, item in
-                            blockView(item.block, isFirstAfterHeading: item.firstAfterHeading)
+                            blockView(
+                                item.block,
+                                isFirstAfterHeading: item.firstAfterHeading,
+                                paragraphIndex: idx
+                            )
                                 .id(idx)
                         }
                         // Bottom spacer so content can scroll above the bar.
@@ -166,13 +176,6 @@ struct ReaderView: View {
                     .accessibilityLabel(toast)
             }
         }
-        .onChange(of: viewModel.sheet) { old, new in
-            // If the user dismissed the speed-reader sheet (swipe-down),
-            // revert the mode pill to Read so the bar reflects reality.
-            if mode == .speed && old == .speedReader && new == nil {
-                mode = .read
-            }
-        }
         .sheet(item: Binding(
             get: { viewModel.sheet },
             set: { viewModel.sheet = $0 }
@@ -232,7 +235,7 @@ struct ReaderView: View {
     }
 
     @ViewBuilder
-    private func blockView(_ block: Block, isFirstAfterHeading: Bool) -> some View {
+    private func blockView(_ block: Block, isFirstAfterHeading: Bool, paragraphIndex: Int?) -> some View {
         switch block {
         case .heading(let text):
             Text(text)
@@ -241,7 +244,11 @@ struct ReaderView: View {
                 .padding(.top, Theme.Spacing.l)
                 .padding(.bottom, Theme.Spacing.xs)
         case .paragraph(let text):
-            Text(paragraphAttributed(text, dropCap: isFirstAfterHeading && settings.dropCaps))
+            Text(paragraphAttributed(
+                text,
+                dropCap: isFirstAfterHeading && settings.dropCaps,
+                paragraphIndex: paragraphIndex
+            ))
                 .lineSpacing((settings.lineSpacing - 1) * settings.fontSize)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textSelection(.enabled)
@@ -265,23 +272,64 @@ struct ReaderView: View {
         }
     }
 
-    /// Build the paragraph as an `AttributedString` so the body font + drop
-    /// cap can co-exist on the same `Text` view (avoids HStack drop-cap
-    /// hacks that don't reflow with the rest of the line).
-    private func paragraphAttributed(_ text: String, dropCap: Bool) -> AttributedString {
+    /// Build the paragraph as an `AttributedString` so the body font, drop
+    /// cap, and the speed-mode word/paragraph highlight share one `Text`.
+    private func paragraphAttributed(_ text: String, dropCap: Bool, paragraphIndex: Int?) -> AttributedString {
         var attr = AttributedString(text)
         attr.font = Typography.reader(settings.font, size: settings.fontSize)
-        attr.foregroundColor = textColor
-        guard dropCap, !text.isEmpty else { return attr }
-        let firstStart = attr.startIndex
-        let firstEnd   = attr.index(firstStart, offsetByCharacters: 1)
-        attr[firstStart..<firstEnd].font = .system(
-            size: settings.fontSize * 2.4,
-            weight: .semibold,
-            design: .serif
-        )
-        attr[firstStart..<firstEnd].foregroundColor = textColor
+
+        // Speed-mode dimming: paragraphs that aren't currently active fade
+        // back so the eye lands on the cursor's paragraph.
+        let inSpeed = mode == .speed
+        let isActiveSpeedPara = inSpeed && paragraphIndex == speedParagraphIndex
+        attr.foregroundColor = inSpeed
+            ? (isActiveSpeedPara ? textColor : textColor.opacity(0.40))
+            : textColor
+
+        if dropCap, !text.isEmpty {
+            let firstStart = attr.startIndex
+            let firstEnd   = attr.index(firstStart, offsetByCharacters: 1)
+            attr[firstStart..<firstEnd].font = .system(
+                size: settings.fontSize * 2.4,
+                weight: .semibold,
+                design: .serif
+            )
+        }
+
+        // Highlight the active word within the active paragraph.
+        if isActiveSpeedPara {
+            applySpeedWordHighlight(to: &attr, in: text)
+        }
+
         return attr
+    }
+
+    /// Walk the source string by whitespace boundaries and tag the word at
+    /// `speedWordIndex` with a tinted background so the reader's eye
+    /// follows along.
+    private func applySpeedWordHighlight(to attr: inout AttributedString, in source: String) {
+        var seen = 0
+        var cursor = source.startIndex
+        while cursor < source.endIndex {
+            while cursor < source.endIndex, source[cursor].isWhitespace {
+                cursor = source.index(after: cursor)
+            }
+            guard cursor < source.endIndex else { break }
+            let wordStart = cursor
+            while cursor < source.endIndex, !source[cursor].isWhitespace {
+                cursor = source.index(after: cursor)
+            }
+            if seen == speedWordIndex {
+                if let attrStart = AttributedString.Index(wordStart, within: attr),
+                   let attrEnd   = AttributedString.Index(cursor,    within: attr) {
+                    let range = attrStart..<attrEnd
+                    attr[range].backgroundColor = textColor.opacity(0.18)
+                    attr[range].foregroundColor = textColor
+                }
+                return
+            }
+            seen += 1
+        }
     }
 
     // MARK: - Save actions
@@ -433,36 +481,105 @@ struct ReaderView: View {
         case .read:
             progressRegion(isPlaying: false)
         case .speed:
-            speedTabHint()
+            speedControls(viewModel: viewModel, isDark: isDark)
         case .listen:
             listenControls(viewModel: viewModel, isDark: isDark)
         }
     }
 
+    /// Inline speed-reading controls — the reader page above keeps showing
+    /// the text with the active paragraph + word highlighted, auto-scrolling
+    /// at the chosen WPM. No full-screen sheet takeover.
     @ViewBuilder
-    private func speedTabHint() -> some View {
-        // Speed reading takes over the screen via SpeedReaderView (sheet),
-        // so the inline area shows the current state plus a re-open shortcut.
-        HStack(spacing: 10) {
-            Image(systemName: "bolt.fill")
-                .font(.system(size: 12, weight: .semibold))
-            Text("Speed reading…")
-                .font(.system(size: 13, weight: .medium))
-            Spacer()
-            Button {
-                if let vm = viewModel { vm.sheet = .speedReader }
-            } label: {
-                Text("Resume")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
-                    )
+    private func speedControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 10) {
+                Text("\(speedSettings.wpm)")
+                    .font(.system(size: 24, weight: .semibold, design: .serif))
+                    .foregroundStyle(textColor)
+                    .monospacedDigit()
+                Text("words / min")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(textColor.opacity(0.55))
+
+                Spacer(minLength: 6)
+
+                // Quick presets — tap-and-go.
+                ForEach([300, 500, 800], id: \.self) { wpm in
+                    Button {
+                        speedSettings.wpm = wpm
+                        persistSpeedSettings()
+                    } label: {
+                        Text("\(wpm)")
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule().fill(
+                                    speedSettings.wpm == wpm
+                                        ? textColor.opacity(0.10)
+                                        : .clear
+                                )
+                            )
+                            .overlay(
+                                Capsule().stroke(textColor.opacity(0.18), lineWidth: 0.5)
+                            )
+                            .foregroundStyle(textColor)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .buttonStyle(.plain)
+
+            HStack(spacing: 16) {
+                // Live WPM slider — snaps to 25.
+                Slider(
+                    value: Binding(
+                        get: { Double(speedSettings.wpm) },
+                        set: {
+                            speedSettings.wpm = Int(($0 / 25).rounded()) * 25
+                            persistSpeedSettings()
+                        }
+                    ),
+                    in: 150...1200,
+                    step: 25
+                )
+                .tint(textColor)
+
+                Spacer(minLength: 2)
+
+                Button {
+                    rewindSpeedSentence()
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(isDark ? Color.white : Color.black)
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    if speedIsRunning { stopSpeedTicker() }
+                    else { startSpeedTicker(viewModel: viewModel) }
+                } label: {
+                    Image(systemName: speedIsRunning ? "pause.fill" : "play.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(isDark ? Color.black : Color.white)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(isDark ? Color.white : Color.black))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    skipSpeedForward(viewModel: viewModel)
+                } label: {
+                    Image(systemName: "forward.end.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(isDark ? Color.white : Color.black)
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .foregroundStyle(textColor.opacity(0.7))
     }
 
     @ViewBuilder
@@ -547,15 +664,143 @@ struct ReaderView: View {
         switch newMode {
         case .read:
             if ttsEngine.isPlaying { ttsEngine.pause() }
+            stopSpeedTicker()
         case .listen:
+            stopSpeedTicker()
             // Start narration if we aren't already playing.
             if !ttsEngine.isPlaying {
                 toggleListen(viewModel: viewModel)
             }
         case .speed:
-            // Pause TTS in case it was active, open the speed-read sheet.
             if ttsEngine.isPlaying { ttsEngine.pause() }
-            viewModel.sheet = .speedReader
+            ensureSpeedSettings()
+            // Anchor the speed cursor to the paragraph the user is roughly
+            // looking at right now so they don't get yanked back to the top.
+            speedParagraphIndex = currentVisibleParagraphIndex(viewModel: viewModel)
+            speedWordIndex = 0
+            startSpeedTicker(viewModel: viewModel)
+        }
+    }
+
+    // MARK: - Speed mode
+
+    private func ensureSpeedSettings() {
+        let descriptor = FetchDescriptor<SpeedReaderSettings>()
+        if let existing = try? modelContext.fetch(descriptor).first {
+            speedSettings = existing
+        } else {
+            modelContext.insert(speedSettings)
+            try? modelContext.save()
+        }
+    }
+
+    private func persistSpeedSettings() {
+        try? modelContext.save()
+    }
+
+    private func currentVisibleParagraphIndex(viewModel: ReaderViewModel) -> Int {
+        let count = viewModel.paragraphs.count
+        guard count > 0 else { return 0 }
+        let pct = scrollProgress.clamped()
+        return min(count - 1, max(0, Int(pct * Double(count))))
+    }
+
+    private func startSpeedTicker(viewModel: ReaderViewModel) {
+        speedTickerTask?.cancel()
+        speedIsRunning = true
+        // Capture the paragraph list locally so the closure isn't reaching
+        // back into the view's identity on every tick.
+        let paragraphs = viewModel.paragraphs
+        speedTickerTask = Task { @MainActor in
+            while speedIsRunning && !Task.isCancelled {
+                let baseIntervalMs = 60_000 / max(60, speedSettings.wpm)
+                var dwellMs = baseIntervalMs
+                let word = currentSpeedWord(in: paragraphs)
+                if speedSettings.pauseAtPunctuation {
+                    if word.hasSuffix(",") || word.hasSuffix(";") { dwellMs += speedSettings.commaPauseMS }
+                    if word.hasSuffix(".") || word.hasSuffix("?") || word.hasSuffix("!") { dwellMs += speedSettings.periodPauseMS }
+                }
+                try? await Task.sleep(nanoseconds: UInt64(dwellMs) * 1_000_000)
+                guard !Task.isCancelled else { break }
+                advanceSpeedWord(in: paragraphs)
+            }
+        }
+    }
+
+    private func stopSpeedTicker() {
+        speedTickerTask?.cancel()
+        speedTickerTask = nil
+        speedIsRunning = false
+    }
+
+    private func currentSpeedWord(in paragraphs: [String]) -> String {
+        guard speedParagraphIndex < paragraphs.count else { return "" }
+        let words = paragraphs[speedParagraphIndex].split(whereSeparator: { $0.isWhitespace })
+        guard speedWordIndex < words.count else { return "" }
+        return String(words[speedWordIndex])
+    }
+
+    private func advanceSpeedWord(in paragraphs: [String]) {
+        guard speedParagraphIndex < paragraphs.count else {
+            speedIsRunning = false
+            return
+        }
+        let words = paragraphs[speedParagraphIndex].split(whereSeparator: { $0.isWhitespace })
+        if speedWordIndex + 1 < words.count {
+            speedWordIndex += 1
+            return
+        }
+        // End of paragraph — advance to the next non-empty one.
+        var nextIdx = speedParagraphIndex + 1
+        while nextIdx < paragraphs.count {
+            let candidate = paragraphs[nextIdx]
+            if candidate.split(whereSeparator: { $0.isWhitespace }).isEmpty == false
+                && !candidate.hasPrefix("# ") {
+                break
+            }
+            nextIdx += 1
+        }
+        if nextIdx < paragraphs.count {
+            speedParagraphIndex = nextIdx
+            speedWordIndex = 0
+            // Auto-scroll the new paragraph into view via ReaderViewModel —
+            // its `currentParagraph` -> ScrollViewReader hookup already
+            // handles the smooth scroll.
+            viewModel?.currentParagraph = nextIdx
+        } else {
+            speedIsRunning = false
+        }
+    }
+
+    private func skipSpeedForward(viewModel: ReaderViewModel) {
+        let paragraphs = viewModel.paragraphs
+        guard !paragraphs.isEmpty else { return }
+        var nextIdx = speedParagraphIndex + 1
+        while nextIdx < paragraphs.count, paragraphs[nextIdx].hasPrefix("# ") {
+            nextIdx += 1
+        }
+        guard nextIdx < paragraphs.count else { return }
+        speedParagraphIndex = nextIdx
+        speedWordIndex = 0
+        viewModel.currentParagraph = nextIdx
+    }
+
+    private func rewindSpeedSentence() {
+        guard let vm = viewModel else { return }
+        let words = vm.paragraphs[safe: speedParagraphIndex]?.split(whereSeparator: { $0.isWhitespace }) ?? []
+        var i = speedWordIndex - 1
+        while i > 0 {
+            let w = String(words[i])
+            if w.hasSuffix(".") || w.hasSuffix("?") || w.hasSuffix("!") { break }
+            i -= 1
+        }
+        if i <= 0, speedParagraphIndex > 0 {
+            // At the start of a paragraph — go to the previous one.
+            speedParagraphIndex -= 1
+            speedWordIndex = 0
+            vm.currentParagraph = speedParagraphIndex
+        } else {
+            speedWordIndex = max(0, i)
         }
     }
 
@@ -784,6 +1029,12 @@ private struct ProgressBar: View {
 
 private extension Double {
     func clamped() -> Double { Swift.max(0, Swift.min(1, self)) }
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
 }
 
 private extension Int {
