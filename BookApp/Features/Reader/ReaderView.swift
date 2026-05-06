@@ -108,7 +108,15 @@ struct ReaderView: View {
         .statusBarHidden(!showsChrome)
         .preferredColorScheme(settings.theme == .dark || settings.theme == .black ? .dark : .light)
         .onAppear { stats.start() }
-        .onDisappear { stats.stop() }
+        .onDisappear {
+            stats.stop()
+            // Speed mode is a foreground-only ticker (it scrolls the
+            // reader). Without this, popping the reader leaves the task
+            // running against orphaned `@State` storage and the next
+            // open of a book gets a stuttering scroll from the ghost
+            // ticker mutating viewModel.currentParagraph.
+            stopSpeedTicker()
+        }
     }
 
     @ViewBuilder
@@ -547,7 +555,11 @@ struct ReaderView: View {
         ttsEngine.onParagraphChange = { [ttsEngine] _ in
             ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
         }
-        ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+        ttsEngine.togglePlayback(
+            bookID: bookID,
+            variantID: variantID,
+            paragraphs: viewModel.paragraphs
+        )
         // Capture the resume point once now too — the listener only fires on
         // paragraph *changes*, not on the initial start.
         ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
@@ -771,7 +783,11 @@ struct ReaderView: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+                    ttsEngine.togglePlayback(
+                        bookID: book.id,
+                        variantID: viewModel.currentVariant.id,
+                        paragraphs: viewModel.paragraphs
+                    )
                 } label: {
                     Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
                         .font(.system(size: 22, weight: .bold))
@@ -819,8 +835,13 @@ struct ReaderView: View {
             stopSpeedTicker()
         case .listen:
             stopSpeedTicker()
-            // Start narration if we aren't already playing.
-            if !ttsEngine.isPlaying {
+            // Start narration when nothing is playing, or when the engine
+            // is mid-narration for a *different* book — without the second
+            // check, popping back to the library and opening another book
+            // would leave the Listen tab pointing at the previous book.
+            let bookID = book.id
+            let variantID = viewModel.currentVariant.id
+            if !ttsEngine.isPlaying || !ttsEngine.isLoadedFor(bookID: bookID, variantID: variantID) {
                 toggleListen(viewModel: viewModel)
             }
         case .speed:
@@ -872,6 +893,10 @@ struct ReaderView: View {
         // Capture the paragraph list locally so the closure isn't reaching
         // back into the view's identity on every tick.
         let paragraphs = viewModel.paragraphs
+        guard !paragraphs.isEmpty else {
+            speedIsRunning = false
+            return
+        }
         speedTickerTask = Task { @MainActor in
             while speedIsRunning && !Task.isCancelled {
                 let baseIntervalMs = 60_000 / max(60, speedSettings.wpm)
@@ -881,7 +906,11 @@ struct ReaderView: View {
                     if word.hasSuffix(",") || word.hasSuffix(";") { dwellMs += speedSettings.commaPauseMS }
                     if word.hasSuffix(".") || word.hasSuffix("?") || word.hasSuffix("!") { dwellMs += speedSettings.periodPauseMS }
                 }
-                try? await Task.sleep(nanoseconds: UInt64(dwellMs) * 1_000_000)
+                // Clamp before the UInt64 conversion: a negative dwell
+                // (corrupted SwiftData / user-set zero pause values plus
+                // a weird wpm) would trap on UInt64(negative).
+                let safeDwellMs = max(16, dwellMs)
+                try? await Task.sleep(nanoseconds: UInt64(safeDwellMs) * 1_000_000)
                 guard !Task.isCancelled else { break }
                 advanceSpeedWord(in: paragraphs)
             }
