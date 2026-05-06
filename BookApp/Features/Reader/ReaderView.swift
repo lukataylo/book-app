@@ -32,6 +32,7 @@ struct ReaderView: View {
     @State private var ttsEngine = TTSEngine.shared
     @State private var savedToast: String?
     @State private var persistTask: Task<Void, Never>?
+    @State private var mode: ReaderMode = .read
     @StateObject private var stats = ReadingStats.shared
 
     init(book: Book, variant: BookVariant? = nil) {
@@ -163,6 +164,13 @@ struct ReaderView: View {
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .zIndex(3)
                     .accessibilityLabel(toast)
+            }
+        }
+        .onChange(of: viewModel.sheet) { old, new in
+            // If the user dismissed the speed-reader sheet (swipe-down),
+            // revert the mode pill to Read so the bar reflects reality.
+            if mode == .speed && old == .speedReader && new == nil {
+                mode = .read
             }
         }
         .sheet(item: Binding(
@@ -366,7 +374,6 @@ struct ReaderView: View {
     private func bottomBar(viewModel: ReaderViewModel) -> some View {
         let isDark = settings.theme == .dark || settings.theme == .black
         let bg = backgroundColor
-        let isPlaying = ttsEngine.isPlaying
 
         VStack(spacing: 0) {
             LinearGradient(
@@ -374,35 +381,181 @@ struct ReaderView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 64)
+            .frame(height: 60)
             .allowsHitTesting(false)
 
-            VStack(spacing: 6) {
-                // Progress region — text or scrubbable bar depending on setting.
-                progressRegion(isPlaying: isPlaying)
+            VStack(spacing: 10) {
+                // Three-tab mode pill — always visible. Each tab switches the
+                // reader into Read / Speed / Listen and triggers the right
+                // side-effect (start/stop TTS, open speed reader, etc.).
+                ModeTabPill(mode: $mode, isDark: isDark)
                     .padding(.horizontal, 18)
+                    .onChange(of: mode) { _, newMode in
+                        applyModeChange(to: newMode, viewModel: viewModel)
+                    }
 
-                if isPlaying {
-                    miniPlayerControls(viewModel: viewModel, isDark: isDark)
-                        .padding(.horizontal, 18)
-                } else {
-                    standardActionRow(viewModel: viewModel, isDark: isDark)
-                        .padding(.horizontal, 18)
-                }
+                // Contextual controls underneath the pill.
+                modeControls(viewModel: viewModel, isDark: isDark)
+                    .padding(.horizontal, 18)
+                    .frame(minHeight: 44)
 
-                Button {
-                    withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
-                } label: {
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(textColor.opacity(0.35))
-                        .frame(width: 44, height: 18)
-                        .contentShape(Rectangle())
+                // Mode-independent secondary row: Aa, AI, collapse-chrome.
+                HStack(spacing: 22) {
+                    Spacer()
+                    IconBarButton(systemImage: "textformat.size", isDark: isDark) {
+                        viewModel.sheet = .readerSettings
+                    }
+                    IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
+                        viewModel.sheet = .transformations
+                    }
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
+                    } label: {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(textColor.opacity(0.5))
+                            .frame(width: 38, height: 38)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
                 }
-                .buttonStyle(.plain)
+                .padding(.bottom, 2)
             }
             .padding(.bottom, 4)
             .background(bg)
+        }
+    }
+
+    @ViewBuilder
+    private func modeControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
+        switch mode {
+        case .read:
+            progressRegion(isPlaying: false)
+        case .speed:
+            speedTabHint()
+        case .listen:
+            listenControls(viewModel: viewModel, isDark: isDark)
+        }
+    }
+
+    @ViewBuilder
+    private func speedTabHint() -> some View {
+        // Speed reading takes over the screen via SpeedReaderView (sheet),
+        // so the inline area shows the current state plus a re-open shortcut.
+        HStack(spacing: 10) {
+            Image(systemName: "bolt.fill")
+                .font(.system(size: 12, weight: .semibold))
+            Text("Speed reading…")
+                .font(.system(size: 13, weight: .medium))
+            Spacer()
+            Button {
+                if let vm = viewModel { vm.sheet = .speedReader }
+            } label: {
+                Text("Resume")
+                    .font(.system(size: 13, weight: .semibold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
+                    )
+            }
+            .buttonStyle(.plain)
+        }
+        .foregroundStyle(textColor.opacity(0.7))
+    }
+
+    @ViewBuilder
+    private func listenControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
+        VStack(spacing: 8) {
+            if !ttsEngine.currentText.isEmpty {
+                Text(ttsEngine.currentText.replacingOccurrences(of: "\n", with: " "))
+                    .font(.system(size: 13, weight: .regular, design: .serif))
+                    .foregroundStyle(textColor.opacity(0.92))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            HStack(spacing: 16) {
+                Button {
+                    viewModel.sheet = .ttsSettings
+                } label: {
+                    Image(systemName: "person.wave.2")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(textColor.opacity(0.78))
+                        .frame(width: 36, height: 36)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Voice settings")
+
+                Spacer()
+
+                Button {
+                    ttsEngine.skipBackward()
+                } label: {
+                    Image(systemName: "gobackward")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(isDark ? Color.white : Color.black)
+                        .frame(width: 40, height: 40)
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+                } label: {
+                    Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(isDark ? Color.black : Color.white)
+                        .frame(width: 52, height: 52)
+                        .background(Circle().fill(isDark ? Color.white : Color.black))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    ttsEngine.skipForward()
+                } label: {
+                    Image(systemName: "goforward")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(isDark ? Color.white : Color.black)
+                        .frame(width: 40, height: 40)
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                Button {
+                    ttsEngine.cycleRate()
+                } label: {
+                    Text(rateLabel(for: ttsEngine.currentRate))
+                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                        .frame(minWidth: 38, minHeight: 28)
+                        .padding(.horizontal, 8)
+                        .background(
+                            Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
+                        )
+                        .foregroundStyle(textColor)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    /// Side-effects of the user changing the active mode tab. Keeps the
+    /// engine state and any sub-sheet in sync with the pill's selection.
+    private func applyModeChange(to newMode: ReaderMode, viewModel: ReaderViewModel) {
+        switch newMode {
+        case .read:
+            if ttsEngine.isPlaying { ttsEngine.pause() }
+        case .listen:
+            // Start narration if we aren't already playing.
+            if !ttsEngine.isPlaying {
+                toggleListen(viewModel: viewModel)
+            }
+        case .speed:
+            // Pause TTS in case it was active, open the speed-read sheet.
+            if ttsEngine.isPlaying { ttsEngine.pause() }
+            viewModel.sheet = .speedReader
         }
     }
 
@@ -439,95 +592,6 @@ struct ReaderView: View {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func standardActionRow(viewModel: ReaderViewModel, isDark: Bool) -> some View {
-        HStack(spacing: 22) {
-            ListenButton(isPlaying: false, isDark: isDark) {
-                toggleListen(viewModel: viewModel)
-            } onLongPress: {
-                viewModel.sheet = .ttsSettings
-            }
-            Spacer()
-            IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
-                viewModel.sheet = .speedReader
-            }
-            IconBarButton(systemImage: "textformat.size", isDark: isDark) {
-                viewModel.sheet = .readerSettings
-            }
-            IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
-                viewModel.sheet = .transformations
-            }
-        }
-        .frame(height: 44)
-    }
-
-    @ViewBuilder
-    private func miniPlayerControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
-        HStack(spacing: 18) {
-            // Voice / settings shortcut
-            IconBarButton(systemImage: "person.wave.2", isDark: isDark) {
-                viewModel.sheet = .ttsSettings
-            }
-
-            Spacer()
-
-            // Skip-back: first tap restarts paragraph, second jumps back.
-            Button {
-                ttsEngine.skipBackward()
-            } label: {
-                Image(systemName: "gobackward")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(isDark ? Color.white : Color.black)
-                    .frame(width: 40, height: 40)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Restart paragraph or skip back")
-
-            // Play / pause — bigger, primary.
-            Button {
-                ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
-            } label: {
-                Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(isDark ? Color.black : Color.white)
-                    .frame(width: 52, height: 52)
-                    .background(Circle().fill(isDark ? Color.white : Color.black))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Pause narration")
-
-            Button {
-                ttsEngine.skipForward()
-            } label: {
-                Image(systemName: "goforward")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(isDark ? Color.white : Color.black)
-                    .frame(width: 40, height: 40)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Skip to next paragraph")
-
-            Spacer()
-
-            // Rate cycle 0.4 → 0.5 → 0.6 → 0.7
-            Button {
-                ttsEngine.cycleRate()
-            } label: {
-                Text(rateLabel(for: ttsEngine.currentRate))
-                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                    .frame(minWidth: 38, minHeight: 28)
-                    .padding(.horizontal, 8)
-                    .background(
-                        Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
-                    )
-                    .foregroundStyle(isDark ? Color.white : Color.black)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Change speed")
-        }
-        .frame(height: 56)
     }
 
     private func rateLabel(for rate: Double) -> String {
@@ -607,54 +671,75 @@ struct ReaderView: View {
 
 }
 
-// MARK: - Bar components
+// MARK: - Mode pill
 
-/// Listen button — primary play / pause. Tap toggles TTS, long-press
-/// opens the TTS settings sheet.
-private struct ListenButton: View {
-    let isPlaying: Bool
-    let isDark: Bool
-    let onTap: () -> Void
-    let onLongPress: () -> Void
+/// The three reading modes — the unified UI for "Read / Speed / Listen".
+enum ReaderMode: String, CaseIterable, Hashable {
+    case read, speed, listen
 
-    var body: some View {
-        Button {
-            onTap()
-        } label: {
-            Image(systemName: isPlaying ? "pause.fill" : "waveform")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(
-                    isPlaying
-                        ? (isDark ? Color.black : Color.white)
-                        : (isDark ? Color.white : Color.black)
-                )
-                .frame(width: 40, height: 40)
-                .background(
-                    Circle().fill(
-                        isPlaying
-                            ? (isDark ? Color.white : Color.black)
-                            : Color.clear
-                    )
-                )
-                .overlay(
-                    Circle().stroke(
-                        isPlaying
-                            ? Color.clear
-                            : (isDark ? Color.white.opacity(0.20) : Color.black.opacity(0.14)),
-                        lineWidth: 0.5
-                    )
-                )
+    var systemImage: String {
+        switch self {
+        case .read:   return "book"
+        case .speed:  return "bolt.fill"
+        case .listen: return "headphones"
         }
-        .buttonStyle(.plain)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.4).onEnded { _ in onLongPress() }
-        )
-        .accessibilityLabel(isPlaying ? "Pause narration" : "Listen")
-        .accessibilityHint("Long-press for voice settings")
+    }
+
+    var label: String {
+        switch self {
+        case .read:   return "Read"
+        case .speed:  return "Speed"
+        case .listen: return "Listen"
+        }
     }
 }
 
-/// Plain round-icon control — used for Speed, Aa, AI.
+/// Three-segment selectable pill — Apple Books-style "Read / Listen" extended
+/// with a Speed segment in the middle. Selected segment fills with the inverse
+/// of the page background; the others stay outlined.
+private struct ModeTabPill: View {
+    @Binding var mode: ReaderMode
+    let isDark: Bool
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(ReaderMode.allCases, id: \.self) { tab in
+                Button {
+                    mode = tab
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 12, weight: .semibold))
+                        Text(tab.label)
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 9)
+                    .foregroundStyle(
+                        mode == tab
+                            ? (isDark ? Color.black : Color.white)
+                            : (isDark ? Color.white.opacity(0.7) : Color.black.opacity(0.6))
+                    )
+                    .background(
+                        ZStack {
+                            if mode == tab {
+                                Capsule().fill(isDark ? Color.white : Color.black)
+                            }
+                        }
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(3)
+        .background(
+            Capsule()
+                .stroke(isDark ? Color.white.opacity(0.18) : Color.black.opacity(0.12), lineWidth: 0.5)
+        )
+    }
+}
+
+/// Plain round-icon control — used for Aa and AI in the secondary row.
 private struct IconBarButton: View {
     let systemImage: String
     let isDark: Bool
