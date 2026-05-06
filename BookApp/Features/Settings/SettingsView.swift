@@ -6,6 +6,9 @@ struct SettingsView: View {
     @State private var apiKey: String = ""
     @State private var keySaved: Bool = false
     @State private var monthlySpend: Double = 0
+    @State private var onDeviceStatus: String = "Checking…"
+    @State private var onDeviceTestResult: String?
+    @State private var testingOnDevice: Bool = false
     @StateObject private var stats = ReadingStats.shared
 
     var body: some View {
@@ -61,8 +64,38 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Local model") {
-                    Text("Apple Foundation Models is used when available. MLX is the fallback on older devices and currently requires manual setup.")
+                Section("On-device model") {
+                    HStack {
+                        Text("Apple Intelligence")
+                        Spacer()
+                        Text(onDeviceStatus)
+                            .foregroundStyle(onDeviceStatus == "Available"
+                                             ? .green
+                                             : Theme.Palette.textSecondary)
+                            .font(.callout)
+                    }
+                    Button {
+                        Task { await runOnDeviceTest() }
+                    } label: {
+                        HStack {
+                            if testingOnDevice {
+                                ProgressView().scaleEffect(0.8)
+                                    .padding(.trailing, 6)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .padding(.trailing, 4)
+                            }
+                            Text(testingOnDevice ? "Testing…" : "Test on-device model")
+                        }
+                    }
+                    .disabled(testingOnDevice)
+                    if let result = onDeviceTestResult {
+                        Text(result)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                    }
+                    Text("On-device handles short tasks (auto-categorisation, brief learnings). Whole-book compression and re-style need a Claude API key — the on-device context window is too small.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -79,7 +112,20 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .onAppear { recomputeSpend() }
+            .task {
+                onDeviceStatus = await LocalProvider().availabilityReport()
+            }
         }
+    }
+
+    private func runOnDeviceTest() async {
+        testingOnDevice = true
+        defer { testingOnDevice = false }
+        let provider = LocalProvider()
+        let result = await provider.ping()
+        onDeviceTestResult = result
+        // Refresh status in case availability flipped (e.g. model just finished downloading).
+        onDeviceStatus = await provider.availabilityReport()
     }
 
     @MainActor
