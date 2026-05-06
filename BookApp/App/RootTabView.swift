@@ -5,7 +5,7 @@ struct RootTabView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selection: Tab = .library
 
-    enum Tab: Hashable { case library, search, learnings, settings }
+    enum Tab: Hashable { case library, search, bookmarks, settings }
 
     var body: some View {
         TabView(selection: $selection) {
@@ -17,9 +17,9 @@ struct RootTabView: View {
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
                 .tag(Tab.search)
 
-            LearningsListView()
-                .tabItem { Label("Learnings", systemImage: "lightbulb.fill") }
-                .tag(Tab.learnings)
+            BookmarksGalleryView()
+                .tabItem { Label("Bookmarks", systemImage: "bookmark.fill") }
+                .tag(Tab.bookmarks)
 
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }

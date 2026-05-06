@@ -31,6 +31,7 @@ struct ReaderView: View {
     @State private var scrollPosition = ScrollPosition()
     @State private var ttsEngine = TTSEngine.shared
     @State private var savedToast: String?
+    @State private var toastTask: Task<Void, Never>?
     @State private var persistTask: Task<Void, Never>?
     @State private var mode: ReaderMode = .read
     // Speed-mode inline state
@@ -290,11 +291,6 @@ struct ReaderView: View {
                 .textSelection(.enabled)
                 .contextMenu {
                     Button {
-                        saveLearning(text: text)
-                    } label: {
-                        Label("Save as Learning", systemImage: "lightbulb.fill")
-                    }
-                    Button {
                         saveAnnotation(text: text)
                     } label: {
                         Label("Highlight", systemImage: "highlighter")
@@ -397,6 +393,20 @@ struct ReaderView: View {
 
     // MARK: - Save actions
 
+    /// Defer a SwiftData save to the next runloop tick so the in-flight
+    /// gesture (highlight / bookmark / annotation) sees the toast and the
+    /// context-menu dismiss animation *before* CloudKit's sync flush blocks
+    /// the main actor for 50–300ms. The SwiftData model context is itself
+    /// MainActor-bound so we can't move it off the main thread; what we
+    /// can do is yield once so SwiftUI gets a chance to commit the frame
+    /// first.
+    private func deferredSave() {
+        Task { @MainActor in
+            await Task.yield()
+            try? modelContext.save()
+        }
+    }
+
     private func saveLearning(text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let learning = KeyLearning(
@@ -406,7 +416,7 @@ struct ReaderView: View {
             userEdited: true
         )
         modelContext.insert(learning)
-        try? modelContext.save()
+        deferredSave()
         showToast("Saved to learnings")
     }
 
@@ -419,7 +429,7 @@ struct ReaderView: View {
             color: .yellow
         )
         modelContext.insert(annotation)
-        try? modelContext.save()
+        deferredSave()
         showToast("Highlight saved")
     }
 
@@ -433,7 +443,7 @@ struct ReaderView: View {
             snippet: snippet
         )
         modelContext.insert(bm)
-        try? modelContext.save()
+        deferredSave()
         showToast("Bookmarked")
     }
 
@@ -441,9 +451,8 @@ struct ReaderView: View {
         guard let vm = viewModel else { return "" }
         let chapters = vm.chapters
         guard !chapters.isEmpty else { return "" }
-        let current = vm.currentParagraph
-        let active = chapters.last(where: { $0.paragraphIndex <= current })
-        return active?.title ?? ""
+        let current = max(0, vm.currentParagraph)
+        return chapters.last(where: { $0.paragraphIndex <= current })?.title ?? ""
     }
 
     /// Debounced reading-progress persist. Cancels any in-flight write and
@@ -465,9 +474,14 @@ struct ReaderView: View {
     }
 
     private func showToast(_ message: String) {
+        // Cancel any in-flight dismiss task — rapid highlights would
+        // otherwise pile up overlapping 1.5s sleepers, each of which still
+        // ends up calling `savedToast = nil` and clobbering newer toasts.
+        toastTask?.cancel()
         withAnimation(.easeOut(duration: 0.18)) { savedToast = message }
-        Task { @MainActor in
+        toastTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard !Task.isCancelled else { return }
             withAnimation(.easeIn(duration: 0.2)) { savedToast = nil }
         }
     }
@@ -843,18 +857,17 @@ struct ReaderView: View {
     }
 
     private func currentSpeedWord(in paragraphs: [String]) -> String {
-        guard speedParagraphIndex < paragraphs.count else { return "" }
-        let words = paragraphs[speedParagraphIndex].split(whereSeparator: { $0.isWhitespace })
-        guard speedWordIndex < words.count else { return "" }
-        return String(words[speedWordIndex])
+        guard let paragraph = paragraphs[safe: speedParagraphIndex] else { return "" }
+        let words = paragraph.split(whereSeparator: { $0.isWhitespace })
+        return words[safe: speedWordIndex].map(String.init) ?? ""
     }
 
     private func advanceSpeedWord(in paragraphs: [String]) {
-        guard speedParagraphIndex < paragraphs.count else {
+        guard let paragraph = paragraphs[safe: speedParagraphIndex] else {
             speedIsRunning = false
             return
         }
-        let words = paragraphs[speedParagraphIndex].split(whereSeparator: { $0.isWhitespace })
+        let words = paragraph.split(whereSeparator: { $0.isWhitespace })
         if speedWordIndex + 1 < words.count {
             speedWordIndex += 1
             return
@@ -906,15 +919,14 @@ struct ReaderView: View {
 
     private func rewindSpeedSentence() {
         guard let vm = viewModel else { return }
-        let words = vm.paragraphs[safe: speedParagraphIndex]?.split(whereSeparator: { $0.isWhitespace }) ?? []
-        var i = speedWordIndex - 1
-        while i > 0 {
-            let w = String(words[i])
+        let words = vm.paragraphs[safe: speedParagraphIndex]?
+            .split(whereSeparator: { $0.isWhitespace }) ?? []
+        var i = min(speedWordIndex - 1, words.count - 1)
+        while i > 0, let w = words[safe: i].map(String.init) {
             if w.hasSuffix(".") || w.hasSuffix("?") || w.hasSuffix("!") { break }
             i -= 1
         }
         if i <= 0, speedParagraphIndex > 0 {
-            // At the start of a paragraph — go to the previous one.
             speedParagraphIndex -= 1
             speedWordIndex = 0
             vm.currentParagraph = speedParagraphIndex
@@ -1148,12 +1160,6 @@ private struct ProgressBar: View {
 
 private extension Double {
     func clamped() -> Double { Swift.max(0, Swift.min(1, self)) }
-}
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
 }
 
 private extension Int {

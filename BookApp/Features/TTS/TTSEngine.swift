@@ -241,12 +241,11 @@ final class TTSEngine: NSObject {
     }
 
     private func speakCurrent() {
-        guard currentParagraph < paragraphs.count else {
+        guard let text = paragraphs[safe: currentParagraph] else {
             isPlaying = false
             updateNowPlaying()
             return
         }
-        let text = paragraphs[currentParagraph]
         currentText = text
         let utterance = AVSpeechUtterance(string: text)
         utterance.rate = clampedRate(settings.rate)

@@ -19,6 +19,15 @@ struct LibraryView: View {
     @FocusState private var searchFocused: Bool
 
     var body: some View {
+        // Compute the derived collections ONCE per body evaluation rather
+        // than recomputing inside every subview that consumes them. SwiftUI
+        // re-runs `body` on any observed state change, so without this the
+        // shelves and the continue-reading card walked the progress array
+        // three times per render.
+        let progress = Self.buildProgressMap(allProgress)
+        let groups = Self.buildCategoryGroups(books)
+        let resume = Self.firstResumeCandidate(allProgress)
+
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
@@ -27,16 +36,16 @@ struct LibraryView: View {
                     if books.isEmpty {
                         emptyState
                     } else {
-                        if let resume = continueCandidate() {
+                        if let resume {
                             continueCard(book: resume.book, percent: resume.percent)
                                 .padding(.horizontal, Theme.Spacing.l)
                         }
-                        topSelections
-                        ForEach(categoryGroups, id: \.0) { (category, list) in
+                        topSelectionsShelf(progress: progress)
+                        ForEach(groups, id: \.0) { (category, list) in
                             ShelfView(
                                 title: category,
                                 books: list,
-                                progressMap: progressMap,
+                                progressMap: progress,
                                 onSelect: { book in selectedBook = book },
                                 onLongPress: { book, action in
                                     handleCardAction(book: book, action: action)
@@ -106,29 +115,39 @@ struct LibraryView: View {
 
     // MARK: - Progress + continue-reading
 
-    private var progressMap: [UUID: Double] {
-        var map: [UUID: Double] = [:]
-        for p in allProgress {
-            guard let bookID = p.book?.id else { continue }
-            map[bookID] = max(map[bookID] ?? 0, p.percent)
-        }
-        return map
-    }
-
     private struct ContinueCandidate {
         let book: Book
         let percent: Double
         let updatedAt: Date
     }
 
-    private func continueCandidate() -> ContinueCandidate? {
-        let candidates = allProgress
-            .compactMap { p -> ContinueCandidate? in
-                guard let book = p.book, p.percent > 0.005 else { return nil }
+    private static func buildProgressMap(_ all: [ReadingProgress]) -> [UUID: Double] {
+        var map: [UUID: Double] = [:]
+        for p in all {
+            guard let bookID = p.book?.id else { continue }
+            map[bookID] = max(map[bookID] ?? 0, p.percent)
+        }
+        return map
+    }
+
+    private static func buildCategoryGroups(_ books: [Book]) -> [(String, [Book])] {
+        var buckets: [String: [Book]] = [:]
+        for book in books {
+            let cat = book.categoryTags.first ?? "Uncategorized"
+            buckets[cat, default: []].append(book)
+        }
+        return buckets.sorted { $0.key < $1.key }
+    }
+
+    private static func firstResumeCandidate(_ all: [ReadingProgress]) -> ContinueCandidate? {
+        // `allProgress` already arrives sorted by updatedAt desc — so the
+        // first valid hit is the most recent one. Avoids a full sort.
+        for p in all {
+            if let book = p.book, p.percent > 0.005 {
                 return ContinueCandidate(book: book, percent: p.percent, updatedAt: p.updatedAt)
             }
-            .sorted { $0.updatedAt > $1.updatedAt }
-        return candidates.first
+        }
+        return nil
     }
 
     @ViewBuilder
@@ -176,11 +195,17 @@ struct LibraryView: View {
     }
 
     private func performDelete(_ book: Book) {
-        // Remove the on-disk book folder if it exists.
-        let folder = BookStore.shared.bookFolder(for: book.id, create: false)
-        try? FileManager.default.removeItem(at: folder)
+        // Delete the SwiftData record on the main actor (cheap), then move
+        // the on-disk folder removal off the main thread — it can be slow
+        // for image-heavy books and we don't want the alert dismiss to
+        // hitch.
+        let bookID = book.id
         modelContext.delete(book)
         try? modelContext.save()
+        Task.detached(priority: .utility) {
+            let folder = BookStore.shared.bookFolder(for: bookID, create: false)
+            try? FileManager.default.removeItem(at: folder)
+        }
     }
 
     // MARK: - Subviews
@@ -263,25 +288,16 @@ struct LibraryView: View {
         .padding(.vertical, Theme.Spacing.xxl)
     }
 
-    private var topSelections: some View {
+    private func topSelectionsShelf(progress: [UUID: Double]) -> some View {
         let recent = Array(books.prefix(8))
         return ShelfView(
             title: "Top selections for you",
             subtitle: "Based on what you're reading",
             books: recent,
-            progressMap: progressMap,
+            progressMap: progress,
             onSelect: { book in selectedBook = book },
             onLongPress: { book, action in handleCardAction(book: book, action: action) }
         )
-    }
-
-    private var categoryGroups: [(String, [Book])] {
-        var buckets: [String: [Book]] = [:]
-        for book in books {
-            let cat = book.categoryTags.first ?? "Uncategorized"
-            buckets[cat, default: []].append(book)
-        }
-        return buckets.sorted { $0.key < $1.key }
     }
 
     private var greetingName: String {

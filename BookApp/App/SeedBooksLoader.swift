@@ -159,16 +159,20 @@ enum SeedBooksLoader {
     }
 
     /// Reads `learnings.json` (curated array of `{text, chapter}` records)
-    /// from the book's seed folder and creates `KeyLearning` rows. Silent
-    /// no-op if the file is missing — partially-seeded books still get
-    /// their original variant.
+    /// from the book's seed folder and creates BOTH a `KeyLearning` row
+    /// (kept for backwards compatibility with users who already have data)
+    /// and an `Annotation` row, which is what the new Bookmarks gallery
+    /// reads. Annotations show in the new tab as visually striking
+    /// "highlight cards" — pre-seeding here means a fresh install opens
+    /// to a populated gallery instead of an empty state.
     private static func seedLearnings(book: Book, bookFolder: URL) {
         let url = bookFolder.appendingPathComponent("learnings.json")
         guard let data = try? Data(contentsOf: url),
               let entries = try? JSONDecoder().decode([SeedLearning].self, from: data) else {
             return
         }
-        for entry in entries {
+        let palette: [AnnotationColor] = [.yellow, .blue, .pink, .green, .purple]
+        for (idx, entry) in entries.enumerated() {
             let learning = KeyLearning(
                 book: book,
                 text: entry.text,
@@ -176,6 +180,18 @@ enum SeedBooksLoader {
                 userEdited: false
             )
             book.modelContext?.insert(learning)
+
+            // Mirror as an Annotation — that's what the new Bookmarks tab
+            // consumes. The chapter ref is stored in `note` so the card
+            // can show "Chapter XVIII" beneath the highlight badge.
+            let annotation = Annotation(
+                book: book,
+                variantID: nil,
+                quotedText: entry.text,
+                note: entry.chapter,
+                color: palette[idx % palette.count]
+            )
+            book.modelContext?.insert(annotation)
         }
     }
 
