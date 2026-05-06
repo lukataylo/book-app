@@ -44,6 +44,33 @@ final class ReaderViewModel {
         self.book = book
         self.currentVariant = variant ?? book.originalVariant ?? BookVariant(book: book, kind: .original, contentText: "")
         self.paragraphs = Self.splitParagraphs(currentVariant.contentText)
+        self.currentParagraph = Self.resumeParagraphIndex(
+            book: book,
+            variantID: currentVariant.id,
+            paragraphCount: paragraphs.count
+        )
+    }
+
+    /// Look up the most recent saved progress for this book + variant and
+    /// translate it into a paragraph index. Locator format `para:<n>` is
+    /// the canonical form (precise resume); legacy `scroll:<percent*1e6>`
+    /// values fall back to a percent-of-paragraphs estimate.
+    private static func resumeParagraphIndex(book: Book, variantID: UUID, paragraphCount: Int) -> Int {
+        guard paragraphCount > 0 else { return 0 }
+        let progress = (book.progress ?? [])
+            .filter { $0.variantID == variantID }
+            .max { $0.updatedAt < $1.updatedAt }
+        guard let progress else { return 0 }
+        let locator = progress.locator
+        if locator.hasPrefix("para:"),
+           let n = Int(locator.dropFirst(5)) {
+            return max(0, min(n, paragraphCount - 1))
+        }
+        if locator.hasPrefix("scroll:") {
+            let est = Int(progress.percent * Double(paragraphCount))
+            return max(0, min(est, paragraphCount - 1))
+        }
+        return 0
     }
 
     static func splitParagraphs(_ text: String) -> [String] {

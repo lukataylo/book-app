@@ -147,6 +147,20 @@ struct ReaderView: View {
                 .onChange(of: viewModel.currentParagraph) { _, newValue in
                     withAnimation { proxy.scrollTo(newValue, anchor: .top) }
                 }
+                .onAppear {
+                    // Restore the last-read paragraph. Resume targets set
+                    // by ReaderViewModel.init are silent — `.onChange`
+                    // doesn't fire for the initial value, so we drive the
+                    // scroll explicitly. Without animation the user lands
+                    // there immediately rather than watching a 200-paragraph
+                    // scroll roll past.
+                    let target = viewModel.currentParagraph
+                    if target > 0 {
+                        DispatchQueue.main.async {
+                            proxy.scrollTo(target, anchor: .top)
+                        }
+                    }
+                }
                 .onChange(of: scrollProgress) { _, newValue in
                     // Debounce progress writes — every observable scroll tick
                     // shouldn't pound the model context. We persist after the
@@ -281,44 +295,83 @@ struct ReaderView: View {
         case .image(let filename):
             inlineImage(filename: filename)
         case .paragraph(let text):
-            Text(paragraphAttributed(
-                text,
-                dropCap: isFirstAfterHeading && settings.dropCaps,
-                paragraphIndex: paragraphIndex
-            ))
-                .lineSpacing((settings.lineSpacing - 1) * settings.fontSize)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .textSelection(.enabled)
-                .contextMenu {
-                    Button {
-                        saveAnnotation(text: text)
-                    } label: {
-                        Label("Highlight", systemImage: "highlighter")
-                    }
-                    Button {
-                        if let idx = paragraphIndex {
-                            saveBookmark(text: text, paragraphIndex: idx)
-                        }
-                    } label: {
-                        Label("Bookmark", systemImage: "bookmark")
-                    }
-                    Button {
-                        UIPasteboard.general.string = text
-                    } label: {
-                        Label("Copy paragraph", systemImage: "doc.on.doc")
-                    }
-                }
+            paragraphView(text: text,
+                          isFirstAfterHeading: isFirstAfterHeading,
+                          paragraphIndex: paragraphIndex)
         }
+    }
+
+    /// Two rendering paths so the common case stays fast:
+    ///
+    /// - **Plain.** Most paragraphs, most of the time. We hand SwiftUI a
+    ///   `Text(text)` with `.font` and `.foregroundStyle` modifiers; no
+    ///   `AttributedString` allocation, no per-character iteration.
+    /// - **Attributed.** Used only when the paragraph needs the drop cap
+    ///   or is the active speed-reader paragraph (which paints a
+    ///   per-word highlight). Both of those genuinely need
+    ///   `AttributedString`, so we eat the cost — but only there.
+    @ViewBuilder
+    private func paragraphView(text: String,
+                               isFirstAfterHeading: Bool,
+                               paragraphIndex: Int?) -> some View {
+        let needsDropCap = isFirstAfterHeading && settings.dropCaps
+        let isActiveSpeedPara = mode == .speed && paragraphIndex == speedParagraphIndex
+        let needsAttributed = needsDropCap || isActiveSpeedPara
+
+        Group {
+            if needsAttributed {
+                Text(paragraphAttributed(
+                    text,
+                    dropCap: needsDropCap,
+                    paragraphIndex: paragraphIndex
+                ))
+            } else {
+                Text(text)
+                    .font(Typography.reader(settings.font, size: settings.fontSize))
+                    .foregroundStyle(paragraphForeground)
+            }
+        }
+        .lineSpacing((settings.lineSpacing - 1) * settings.fontSize)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .textSelection(.enabled)
+        .contextMenu {
+            Button {
+                saveAnnotation(text: text)
+            } label: {
+                Label("Highlight", systemImage: "highlighter")
+            }
+            Button {
+                if let idx = paragraphIndex {
+                    saveBookmark(text: text, paragraphIndex: idx)
+                }
+            } label: {
+                Label("Bookmark", systemImage: "bookmark")
+            }
+            Button {
+                UIPasteboard.general.string = text
+            } label: {
+                Label("Copy paragraph", systemImage: "doc.on.doc")
+            }
+        }
+    }
+
+    /// Foreground for a non-active paragraph in the current mode. Speed
+    /// mode dims everything that isn't the cursor's paragraph; everything
+    /// else gets full text colour.
+    private var paragraphForeground: Color {
+        mode == .speed ? textColor.opacity(0.40) : textColor
     }
 
     /// Render an inline EPUB image extracted on import. Returns an empty view
     /// when the bytes are missing — figures sometimes go missing from
     /// re-zipped EPUBs and we don't want a broken-image placeholder.
+    /// Goes through `InlineImageCache` so the JPEG decode happens once
+    /// per session rather than on every scroll frame.
     @ViewBuilder
     private func inlineImage(filename: String) -> some View {
         let url = BookStore.shared.imagesFolder(for: book.id, create: false)
             .appendingPathComponent(filename)
-        if let ui = UIImage(contentsOfFile: url.path) {
+        if let ui = InlineImageCache.image(at: url) {
             Image(uiImage: ui)
                 .resizable()
                 .scaledToFit()
@@ -456,18 +509,26 @@ struct ReaderView: View {
     }
 
     /// Debounced reading-progress persist. Cancels any in-flight write and
-    /// queues a fresh one 600ms in the future. The first scroll tick of a
-    /// session also bumps `lastOpenedAt` so the library sort is meaningful.
+    /// queues a fresh one 600ms in the future. The locator is a paragraph
+    /// index (`para:<n>`) rather than a scroll percent so a future open
+    /// of this book lands on the exact paragraph the user was reading,
+    /// even when the variant has been re-rendered at a different font
+    /// size or margin.
     private func schedulePersistProgress(percent: Double) {
         guard let vm = viewModel else { return }
         persistTask?.cancel()
         let pct = max(0, min(1, percent))
+        // Best-estimate paragraph from the visible scroll position. The
+        // first paragraph at or above the viewport's top is a reasonable
+        // resume target; this matches what the on-change scroll already
+        // anchors to.
+        let paragraph = max(0, currentVisibleParagraphIndex(viewModel: vm))
         persistTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 600_000_000)
             guard !Task.isCancelled else { return }
             vm.updateProgress(
                 percent: pct,
-                locator: "scroll:\(Int(pct * 1_000_000))",
+                locator: "para:\(paragraph)",
                 in: modelContext
             )
         }

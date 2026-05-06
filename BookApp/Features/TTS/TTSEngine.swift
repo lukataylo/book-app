@@ -287,10 +287,15 @@ final class TTSEngine: NSObject {
             // `.playback` overrides silent-mode so the user actually hears
             // narration. `.spokenAudio` mode triggers the right ducking
             // behaviour against music apps.
+            //
+            // Options note: `.duckOthers` + `.interruptSpokenAudioAndMixWithOthers`
+            // are mutually exclusive — passing both threw on iOS 18 and
+            // crashed Listen on first tap. `.duckOthers` alone is the
+            // right behaviour for narration over background music.
             try session.setCategory(
                 .playback,
                 mode: .spokenAudio,
-                options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers]
+                options: [.duckOthers]
             )
             try session.setActive(true, options: [.notifyOthersOnDeactivation])
             lastError = nil
@@ -334,7 +339,14 @@ final class TTSEngine: NSObject {
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
         #if canImport(UIKit)
-        if let data = nowPlayingCoverData, let image = UIImage(data: data) {
+        // Defensive: malformed cover data or zero-size images would crash
+        // `MPMediaItemArtwork(boundsSize:)`. Skip artwork in those cases —
+        // Listen still works, the lock-screen just falls back to the
+        // generic icon.
+        if let data = nowPlayingCoverData,
+           let image = UIImage(data: data),
+           image.size.width > 0,
+           image.size.height > 0 {
             let art = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
             info[MPMediaItemPropertyArtwork] = art
         }
