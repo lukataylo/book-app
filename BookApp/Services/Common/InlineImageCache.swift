@@ -70,10 +70,10 @@ struct InlineFigureImage: View {
             }
         }
         .task(id: url) {
-            if let cached = InlineImageCache.cached(at: url) {
-                self.image = cached
-                return
-            }
+            // Reset before doing any work so a recycled cell doesn't
+            // show the previous figure during the async decode.
+            self.image = InlineImageCache.cached(at: url)
+            if self.image != nil { return }
             self.image = await InlineImageCache.prepare(at: url)
         }
     }

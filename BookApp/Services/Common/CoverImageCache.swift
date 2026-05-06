@@ -83,10 +83,14 @@ struct CachedCoverImage: View {
             }
         }
         .task(id: bookID) {
-            if let cached = CoverImageCache.image(for: bookID) {
-                self.image = cached
-                return
-            }
+            // LazyVGrid / shelves recycle cells; without nilling the
+            // stored image when the bookID changes we'd flash the
+            // previous book's cover until the new one finishes decoding.
+            // The cache hit path immediately replaces this nil so the
+            // user only ever sees a blank cell when the cache truly
+            // misses (first-paint of an unseen book).
+            self.image = CoverImageCache.image(for: bookID)
+            if self.image != nil { return }
             self.image = await CoverImageCache.prepare(for: bookID, data: data)
         }
     }
