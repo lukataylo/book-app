@@ -56,6 +56,8 @@ final class ReaderSettings {
     var paginatedScroll: Bool = false
     /// Drop caps on the first paragraph after a `# Heading` line.
     var dropCaps: Bool = true
+    /// What appears in the bottom bar's left slot.
+    var progressIndicatorRaw: String = ProgressIndicatorStyle.timeLeft.rawValue
 
     init(id: UUID = UUID()) {
         self.id = id
@@ -74,5 +76,24 @@ final class ReaderSettings {
     var theme: ReaderTheme {
         get { ReaderTheme(rawValue: themeRaw) ?? .light }
         set { themeRaw = newValue.rawValue }
+    }
+
+    var progressIndicator: ProgressIndicatorStyle {
+        get { ProgressIndicatorStyle(rawValue: progressIndicatorRaw) ?? .timeLeft }
+        set { progressIndicatorRaw = newValue.rawValue }
+    }
+}
+
+enum ProgressIndicatorStyle: String, Codable, CaseIterable, Sendable {
+    case timeLeft     = "timeLeft"
+    case pageCount    = "pageCount"
+    case progressBar  = "progressBar"
+
+    var displayName: String {
+        switch self {
+        case .timeLeft:    return "Time left"
+        case .pageCount:   return "Page count"
+        case .progressBar: return "Progress bar"
+        }
     }
 }

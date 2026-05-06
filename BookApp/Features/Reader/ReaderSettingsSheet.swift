@@ -66,12 +66,31 @@ struct ReaderSettingsSheet: View {
                     Toggle("Drop caps at chapter starts", isOn: $settings.dropCaps)
                         .onChange(of: settings.dropCaps) { _, _ in persist() }
                 }
-                Section("Scroll") {
-                    Toggle("Page-by-page", isOn: $settings.paginatedScroll)
-                        .onChange(of: settings.paginatedScroll) { _, _ in persist() }
+                Section("Reading style") {
+                    Picker("Style", selection: Binding(
+                        get: { settings.paginatedScroll ? "page" : "scroll" },
+                        set: { settings.paginatedScroll = $0 == "page"; persist() }
+                    )) {
+                        Text("Continuous scroll").tag("scroll")
+                        Text("Page-by-page").tag("page")
+                    }
+                    .pickerStyle(.segmented)
                     Text(settings.paginatedScroll
                          ? "Each scroll snaps to the next viewport — like turning a page."
-                         : "Continuous scroll — read at your own pace.")
+                         : "Read at your own pace; the position bar tracks your place in the book.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Bottom indicator") {
+                    Picker("Show", selection: $settings.progressIndicator) {
+                        ForEach(ProgressIndicatorStyle.allCases, id: \.self) { style in
+                            Text(style.displayName).tag(style)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: settings.progressIndicator) { _, _ in persist() }
+                    Text(progressHelpText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -87,5 +106,13 @@ struct ReaderSettingsSheet: View {
 
     private func persist() {
         try? modelContext.save()
+    }
+
+    private var progressHelpText: String {
+        switch settings.progressIndicator {
+        case .timeLeft:    return "How many minutes are left at 250 words / minute."
+        case .pageCount:   return "Current page out of the book's estimated total."
+        case .progressBar: return "A draggable bar — slide to scrub through the book."
+        }
     }
 }

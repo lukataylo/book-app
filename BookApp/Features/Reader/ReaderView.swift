@@ -369,7 +369,6 @@ struct ReaderView: View {
         let isPlaying = ttsEngine.isPlaying
 
         VStack(spacing: 0) {
-            // Gradient fade so the bar reads as floating chrome over the page.
             LinearGradient(
                 colors: [bg.opacity(0), bg.opacity(0.55), bg.opacity(0.92), bg],
                 startPoint: .top,
@@ -378,47 +377,19 @@ struct ReaderView: View {
             .frame(height: 64)
             .allowsHitTesting(false)
 
-            VStack(spacing: 4) {
-                // Mini "now playing" strip when narrating — replaces the static
-                // page indicator with the paragraph snippet currently being read.
-                if isPlaying, !ttsEngine.currentText.isEmpty {
-                    miniPlayerStrip()
+            VStack(spacing: 6) {
+                // Progress region — text or scrubbable bar depending on setting.
+                progressRegion(isPlaying: isPlaying)
+                    .padding(.horizontal, 18)
+
+                if isPlaying {
+                    miniPlayerControls(viewModel: viewModel, isDark: isDark)
                         .padding(.horizontal, 18)
-                        .padding(.bottom, 2)
+                } else {
+                    standardActionRow(viewModel: viewModel, isDark: isDark)
+                        .padding(.horizontal, 18)
                 }
 
-                HStack(spacing: 0) {
-                    // Page / state indicator on the far left.
-                    Text(isPlaying ? "Listening" : progressText())
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
-                        .foregroundStyle(textColor.opacity(isPlaying ? 0.85 : 0.55))
-                        .frame(minWidth: 80, alignment: .leading)
-                        .padding(.leading, 18)
-
-                    Spacer(minLength: 0)
-
-                    // Action cluster — direct buttons, evenly spaced.
-                    HStack(spacing: 22) {
-                        ListenButton(isPlaying: isPlaying, isDark: isDark) {
-                            toggleListen(viewModel: viewModel)
-                        } onLongPress: {
-                            viewModel.sheet = .ttsSettings
-                        }
-                        IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
-                            viewModel.sheet = .speedReader
-                        }
-                        IconBarButton(systemImage: "textformat.size", isDark: isDark) {
-                            viewModel.sheet = .readerSettings
-                        }
-                        IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
-                            viewModel.sheet = .transformations
-                        }
-                    }
-                    .padding(.trailing, 18)
-                }
-                .frame(height: 48)
-
-                // Tiny collapse chevron centred under the row.
                 Button {
                     withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
                 } label: {
@@ -435,10 +406,150 @@ struct ReaderView: View {
         }
     }
 
-    /// "12 min left" computed from `book.totalWordsEstimate` and the user's
-    /// scroll progress, assuming a 250 wpm reading rate. Falls back to a
-    /// page-based count if word counts aren't populated yet.
-    private func progressText() -> String {
+    @ViewBuilder
+    private func progressRegion(isPlaying: Bool) -> some View {
+        if isPlaying, !ttsEngine.currentText.isEmpty {
+            // While narrating, replace the indicator with the snippet being
+            // read. Skip controls live in the next row.
+            Text(ttsEngine.currentText.replacingOccurrences(of: "\n", with: " "))
+                .font(.system(size: 13, weight: .regular, design: .serif))
+                .foregroundStyle(textColor.opacity(0.92))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            switch settings.progressIndicator {
+            case .timeLeft:
+                Text(timeLeftText())
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundStyle(textColor.opacity(0.55))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            case .pageCount:
+                Text(pageCountText())
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundStyle(textColor.opacity(0.55))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            case .progressBar:
+                ScrubBar(
+                    progress: scrollProgress,
+                    tint: textColor.opacity(0.85),
+                    track: textColor.opacity(0.12)
+                ) { newProgress in
+                    seek(to: newProgress)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func standardActionRow(viewModel: ReaderViewModel, isDark: Bool) -> some View {
+        HStack(spacing: 22) {
+            ListenButton(isPlaying: false, isDark: isDark) {
+                toggleListen(viewModel: viewModel)
+            } onLongPress: {
+                viewModel.sheet = .ttsSettings
+            }
+            Spacer()
+            IconBarButton(systemImage: "bolt.fill", isDark: isDark) {
+                viewModel.sheet = .speedReader
+            }
+            IconBarButton(systemImage: "textformat.size", isDark: isDark) {
+                viewModel.sheet = .readerSettings
+            }
+            IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
+                viewModel.sheet = .transformations
+            }
+        }
+        .frame(height: 44)
+    }
+
+    @ViewBuilder
+    private func miniPlayerControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
+        HStack(spacing: 18) {
+            // Voice / settings shortcut
+            IconBarButton(systemImage: "person.wave.2", isDark: isDark) {
+                viewModel.sheet = .ttsSettings
+            }
+
+            Spacer()
+
+            // Skip-back: first tap restarts paragraph, second jumps back.
+            Button {
+                ttsEngine.skipBackward()
+            } label: {
+                Image(systemName: "gobackward")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(isDark ? Color.white : Color.black)
+                    .frame(width: 40, height: 40)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Restart paragraph or skip back")
+
+            // Play / pause — bigger, primary.
+            Button {
+                ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+            } label: {
+                Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(isDark ? Color.black : Color.white)
+                    .frame(width: 52, height: 52)
+                    .background(Circle().fill(isDark ? Color.white : Color.black))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Pause narration")
+
+            Button {
+                ttsEngine.skipForward()
+            } label: {
+                Image(systemName: "goforward")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(isDark ? Color.white : Color.black)
+                    .frame(width: 40, height: 40)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Skip to next paragraph")
+
+            Spacer()
+
+            // Rate cycle 0.4 → 0.5 → 0.6 → 0.7
+            Button {
+                ttsEngine.cycleRate()
+            } label: {
+                Text(rateLabel(for: ttsEngine.currentRate))
+                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                    .frame(minWidth: 38, minHeight: 28)
+                    .padding(.horizontal, 8)
+                    .background(
+                        Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
+                    )
+                    .foregroundStyle(isDark ? Color.white : Color.black)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Change speed")
+        }
+        .frame(height: 56)
+    }
+
+    private func rateLabel(for rate: Double) -> String {
+        // Map AVSpeech rate (0.0-1.0, default 0.5) to playback-speed style.
+        switch Float(rate) {
+        case ..<0.45: return "0.8×"
+        case ..<0.55: return "1×"
+        case ..<0.65: return "1.3×"
+        default:      return "1.6×"
+        }
+    }
+
+    /// Jump the reader's scroll position to the given 0-1 progress.
+    private func seek(to progress: Double) {
+        let clamped = max(0, min(1, progress))
+        let total = max(1, contentHeight - viewportHeight)
+        let targetY = clamped * Double(total)
+        scrollPosition.scrollTo(y: targetY)
+        scrollProgress = clamped
+    }
+
+    private func timeLeftText() -> String {
         let pct = scrollProgress.clamped()
         let totalWords = book.totalWordsEstimate
         if totalWords > 250 {
@@ -450,10 +561,16 @@ struct ReaderView: View {
             let m = mins % 60
             return m == 0 ? "\(h) h left" : "\(h)h \(m)m left"
         }
+        return pageCountText()
+    }
+
+    private func pageCountText() -> String {
+        let pct = scrollProgress.clamped()
         let pages = max(1, book.totalPagesEstimate)
         let currentPage = max(1, Int(pct * Double(pages)).clampedToPages(pages))
         return "\(currentPage) / \(pages)"
     }
+
 
     // MARK: - Theming helpers
 
@@ -488,44 +605,6 @@ struct ReaderView: View {
         }
     }
 
-    /// Compact "now reading" strip — paragraph snippet + skip controls, shown
-    /// only while TTSEngine is playing.
-    @ViewBuilder
-    private func miniPlayerStrip() -> some View {
-        let snippet = ttsEngine.currentText.replacingOccurrences(of: "\n", with: " ")
-        HStack(spacing: 10) {
-            Image(systemName: "waveform")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(textColor.opacity(0.85))
-            Text(snippet)
-                .font(.system(size: 13, weight: .regular, design: .serif))
-                .foregroundStyle(textColor.opacity(0.95))
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Button {
-                ttsEngine.skipBackward()
-            } label: {
-                Image(systemName: "backward.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                    .frame(width: 28, height: 22)
-            }
-            Button {
-                ttsEngine.skipForward()
-            } label: {
-                Image(systemName: "forward.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                    .frame(width: 28, height: 22)
-            }
-        }
-        .foregroundStyle(textColor.opacity(0.85))
-        .padding(.vertical, 6)
-        .padding(.horizontal, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(textColor.opacity(0.10), lineWidth: 0.5)
-        )
-    }
 }
 
 // MARK: - Bar components
@@ -624,6 +703,52 @@ private extension Double {
 
 private extension Int {
     func clampedToPages(_ total: Int) -> Int { Swift.max(1, Swift.min(total, self)) }
+}
+
+/// Slim scrubbable progress bar. Pannable thumb, taps jump to position.
+/// 4pt tall when idle, 6pt while dragging.
+private struct ScrubBar: View {
+    let progress: Double
+    let tint: Color
+    let track: Color
+    let onChange: (Double) -> Void
+
+    @State private var isDragging: Bool = false
+    @State private var dragValue: Double = 0
+
+    var body: some View {
+        GeometryReader { geo in
+            let displayed = isDragging ? dragValue : progress
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(track)
+                Capsule()
+                    .fill(tint)
+                    .frame(width: max(0, geo.size.width * displayed))
+                Circle()
+                    .fill(tint)
+                    .frame(width: isDragging ? 14 : 10, height: isDragging ? 14 : 10)
+                    .offset(x: max(0, min(geo.size.width - 5, geo.size.width * displayed - 5)))
+            }
+            .frame(height: isDragging ? 6 : 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle().inset(by: -10))   // generous hit area
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { v in
+                        isDragging = true
+                        let pct = max(0, min(1, v.location.x / geo.size.width))
+                        dragValue = pct
+                    }
+                    .onEnded { _ in
+                        onChange(dragValue)
+                        isDragging = false
+                    }
+            )
+            .animation(.easeOut(duration: 0.15), value: isDragging)
+        }
+        .frame(height: 16)        // total clickable height
+    }
 }
 
 /// Conditional paging behaviour — applies `.scrollTargetBehavior(.paging)`
