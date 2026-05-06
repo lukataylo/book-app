@@ -44,6 +44,17 @@ struct BookStore: Sendable {
         return folder
     }
 
+    /// Folder for inline-image bytes extracted on import. Reader paragraphs
+    /// containing `[img:<filename>]` resolve to `<imagesFolder>/<filename>`.
+    func imagesFolder(for bookID: UUID, create: Bool = true) -> URL {
+        let folder = bookFolder(for: bookID, create: create)
+            .appendingPathComponent("images", isDirectory: true)
+        if create {
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        }
+        return folder
+    }
+
     /// Copy an imported file into the book's folder, returning a security-scoped bookmark.
     @discardableResult
     func ingestOriginal(from sourceURL: URL, bookID: UUID, format: BookFormat) throws -> (URL, Data) {

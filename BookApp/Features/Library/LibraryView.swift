@@ -7,11 +7,14 @@ import SwiftData
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Book.lastOpenedAt, order: .reverse) private var books: [Book]
+    @Query(sort: \ReadingProgress.updatedAt, order: .reverse) private var allProgress: [ReadingProgress]
 
     @State private var searchText = ""
     @State private var presentingPicker = false
     @State private var selectedBook: Book?
     @State private var importErrorMessage: String?
+    @State private var deleteCandidate: Book?
+    @State private var editingBook: Book?
 
     @FocusState private var searchFocused: Bool
 
@@ -24,11 +27,21 @@ struct LibraryView: View {
                     if books.isEmpty {
                         emptyState
                     } else {
+                        if let resume = continueCandidate() {
+                            continueCard(book: resume.book, percent: resume.percent)
+                                .padding(.horizontal, Theme.Spacing.l)
+                        }
                         topSelections
                         ForEach(categoryGroups, id: \.0) { (category, list) in
-                            ShelfView(title: category, books: list) { book in
-                                selectedBook = book
-                            }
+                            ShelfView(
+                                title: category,
+                                books: list,
+                                progressMap: progressMap,
+                                onSelect: { book in selectedBook = book },
+                                onLongPress: { book, action in
+                                    handleCardAction(book: book, action: action)
+                                }
+                            )
                         }
                     }
                     Spacer(minLength: Theme.Spacing.xxl)
@@ -72,7 +85,102 @@ struct LibraryView: View {
             } message: {
                 Text(importErrorMessage ?? "")
             }
+            .alert("Delete this book?", isPresented: Binding(
+                get: { deleteCandidate != nil },
+                set: { if !$0 { deleteCandidate = nil } }
+            )) {
+                Button("Delete", role: .destructive) {
+                    if let b = deleteCandidate { performDelete(b) }
+                    deleteCandidate = nil
+                }
+                Button("Cancel", role: .cancel) { deleteCandidate = nil }
+            } message: {
+                Text("\(deleteCandidate?.title ?? "This book") and its variants, learnings, and highlights will be removed from this device.")
+            }
+            .sheet(item: $editingBook) { book in
+                EditBookMetadataSheet(book: book)
+                    .presentationDetents([.medium, .large])
+            }
         }
+    }
+
+    // MARK: - Progress + continue-reading
+
+    private var progressMap: [UUID: Double] {
+        var map: [UUID: Double] = [:]
+        for p in allProgress {
+            guard let bookID = p.book?.id else { continue }
+            map[bookID] = max(map[bookID] ?? 0, p.percent)
+        }
+        return map
+    }
+
+    private struct ContinueCandidate {
+        let book: Book
+        let percent: Double
+        let updatedAt: Date
+    }
+
+    private func continueCandidate() -> ContinueCandidate? {
+        let candidates = allProgress
+            .compactMap { p -> ContinueCandidate? in
+                guard let book = p.book, p.percent > 0.005 else { return nil }
+                return ContinueCandidate(book: book, percent: p.percent, updatedAt: p.updatedAt)
+            }
+            .sorted { $0.updatedAt > $1.updatedAt }
+        return candidates.first
+    }
+
+    @ViewBuilder
+    private func continueCard(book: Book, percent: Double) -> some View {
+        Button {
+            selectedBook = book
+        } label: {
+            HStack(spacing: 14) {
+                BookCardView(book: book, width: 56, showsTitle: false, progress: percent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Continue reading")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                        .textCase(.uppercase)
+                    Text(book.title)
+                        .font(.system(size: 16, weight: .semibold, design: .serif))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                        .lineLimit(1)
+                    Text("\(Int(percent * 100))% complete · \(book.author)")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
+                    .fill(Theme.Palette.surface)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Card actions
+
+    private func handleCardAction(book: Book, action: ShelfView.BookCardAction) {
+        switch action {
+        case .edit:   editingBook = book
+        case .delete: deleteCandidate = book
+        }
+    }
+
+    private func performDelete(_ book: Book) {
+        // Remove the on-disk book folder if it exists.
+        let folder = BookStore.shared.bookFolder(for: book.id, create: false)
+        try? FileManager.default.removeItem(at: folder)
+        modelContext.delete(book)
+        try? modelContext.save()
     }
 
     // MARK: - Subviews
@@ -160,10 +268,11 @@ struct LibraryView: View {
         return ShelfView(
             title: "Top selections for you",
             subtitle: "Based on what you're reading",
-            books: recent
-        ) { book in
-            selectedBook = book
-        }
+            books: recent,
+            progressMap: progressMap,
+            onSelect: { book in selectedBook = book },
+            onLongPress: { book, action in handleCardAction(book: book, action: action) }
+        )
     }
 
     private var categoryGroups: [(String, [Book])] {

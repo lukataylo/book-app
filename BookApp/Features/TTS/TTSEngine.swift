@@ -45,6 +45,16 @@ final class TTSEngine: NSObject {
     private var paragraphs: [String] = []   // already cleaned of `# ` markers
     private var settings: TTSSettings = TTSSettings()
     private var sleepTimer: Timer?
+    // Now-playing metadata for lock-screen / control-centre.
+    private var nowPlayingTitle: String = "BookApp"
+    private var nowPlayingAuthor: String = ""
+    private var nowPlayingCoverData: Data?
+
+    // Resume-after-relaunch persistence keys.
+    private let resumeBookKey      = "TTS.resumeBookID"
+    private let resumeVariantKey   = "TTS.resumeVariantID"
+    private let resumeParagraphKey = "TTS.resumeParagraph"
+    private let resumeTimeKey      = "TTS.resumeTimestamp"
 
     override init() {
         super.init()
@@ -56,6 +66,15 @@ final class TTSEngine: NSObject {
 
     func configure(settings: TTSSettings) {
         self.settings = settings
+    }
+
+    /// Optional metadata for the lock-screen / control-centre card. Caller
+    /// passes the book's cover/title/author when starting playback so iOS
+    /// shows real artwork instead of a generic title.
+    func configureNowPlaying(title: String, author: String, coverData: Data?) {
+        self.nowPlayingTitle = title
+        self.nowPlayingAuthor = author
+        self.nowPlayingCoverData = coverData
     }
 
     var hasLoadedContent: Bool { !paragraphs.isEmpty }
@@ -79,6 +98,7 @@ final class TTSEngine: NSObject {
         let cleaned = rawParagraphs
             .map { Self.stripHeadingMarker($0) }
             .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            .filter { !($0.hasPrefix("[img:") && $0.hasSuffix("]")) }
         guard !cleaned.isEmpty else {
             lastError = "Nothing to read in this section."
             return
@@ -133,6 +153,18 @@ final class TTSEngine: NSObject {
         synth.stopSpeaking(at: .immediate)
         currentParagraph += 1
         speakCurrent()
+        notifyParagraphChanged()
+    }
+
+    /// Hook fired whenever `currentParagraph` advances. Subscribers can
+    /// persist resume state from outside the engine without having to
+    /// poll on a timer.
+    var onParagraphChange: (@MainActor (Int) -> Void)?
+
+    private func notifyParagraphChanged() {
+        if let hook = onParagraphChange {
+            Task { @MainActor in hook(currentParagraph) }
+        }
     }
 
     func skipBackward() {
@@ -143,6 +175,7 @@ final class TTSEngine: NSObject {
             synth.stopSpeaking(at: .immediate)
             currentParagraph -= 1
             speakCurrent()
+            notifyParagraphChanged()
         } else {
             restartCurrentParagraph()
         }
@@ -297,11 +330,58 @@ final class TTSEngine: NSObject {
 
     private func updateNowPlaying() {
         var info: [String: Any] = [
-            MPMediaItemPropertyTitle: currentText.prefix(80).description,
+            MPMediaItemPropertyTitle: nowPlayingTitle,
+            MPMediaItemPropertyArtist: nowPlayingAuthor.isEmpty ? "BookApp" : nowPlayingAuthor,
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
-        info[MPMediaItemPropertyArtist] = "BookApp"
+        #if canImport(UIKit)
+        if let data = nowPlayingCoverData, let image = UIImage(data: data) {
+            let art = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            info[MPMediaItemPropertyArtwork] = art
+        }
+        #endif
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    // MARK: - Resume persistence
+
+    /// Snapshot the currently-playing position to UserDefaults so a future
+    /// app launch can offer "Resume listening". Called whenever paragraph
+    /// changes during playback.
+    func persistResumePoint(bookID: UUID, variantID: UUID?) {
+        let defaults = UserDefaults.standard
+        defaults.set(bookID.uuidString, forKey: resumeBookKey)
+        defaults.set(variantID?.uuidString, forKey: resumeVariantKey)
+        defaults.set(currentParagraph, forKey: resumeParagraphKey)
+        defaults.set(Date.now.timeIntervalSince1970, forKey: resumeTimeKey)
+    }
+
+    /// Last-saved resume point, if any. Older than 7 days is ignored
+    /// (avoid offering "Resume" for a session you started a month ago).
+    static func resumePoint() -> ResumePoint? {
+        let defaults = UserDefaults.standard
+        guard let bookString = defaults.string(forKey: "TTS.resumeBookID"),
+              let bookID = UUID(uuidString: bookString) else { return nil }
+        let ts = defaults.double(forKey: "TTS.resumeTimestamp")
+        let variant = defaults.string(forKey: "TTS.resumeVariantID").flatMap(UUID.init)
+        let para = defaults.integer(forKey: "TTS.resumeParagraph")
+        let age = Date.now.timeIntervalSince1970 - ts
+        guard age >= 0, age < 7 * 24 * 60 * 60 else { return nil }
+        return ResumePoint(bookID: bookID, variantID: variant, paragraph: para)
+    }
+
+    static func clearResumePoint() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "TTS.resumeBookID")
+        defaults.removeObject(forKey: "TTS.resumeVariantID")
+        defaults.removeObject(forKey: "TTS.resumeParagraph")
+        defaults.removeObject(forKey: "TTS.resumeTimestamp")
+    }
+
+    struct ResumePoint: Sendable {
+        let bookID: UUID
+        let variantID: UUID?
+        let paragraph: Int
     }
 }
 

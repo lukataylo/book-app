@@ -85,6 +85,22 @@ struct EPUBParser: BookParser {
             coverData = try? await readEntry(archive, path: resolved)
         }
 
+        // Pull every manifest entry whose href looks like an image into
+        // ParsedImage. The reader matches `[img:<basename>]` markers against
+        // the basename, so we don't need to track the original path.
+        var images: [ParsedImage] = []
+        var seenNames = Set<String>()
+        let imageExts: Set<String> = ["jpg", "jpeg", "png", "gif", "webp", "svg"]
+        for href in parsed.imageHrefs {
+            let leaf = (href as NSString).lastPathComponent
+            let ext = (leaf as NSString).pathExtension.lowercased()
+            guard imageExts.contains(ext), !seenNames.contains(leaf) else { continue }
+            let resolved = resolve(href: href, base: opfBase)
+            guard let bytes = try? await readEntry(archive, path: resolved) else { continue }
+            images.append(ParsedImage(filename: leaf, data: bytes))
+            seenNames.insert(leaf)
+        }
+
         return ParsedBook(
             title: parsed.title.isEmpty ? fileURL.deletingPathExtension().lastPathComponent : parsed.title,
             author: parsed.author,
@@ -92,7 +108,8 @@ struct EPUBParser: BookParser {
             coverData: coverData,
             chapters: chapters,
             fullText: fullText,
-            format: .epub
+            format: .epub,
+            images: images
         )
         #else
         throw ParserError.unsupportedFormat("EPUB parser requires ReadiumZIPFoundation (transitively pulled in by Readium)")
@@ -108,6 +125,14 @@ struct EPUBParser: BookParser {
         s = s.replacingOccurrences(of: #"<script[\s\S]*?</script>"#, with: "", options: .regularExpression)
         s = s.replacingOccurrences(of: #"<style[\s\S]*?</style>"#, with: "", options: .regularExpression)
         s = s.replacingOccurrences(of: #"<head[\s\S]*?</head>"#, with: "", options: .regularExpression)
+        // Inline images: replace each <img> with a paragraph-level marker the
+        // reader can pick up to render the image. Filename only — the importer
+        // writes images flat into <bookFolder>/images/.
+        s = s.replacingOccurrences(
+            of: #"<img\b[^>]*\bsrc\s*=\s*['"]([^'"]+)['"][^>]*/?>"#,
+            with: "\n\n[img:$1]\n\n",
+            options: .regularExpression
+        )
         // Block-closing tags become paragraph breaks.
         let blocks = ["</p>", "</div>", "</section>", "</h1>", "</h2>", "</h3>", "</h4>", "</h5>", "</h6>", "</li>", "</blockquote>"]
         for tag in blocks {
@@ -148,10 +173,12 @@ struct EPUBParser: BookParser {
         for part in parts {
             let trimmed = part.trimmingCharacters(in: .whitespaces)
             if trimmed.isEmpty { continue }
-            // Headings (start with "# ") and very long paragraphs always end
-            // a paragraph regardless of trailing punctuation.
+            // Headings (start with "# "), image markers, and very long
+            // paragraphs always end a paragraph regardless of trailing
+            // punctuation.
             let isHeading = trimmed.hasPrefix("# ")
-            if isHeading {
+            let isImage = trimmed.hasPrefix("[img:") && trimmed.hasSuffix("]")
+            if isHeading || isImage {
                 if !buffer.isEmpty { out.append(buffer); buffer = "" }
                 out.append(trimmed)
                 continue
@@ -257,6 +284,9 @@ struct EPUBParser: BookParser {
         var coverHref: String?
         var spineHrefs: [String] = []
         var titleForHref: [String: String] = [:]
+        /// Manifest hrefs whose media-type is an image (or whose extension
+        /// looks like one when media-type is missing).
+        var imageHrefs: [String] = []
     }
 
     private func parseOPF(data: Data, basePath: String) -> OPFResult {
@@ -277,6 +307,7 @@ struct EPUBParser: BookParser {
                 result.spineHrefs.append(href)
             }
         }
+        result.imageHrefs = delegate.imageHrefs
         return result
     }
 
@@ -303,6 +334,7 @@ private final class OPFDelegate: NSObject, XMLParserDelegate {
     var manifest: [String: String] = [:] // id -> href
     var spine: [String] = []
     var coverID: String?
+    var imageHrefs: [String] = []
 
     private var current: String = ""
     private var captureBuffer: String = ""
@@ -317,6 +349,10 @@ private final class OPFDelegate: NSObject, XMLParserDelegate {
                 manifest[id] = href
                 if attributeDict["properties"]?.contains("cover-image") == true {
                     coverID = id
+                }
+                let mediaType = (attributeDict["media-type"] ?? "").lowercased()
+                if mediaType.hasPrefix("image/") {
+                    imageHrefs.append(href)
                 }
             }
         case "itemref":

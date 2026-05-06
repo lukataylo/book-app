@@ -5,6 +5,8 @@ import SwiftData
 struct BookAppApp: App {
     let container: ModelContainer?
     let containerError: String?
+    @State private var onboardingDone: Bool = UserDefaults.standard
+        .bool(forKey: OnboardingView.completedKey)
 
     init() {
         // Try CloudKit-backed container first; fall back to in-memory if
@@ -26,10 +28,18 @@ struct BookAppApp: App {
     var body: some Scene {
         WindowGroup {
             if let container {
-                RootTabView()
-                    .tint(Theme.Palette.accent)
-                    .background(Theme.Palette.appBackground.ignoresSafeArea())
-                    .modelContainer(container)
+                ZStack {
+                    RootTabView()
+                        .tint(Theme.Palette.accent)
+                        .background(Theme.Palette.appBackground.ignoresSafeArea())
+                        .modelContainer(container)
+
+                    if !onboardingDone {
+                        OnboardingView(onFinish: { withAnimation(.smooth) { onboardingDone = true } })
+                            .transition(.opacity)
+                            .zIndex(1)
+                    }
+                }
             } else {
                 ContainerErrorView(message: containerError ?? "Unknown error.")
             }

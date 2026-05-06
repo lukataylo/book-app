@@ -40,6 +40,9 @@ final class Book {
     @Relationship(deleteRule: .cascade, inverse: \ReadingProgress.book)
     var progress: [ReadingProgress]? = []
 
+    @Relationship(deleteRule: .cascade, inverse: \Bookmark.book)
+    var bookmarks: [Bookmark]? = []
+
     init(
         id: UUID = UUID(),
         title: String,

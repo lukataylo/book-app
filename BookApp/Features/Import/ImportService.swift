@@ -78,6 +78,16 @@ final class ImportService {
             throw ImportError.parserFailed(error)
         }
 
+        // Persist inline images flat in <bookFolder>/images/. Reader paragraphs
+        // beginning with "[img:" look them up by filename.
+        if !parsed.images.isEmpty {
+            let imagesDir = store.imagesFolder(for: bookID)
+            for img in parsed.images {
+                let dest = imagesDir.appendingPathComponent(img.filename)
+                try? img.data.write(to: dest, options: .atomic)
+            }
+        }
+
         let book = Book(
             id: bookID,
             title: parsed.title,

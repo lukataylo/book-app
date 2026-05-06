@@ -6,19 +6,28 @@ struct ShelfView: View {
     let title: String
     let subtitle: String?
     let books: [Book]
+    let progressMap: [UUID: Double]
     let onSelect: (Book) -> Void
+    let onLongPress: ((Book, BookCardAction) -> Void)?
 
     init(
         title: String,
         subtitle: String? = nil,
         books: [Book],
-        onSelect: @escaping (Book) -> Void
+        progressMap: [UUID: Double] = [:],
+        onSelect: @escaping (Book) -> Void,
+        onLongPress: ((Book, BookCardAction) -> Void)? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
         self.books = books
+        self.progressMap = progressMap
         self.onSelect = onSelect
+        self.onLongPress = onLongPress
     }
+
+    /// Actions surfaced from a long-press on a book card.
+    enum BookCardAction { case edit, delete }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
@@ -45,9 +54,23 @@ struct ShelfView: View {
                         Button {
                             onSelect(book)
                         } label: {
-                            BookCardView(book: book)
+                            BookCardView(book: book, progress: progressMap[book.id] ?? 0)
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            if let onLongPress {
+                                Button {
+                                    onLongPress(book, .edit)
+                                } label: {
+                                    Label("Edit metadata", systemImage: "pencil")
+                                }
+                                Button(role: .destructive) {
+                                    onLongPress(book, .delete)
+                                } label: {
+                                    Label("Delete book", systemImage: "trash")
+                                }
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, Theme.Spacing.l)

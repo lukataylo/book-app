@@ -11,6 +11,11 @@ struct ParsedBook: Sendable {
     var chapters: [ParsedChapter]
     var fullText: String
     var format: BookFormat
+    /// Inline images extracted from the source. Reader paragraphs that
+    /// originally contained an `<img>` are emitted as `[img:<filename>]`
+    /// markers; this dictionary holds the bytes the importer should write
+    /// into the book folder so the reader can load them by filename.
+    var images: [ParsedImage] = []
 
     var totalWords: Int {
         fullText.split(whereSeparator: { $0.isWhitespace }).count
@@ -27,6 +32,13 @@ struct ParsedChapter: Sendable, Identifiable {
     var title: String
     var text: String
     var locator: String     // opaque ref usable by the reader to jump back
+}
+
+struct ParsedImage: Sendable {
+    /// Filename only — the importer writes the bytes to
+    /// `<bookFolder>/images/<filename>`.
+    var filename: String
+    var data: Data
 }
 
 enum ParserError: Error, LocalizedError {

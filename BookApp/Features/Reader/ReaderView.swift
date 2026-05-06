@@ -75,6 +75,26 @@ struct ReaderView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
+                    viewModel?.sheet = .search
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(textColor.opacity(0.85))
+                }
+                .accessibilityLabel("Search in book")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel?.sheet = .markings
+                } label: {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(textColor.opacity(0.85))
+                }
+                .accessibilityLabel("Highlights and bookmarks")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
                     viewModel?.sheet = .chapters
                 } label: {
                     Image(systemName: "list.bullet")
@@ -202,6 +222,16 @@ struct ReaderView: View {
                     viewModel.currentParagraph = chapter.paragraphIndex
                 }
                 .presentationDetents([.medium, .large])
+            case .search:
+                SearchInBookSheet(paragraphs: viewModel.paragraphs) { idx in
+                    viewModel.currentParagraph = idx
+                }
+                .presentationDetents([.medium, .large])
+            case .markings:
+                MarkingsSheet(book: book) { idx in
+                    viewModel.currentParagraph = idx
+                }
+                .presentationDetents([.medium, .large])
             }
         }
     }
@@ -211,6 +241,7 @@ struct ReaderView: View {
     enum Block: Hashable {
         case heading(String)
         case paragraph(String)
+        case image(String)   // filename, resolved against the book's images/ folder
     }
 
     /// All blocks in reading order, paired with whether they are the first
@@ -224,6 +255,11 @@ struct ReaderView: View {
                 let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
                 result.append((.heading(title), false))
                 prevWasHeading = true
+            } else if p.hasPrefix("[img:"), p.hasSuffix("]") {
+                let inner = String(p.dropFirst(5).dropLast())
+                let leaf = (inner as NSString).lastPathComponent
+                result.append((.image(leaf), false))
+                prevWasHeading = false
             } else {
                 result.append((.paragraph(p), prevWasHeading))
                 prevWasHeading = false
@@ -241,6 +277,8 @@ struct ReaderView: View {
                 .foregroundStyle(textColor)
                 .padding(.top, Theme.Spacing.l)
                 .padding(.bottom, Theme.Spacing.xs)
+        case .image(let filename):
+            inlineImage(filename: filename)
         case .paragraph(let text):
             Text(paragraphAttributed(
                 text,
@@ -262,11 +300,38 @@ struct ReaderView: View {
                         Label("Highlight", systemImage: "highlighter")
                     }
                     Button {
+                        if let idx = paragraphIndex {
+                            saveBookmark(text: text, paragraphIndex: idx)
+                        }
+                    } label: {
+                        Label("Bookmark", systemImage: "bookmark")
+                    }
+                    Button {
                         UIPasteboard.general.string = text
                     } label: {
                         Label("Copy paragraph", systemImage: "doc.on.doc")
                     }
                 }
+        }
+    }
+
+    /// Render an inline EPUB image extracted on import. Returns an empty view
+    /// when the bytes are missing — figures sometimes go missing from
+    /// re-zipped EPUBs and we don't want a broken-image placeholder.
+    @ViewBuilder
+    private func inlineImage(filename: String) -> some View {
+        let url = BookStore.shared.imagesFolder(for: book.id, create: false)
+            .appendingPathComponent(filename)
+        if let ui = UIImage(contentsOfFile: url.path) {
+            Image(uiImage: ui)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .padding(.vertical, Theme.Spacing.s)
+                .accessibilityLabel("Figure")
+        } else {
+            EmptyView()
         }
     }
 
@@ -358,6 +423,20 @@ struct ReaderView: View {
         showToast("Highlight saved")
     }
 
+    private func saveBookmark(text: String, paragraphIndex: Int) {
+        let snippet = String(text.prefix(140))
+        let bm = Bookmark(
+            book: book,
+            variantID: viewModel?.currentVariant.id,
+            paragraphIndex: paragraphIndex,
+            label: "",
+            snippet: snippet
+        )
+        modelContext.insert(bm)
+        try? modelContext.save()
+        showToast("Bookmarked")
+    }
+
     private func currentChapterTitle() -> String {
         guard let vm = viewModel else { return "" }
         let chapters = vm.chapters
@@ -406,7 +485,20 @@ struct ReaderView: View {
             return s
         }()
         ttsEngine.configure(settings: saved)
+        ttsEngine.configureNowPlaying(
+            title: book.title,
+            author: book.author,
+            coverData: book.coverData
+        )
+        let bookID = book.id
+        let variantID = viewModel.currentVariant.id
+        ttsEngine.onParagraphChange = { [ttsEngine] _ in
+            ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
+        }
         ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+        // Capture the resume point once now too — the listener only fires on
+        // paragraph *changes*, not on the initial start.
+        ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
     }
 
     // MARK: - Bottom bar (iOS Books style)
@@ -767,12 +859,16 @@ struct ReaderView: View {
             speedWordIndex += 1
             return
         }
-        // End of paragraph — advance to the next non-empty one.
+        // End of paragraph — advance to the next non-empty one. Skip
+        // headings and inline-image marker paragraphs, neither of which
+        // are read aloud or word-stepped.
         var nextIdx = speedParagraphIndex + 1
         while nextIdx < paragraphs.count {
             let candidate = paragraphs[nextIdx]
+            let isImage = candidate.hasPrefix("[img:") && candidate.hasSuffix("]")
             if candidate.split(whereSeparator: { $0.isWhitespace }).isEmpty == false
-                && !candidate.hasPrefix("# ") {
+                && !candidate.hasPrefix("# ")
+                && !isImage {
                 break
             }
             nextIdx += 1
@@ -793,8 +889,14 @@ struct ReaderView: View {
         let paragraphs = viewModel.paragraphs
         guard !paragraphs.isEmpty else { return }
         var nextIdx = speedParagraphIndex + 1
-        while nextIdx < paragraphs.count, paragraphs[nextIdx].hasPrefix("# ") {
-            nextIdx += 1
+        while nextIdx < paragraphs.count {
+            let p = paragraphs[nextIdx]
+            let isImage = p.hasPrefix("[img:") && p.hasSuffix("]")
+            if p.hasPrefix("# ") || isImage {
+                nextIdx += 1
+            } else {
+                break
+            }
         }
         guard nextIdx < paragraphs.count else { return }
         speedParagraphIndex = nextIdx

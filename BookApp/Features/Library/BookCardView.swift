@@ -14,14 +14,30 @@ struct BookCardView: View {
     let book: Book
     var width: CGFloat = 120
     var showsTitle: Bool = true
+    /// 0…1; renders a thin filled bar on the bottom edge of the cover when > 0.01.
+    var progress: Double = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-            cover
-                .frame(width: width, height: width * 1.5)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
-                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 4)
-
+            ZStack(alignment: .bottom) {
+                cover
+                    .frame(width: width, height: width * 1.5)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
+                if progress > 0.01 {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.black.opacity(0.18))
+                            Capsule().fill(Color.white)
+                                .frame(width: geo.size.width * min(1, max(0, progress)))
+                        }
+                    }
+                    .frame(height: 3)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 6)
+                }
+            }
+            .frame(width: width, height: width * 1.5)
+            .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 4)
             if showsTitle {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(book.title)

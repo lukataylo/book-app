@@ -12,6 +12,7 @@ extension ModelContainer {
             KeyLearning.self,
             Annotation.self,
             ReadingProgress.self,
+            Bookmark.self,
             ReaderSettings.self,
             TTSSettings.self,
             SpeedReaderSettings.self
@@ -44,7 +45,7 @@ extension ModelContainer {
     static func bookAppPreview() throws -> ModelContainer {
         let schema = Schema([
             Book.self, BookVariant.self, KeyLearning.self,
-            Annotation.self, ReadingProgress.self,
+            Annotation.self, ReadingProgress.self, Bookmark.self,
             ReaderSettings.self, TTSSettings.self, SpeedReaderSettings.self
         ])
         // CloudKit explicitly off for in-memory: avoids the unique-constraint

@@ -1,6 +1,9 @@
 import Foundation
 import Observation
 import SwiftData
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 /// Owns reader state for a single book — current variant, progress, paragraph
 /// list (used by speed reader + TTS), and the navigation hooks the bottom bar
@@ -15,10 +18,8 @@ final class ReaderViewModel {
     var sheet: Sheet?
 
     enum Sheet: Identifiable {
-        // .speedReader is no longer used — Speed mode is inline now. Kept
-        // out of the enum so Swift's exhaustiveness checking surfaces any
-        // stale call sites.
-        case readerSettings, ttsSettings, transformations, chapters
+        // .speedReader is no longer used — Speed mode is inline now.
+        case readerSettings, ttsSettings, transformations, chapters, search, markings
         var id: String { String(describing: self) }
     }
 
@@ -74,5 +75,33 @@ final class ReaderViewModel {
         }
         book.lastOpenedAt = .now
         try? context.save()
+        publishWidgetSnapshot(percent: percent)
+    }
+
+    /// Push the latest progress + cover into the App Group container so the
+    /// home-screen widget can render it without launching the app. Best
+    /// effort — failures here are silent because the widget is decoration,
+    /// not a load-bearing feature.
+    private func publishWidgetSnapshot(percent: Double) {
+        var coverFilename = ""
+        if let coverData = book.coverData {
+            let leaf = "\(book.id.uuidString).jpg"
+            if let target = WidgetSnapshot.coverURL(filename: leaf) {
+                try? coverData.write(to: target, options: .atomic)
+                coverFilename = leaf
+            }
+        }
+        let snap = WidgetSnapshot(
+            bookID: book.id.uuidString,
+            title: book.title,
+            author: book.author,
+            percent: percent,
+            coverFilename: coverFilename,
+            updatedAt: .now
+        )
+        snap.write()
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
     }
 }
