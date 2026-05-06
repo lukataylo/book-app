@@ -430,24 +430,34 @@ struct ReaderView: View {
             .frame(height: 60)
             .allowsHitTesting(false)
 
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
                 // Three-tab mode pill — always visible. Each tab switches the
                 // reader into Read / Speed / Listen and triggers the right
-                // side-effect (start/stop TTS, open speed reader, etc.).
+                // side-effect (start/stop TTS, start the speed ticker, etc.).
                 ModeTabPill(mode: $mode, isDark: isDark)
                     .padding(.horizontal, 18)
                     .onChange(of: mode) { _, newMode in
                         applyModeChange(to: newMode, viewModel: viewModel)
                     }
 
-                // Contextual controls underneath the pill.
-                modeControls(viewModel: viewModel, isDark: isDark)
-                    .padding(.horizontal, 18)
-                    .frame(minHeight: 44)
+                // Speed and Listen modes need their own full-width row of
+                // controls. Read mode doesn't — its progress indicator gets
+                // tucked inline with the secondary row below to save height.
+                if mode != .read {
+                    modeControls(viewModel: viewModel, isDark: isDark)
+                        .padding(.horizontal, 18)
+                        .frame(minHeight: 44)
+                }
 
-                // Mode-independent secondary row: Aa, AI, collapse-chrome.
-                HStack(spacing: 22) {
-                    Spacer()
+                // Compact secondary row. In Read mode the leading slot is the
+                // progress indicator; in Speed / Listen it's a Spacer.
+                HStack(spacing: 14) {
+                    if mode == .read {
+                        progressRegion(isPlaying: false)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Spacer(minLength: 0)
+                    }
                     IconBarButton(systemImage: "textformat.size", isDark: isDark) {
                         viewModel.sheet = .readerSettings
                     }
@@ -464,8 +474,8 @@ struct ReaderView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    Spacer()
                 }
+                .padding(.horizontal, 18)
                 .padding(.bottom, 2)
             }
             .padding(.bottom, 4)
