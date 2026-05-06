@@ -5,6 +5,23 @@ import SwiftData
 import WidgetKit
 #endif
 
+/// One renderable item in the reader's scrolling stack — derived from a
+/// single source paragraph. Pre-classified so the view doesn't have to
+/// re-scan prefix markers (`# `, `[img:`) on every body re-render.
+enum ReaderBlock: Hashable {
+    case heading(String)
+    case paragraph(String)
+    case image(String)   // filename, resolved against the book's images/ folder
+}
+
+/// A `ReaderBlock` plus the cross-paragraph context the view needs to render
+/// it (currently just whether this paragraph is the first after a heading,
+/// for drop-cap rendering).
+struct RenderableBlock: Hashable {
+    let block: ReaderBlock
+    let firstAfterHeading: Bool
+}
+
 /// Owns reader state for a single book — current variant, progress, paragraph
 /// list (used by speed reader + TTS), and the navigation hooks the bottom bar
 /// triggers (Read / Listen / Settings / AI).
@@ -14,6 +31,12 @@ final class ReaderViewModel {
     let book: Book
     var currentVariant: BookVariant
     var paragraphs: [String] = []
+    /// Pre-classified renderable blocks for the current variant. Cached
+    /// because the reader's body re-renders on every settings tick (font
+    /// size, line spacing, theme…) and an O(n) scan over paragraphs each
+    /// time was the dominant cost when adjusting type with a long book
+    /// loaded.
+    var blocks: [RenderableBlock] = []
     var currentParagraph: Int = 0
     var sheet: Sheet?
 
@@ -44,6 +67,7 @@ final class ReaderViewModel {
         self.book = book
         self.currentVariant = variant ?? book.originalVariant ?? BookVariant(book: book, kind: .original, contentText: "")
         self.paragraphs = Self.splitParagraphs(currentVariant.contentText)
+        self.blocks = Self.buildBlocks(from: paragraphs)
         self.currentParagraph = Self.resumeParagraphIndex(
             book: book,
             variantID: currentVariant.id,
@@ -79,9 +103,34 @@ final class ReaderViewModel {
             .filter { !$0.isEmpty }
     }
 
+    /// Classify each paragraph string into a `ReaderBlock` and tag the first
+    /// paragraph after a heading so the view can render a drop cap there.
+    static func buildBlocks(from paragraphs: [String]) -> [RenderableBlock] {
+        var result: [RenderableBlock] = []
+        result.reserveCapacity(paragraphs.count)
+        var prevWasHeading = false
+        for p in paragraphs {
+            if p.hasPrefix("# ") {
+                let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                result.append(RenderableBlock(block: .heading(title), firstAfterHeading: false))
+                prevWasHeading = true
+            } else if p.hasPrefix("[img:"), p.hasSuffix("]") {
+                let inner = String(p.dropFirst(5).dropLast())
+                let leaf = (inner as NSString).lastPathComponent
+                result.append(RenderableBlock(block: .image(leaf), firstAfterHeading: false))
+                prevWasHeading = false
+            } else {
+                result.append(RenderableBlock(block: .paragraph(p), firstAfterHeading: prevWasHeading))
+                prevWasHeading = false
+            }
+        }
+        return result
+    }
+
     func switchVariant(_ variant: BookVariant) {
         currentVariant = variant
         paragraphs = Self.splitParagraphs(variant.contentText)
+        blocks = Self.buildBlocks(from: paragraphs)
         currentParagraph = 0
     }
 

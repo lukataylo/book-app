@@ -35,6 +35,29 @@ struct EPUBImageMarkerTests {
     }
 
     @Test
+    func hardWrappedSourceCollapsesIntoFlowingProse() {
+        // Project Gutenberg (and many EPUBs) ship `<p>` content as
+        // hard-wrapped lines. Without collapsing the in-paragraph
+        // newlines to spaces, SwiftUI's `Text` renders each source line
+        // as its own visible row, which is what produced the screenshot
+        // bug where every line wrapped onto its own line.
+        let html = """
+        <p>Bartolommea di Stefano Nelli, his wife. Both
+        parents were members of the
+        old Florentine nobility.</p>
+        <p>His life falls naturally into three periods.</p>
+        """
+        let plain = EPUBParser.htmlToPlainText(html)
+        let paragraphs = plain.components(separatedBy: "\n\n").map {
+            $0.trimmingCharacters(in: .whitespaces)
+        }
+        // The first paragraph must be one continuous sentence, not
+        // three line-broken fragments.
+        #expect(paragraphs.first?.contains("\n") == false)
+        #expect(paragraphs.first == "Bartolommea di Stefano Nelli, his wife. Both parents were members of the old Florentine nobility.")
+    }
+
+    @Test
     func imageMarkerSurvivesFragmentedParagraphMerge() {
         // The merge pass joins paragraphs whose first doesn't end with
         // sentence-terminating punctuation. Image markers must be exempt

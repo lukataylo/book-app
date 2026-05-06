@@ -117,10 +117,10 @@ struct ReaderView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: settings.paragraphSpacing) {
-                        ForEach(Array(blocksWithContext.enumerated()), id: \.offset) { idx, item in
+                        ForEach(viewModel.blocks.indices, id: \.self) { idx in
                             blockView(
-                                item.block,
-                                isFirstAfterHeading: item.firstAfterHeading,
+                                viewModel.blocks[idx].block,
+                                isFirstAfterHeading: viewModel.blocks[idx].firstAfterHeading,
                                 paragraphIndex: idx
                             )
                                 .id(idx)
@@ -252,39 +252,16 @@ struct ReaderView: View {
     }
 
     // MARK: - Block model
-
-    enum Block: Hashable {
-        case heading(String)
-        case paragraph(String)
-        case image(String)   // filename, resolved against the book's images/ folder
-    }
-
-    /// All blocks in reading order, paired with whether they are the first
-    /// paragraph after a `# Heading` (for drop-cap rendering).
-    private var blocksWithContext: [(block: Block, firstAfterHeading: Bool)] {
-        guard let viewModel else { return [] }
-        var result: [(Block, Bool)] = []
-        var prevWasHeading = false
-        for p in viewModel.paragraphs {
-            if p.hasPrefix("# ") {
-                let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
-                result.append((.heading(title), false))
-                prevWasHeading = true
-            } else if p.hasPrefix("[img:"), p.hasSuffix("]") {
-                let inner = String(p.dropFirst(5).dropLast())
-                let leaf = (inner as NSString).lastPathComponent
-                result.append((.image(leaf), false))
-                prevWasHeading = false
-            } else {
-                result.append((.paragraph(p), prevWasHeading))
-                prevWasHeading = false
-            }
-        }
-        return result
-    }
+    //
+    // The block list (paragraph / heading / image classification + the
+    // first-after-heading flag) lives on `ReaderViewModel` so it isn't
+    // recomputed on every body re-render. The reader's body re-runs on
+    // every settings tick (font size, line spacing, theme…), and rebuilding
+    // the block list each time was the dominant cost when adjusting type
+    // with a long book loaded.
 
     @ViewBuilder
-    private func blockView(_ block: Block, isFirstAfterHeading: Bool, paragraphIndex: Int?) -> some View {
+    private func blockView(_ block: ReaderBlock, isFirstAfterHeading: Bool, paragraphIndex: Int?) -> some View {
         switch block {
         case .heading(let text):
             Text(text)
