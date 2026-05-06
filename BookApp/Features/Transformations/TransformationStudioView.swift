@@ -42,6 +42,11 @@ struct TransformationStudioView: View {
     @State private var cachedInputTokens: Int = 0
     @State private var cachedChunkCount: Int = 0
     @State private var sourceLoading: Bool = true
+    /// Filled in on appear from `LocalProvider().isAvailable()`. When true,
+    /// "Auto" defaults to Apple FM and the studio shows "Free · on-device".
+    @State private var localAvailable: Bool = false
+    /// Holds the active run task so Cancel can stop a long on-device run.
+    @State private var runTask: Task<Void, Never>?
 
     @FocusState private var styleFieldFocused: Bool
 
@@ -106,7 +111,17 @@ struct TransformationStudioView: View {
         } message: {
             Text(errorText ?? "")
         }
-        .task { await loadSourceTokens() }
+        .task {
+            // Detect Apple Intelligence availability before chunking so the
+            // chunk size matches the model the engine will pick.
+            let provider = LocalProvider()
+            let available = await provider.isAvailable()
+            await MainActor.run {
+                self.localAvailable = available
+                self.engine.localAvailableHint = available
+            }
+            await loadSourceTokens()
+        }
         // styleReference and omittedThemes don't affect tokens or pricing —
         // they only flow into the prompt body. We skip recomputing the
         // estimate when those change so typing doesn't thrash any state.
@@ -309,7 +324,9 @@ struct TransformationStudioView: View {
     // MARK: - Estimate / progress
 
     private func estimateCard(_ e: CostEstimate) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let isLocal = e.model.providerID == .foundationModels || e.model.providerID == .mlx
+        let estimatedSecs = isLocal ? Double(e.chunkCount) * 8.0 : Double(e.chunkCount) * 1.5
+        return VStack(alignment: .leading, spacing: 8) {
             Text("Estimate")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
                 .foregroundStyle(Theme.Palette.textPrimary)
@@ -322,7 +339,13 @@ struct TransformationStudioView: View {
                 Divider().background(Theme.Palette.divider)
                 row("Model", e.model.displayName)
                 Divider().background(Theme.Palette.divider)
-                row("Cost (est.)", String(format: "$%.3f", e.usd), emphasize: true)
+                row("Time (est.)", formatDuration(estimatedSecs))
+                Divider().background(Theme.Palette.divider)
+                if isLocal {
+                    row("Cost", "Free · on-device", emphasize: true)
+                } else {
+                    row("Cost (est.)", String(format: "$%.3f", e.usd), emphasize: true)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 4)
@@ -331,21 +354,53 @@ struct TransformationStudioView: View {
         }
     }
 
+    private func formatDuration(_ seconds: Double) -> String {
+        if seconds < 60 { return "\(max(1, Int(seconds))) sec" }
+        let mins = Int(seconds / 60)
+        if mins < 60 { return "\(mins) min" }
+        let h = mins / 60
+        let m = mins % 60
+        return m == 0 ? "\(h) h" : "\(h)h \(m)m"
+    }
+
     private func progressCard(_ p: TransformationProgress) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let modelIsLocal = (estimate?.model.providerID ?? .anthropic) != .anthropic
+        return VStack(alignment: .leading, spacing: 10) {
             Text("Running…")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
                 .foregroundStyle(Theme.Palette.textPrimary)
             ProgressView(value: Double(p.chunkIndex), total: Double(max(1, p.chunkCount)))
                 .tint(.black)
             HStack {
-                Text("\(p.phase) · chunk \(p.chunkIndex)/\(p.chunkCount)")
+                Text("chunk \(p.chunkIndex)/\(p.chunkCount)")
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(Theme.Palette.textSecondary)
                 Spacer()
-                Text(String(format: "$%.3f", p.costUSD))
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(Theme.Palette.textPrimary)
+                if p.estimatedSecondsRemaining > 0 {
+                    Text("~\(formatDuration(p.estimatedSecondsRemaining)) left")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
+            }
+            HStack {
+                if modelIsLocal {
+                    Text("Free · on-device")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                } else {
+                    Text(String(format: "$%.3f spent", p.costUSD))
+                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                }
+                Spacer()
+                Button(role: .destructive) {
+                    cancelRun()
+                } label: {
+                    Text("Cancel")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
             }
         }
         .padding(.horizontal, 14)
@@ -371,7 +426,7 @@ struct TransformationStudioView: View {
 
     private var runCTA: some View {
         Button {
-            Task { await run() }
+            startRun()
         } label: {
             HStack {
                 if isRunning {
@@ -460,6 +515,10 @@ struct TransformationStudioView: View {
         let req = transformRequest
         let outputTokens = max(1, Int(Double(cachedInputTokens) * req.targetRatio))
         let model = req.modelOverride ?? defaultModelLocal(for: req)
+        // Chunk count varies by model context window. Recompute from the
+        // cached input-token total rather than re-chunking the source.
+        let (maxTok, _) = TransformationEngine.chunkSize(for: model)
+        let chunks = max(1, Int((Double(cachedInputTokens) / Double(maxTok)).rounded(.up)))
         let price = model.price
         let usd = (Double(cachedInputTokens) * price.inputPerM
                    + Double(outputTokens) * price.outputPerM) / 1_000_000
@@ -468,13 +527,15 @@ struct TransformationStudioView: View {
             estOutputTokens: outputTokens,
             model: model,
             usd: usd,
-            chunkCount: cachedChunkCount
+            chunkCount: chunks
         )
     }
 
-    /// Mirrors `TransformationEngine.defaultModel(for:)` so we don't have to
-    /// round-trip through the actor for cheap pricing math.
+    /// Apple-Intelligence-aware default. When the device has on-device
+    /// inference, all transformations route through it for free. Otherwise
+    /// falls back to the cost-aware Claude routing.
     private func defaultModelLocal(for request: TransformationRequest) -> LLMModel {
+        if localAvailable { return .appleFoundation }
         switch request.kind {
         case .styled:        return .claudeOpus4_7
         case .expanded where request.targetRatio >= 3: return .claudeOpus4_7
@@ -493,9 +554,26 @@ struct TransformationStudioView: View {
         return "\(n)"
     }
 
+    private func startRun() {
+        runTask?.cancel()
+        runTask = Task { @MainActor in
+            await run()
+        }
+    }
+
+    private func cancelRun() {
+        runTask?.cancel()
+        runTask = nil
+        isRunning = false
+        progress = nil
+    }
+
     private func run() async {
         isRunning = true
-        defer { isRunning = false }
+        defer {
+            isRunning = false
+            runTask = nil
+        }
         do {
             _ = try await engine.run(
                 on: book,
@@ -506,6 +584,9 @@ struct TransformationStudioView: View {
                 progress: { p in self.progress = p }
             )
             dismiss()
+        } catch is CancellationError {
+            errorText = nil
+            progress = nil
         } catch {
             errorText = error.localizedDescription
         }

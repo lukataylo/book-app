@@ -17,6 +17,9 @@ struct TransformationProgress: Sendable {
     var inputTokens: Int
     var outputTokens: Int
     var costUSD: Double
+    /// Best-guess remaining wall-clock from per-chunk timing (Apple FM is
+    /// 5-15s per chunk, so this matters for the long on-device runs).
+    var estimatedSecondsRemaining: Double = 0
     enum Phase: Sendable { case chunking, mapping, seamRewriting, polishing, persisting, done }
 }
 
@@ -37,13 +40,27 @@ final class TransformationEngine {
     private let router = LLMRouter.shared
     private let store = BookStore.shared
 
+    /// Per-model chunk budget. Apple FM tops out at ~4K tokens (input +
+    /// output combined), so on-device runs use 2K-token chunks with light
+    /// overlap. Cloud models stay at 80K to keep round-trips down.
+    static func chunkSize(for model: LLMModel) -> (max: Int, overlap: Int) {
+        switch model {
+        case .appleFoundation: return (max: 2_000, overlap: 200)
+        case .mlxLocal:        return (max: 4_000, overlap: 400)
+        default:               return (max: 80_000, overlap: 4_000)
+        }
+    }
+
     /// Estimate cost before kicking off the real run. Uses Anthropic's
-    /// list price; the local provider returns 0.
+    /// list price; the local provider returns 0. The chunk count is
+    /// model-dependent because chunk size scales with the model's
+    /// context window.
     func estimate(source: String, request: TransformationRequest) -> CostEstimate {
-        let chunks = Chunker.chunk(source)
+        let model = request.modelOverride ?? defaultModel(for: request)
+        let (maxTok, overlap) = Self.chunkSize(for: model)
+        let chunks = Chunker.chunk(source, maxTokens: maxTok, overlapTokens: overlap)
         let inputTokens = chunks.reduce(0) { $0 + $1.approxTokens }
         let outputTokens = max(1, Int(Double(inputTokens) * request.targetRatio))
-        let model = request.modelOverride ?? defaultModel(for: request)
         let price = model.price
         let usd = (Double(inputTokens) * price.inputPerM + Double(outputTokens) * price.outputPerM) / 1_000_000
         return CostEstimate(
@@ -66,11 +83,12 @@ final class TransformationEngine {
         context: ModelContext,
         progress: @MainActor (TransformationProgress) -> Void
     ) async throws -> BookVariant {
-        let chunks = Chunker.chunk(sourceText)
-        progress(TransformationProgress(phase: .chunking, chunkIndex: 0, chunkCount: chunks.count, inputTokens: 0, outputTokens: 0, costUSD: 0))
-
         let model = request.modelOverride ?? defaultModel(for: request)
         let routedTask = self.task(for: request)
+        let (maxTok, overlap) = Self.chunkSize(for: model)
+        let chunks = Chunker.chunk(sourceText, maxTokens: maxTok, overlapTokens: overlap)
+        let startTime = Date.now
+        progress(TransformationProgress(phase: .chunking, chunkIndex: 0, chunkCount: chunks.count, inputTokens: 0, outputTokens: 0, costUSD: 0))
 
         var transformedChunks: [String] = []
         transformedChunks.reserveCapacity(chunks.count)
@@ -93,14 +111,21 @@ final class TransformationEngine {
                 temperature: temperature(for: request.kind),
                 model: model
             )
+            try Task.checkCancellation()
             let resp = try await router.run(routedTask, request: req, sourceTokens: chunk.approxTokens)
             transformedChunks.append(resp.text)
             totalInput += resp.inputTokens + resp.cachedInputTokens
             totalOutput += resp.outputTokens
             totalCost += resp.costUSD
+            // ETA from average wall-clock per finished chunk.
+            let done = chunk.index + 1
+            let elapsed = Date.now.timeIntervalSince(startTime)
+            let avg = elapsed / Double(max(1, done))
+            let remaining = avg * Double(chunks.count - done)
             progress(TransformationProgress(
-                phase: .mapping, chunkIndex: chunk.index + 1, chunkCount: chunks.count,
-                inputTokens: totalInput, outputTokens: totalOutput, costUSD: totalCost
+                phase: .mapping, chunkIndex: done, chunkCount: chunks.count,
+                inputTokens: totalInput, outputTokens: totalOutput, costUSD: totalCost,
+                estimatedSecondsRemaining: remaining
             ))
         }
 
@@ -173,7 +198,16 @@ final class TransformationEngine {
 
     // MARK: - Helpers
 
+    /// Apple-Intelligence-aware default. The studio refreshes
+    /// `localAvailableHint` from `LocalProvider().isAvailable()` on
+    /// appear, so users with an Apple Intelligence-capable device get
+    /// on-device transformations without a Claude API key.
+    var localAvailableHint: Bool = false
+
     private func defaultModel(for request: TransformationRequest) -> LLMModel {
+        if localAvailableHint {
+            return .appleFoundation
+        }
         switch request.kind {
         case .styled:        return .claudeOpus4_7
         case .expanded where request.targetRatio >= 3: return .claudeOpus4_7

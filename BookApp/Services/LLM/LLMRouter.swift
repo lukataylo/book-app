@@ -18,33 +18,27 @@ final actor LLMRouter {
     }
 
     /// Routing policy — one place to read off the table from the plan.
+    /// On-device Apple Foundation Models is now the *first* attempt for
+    /// every transformation task: transformation chunks are explicitly
+    /// sized to fit its 4K context (see `TransformationEngine.chunkSize`),
+    /// so users without a Claude API key still get usable output.
     func plan(for task: LLMTask, sourceTokens: Int) -> [LLMModel] {
         switch task {
         case .categoryTagging, .keyLearningsExtraction, .quizGeneration, .shortSummary:
             return [.appleFoundation, .mlxLocal, .claudeHaiku4_5]
-
-        case .compression(let ratio):
-            if ratio >= 0.30, sourceTokens < 50_000 {
-                return [.appleFoundation, .mlxLocal, .claudeSonnet4_6]
-            }
-            return [.claudeSonnet4_6, .claudeOpus4_7]
-
+        case .compression:
+            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
         case .expansion(let ratio):
-            if ratio >= 3.0 { return [.claudeOpus4_7, .claudeSonnet4_6] }
-            return [.claudeSonnet4_6, .claudeOpus4_7]
-
+            if ratio >= 3.0 { return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6] }
+            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
         case .styleTransfer:
-            return [.claudeOpus4_7, .claudeSonnet4_6]
-
+            return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6]
         case .themeOmission:
-            return [.claudeSonnet4_6, .claudeOpus4_7]
-
-        case .combined(_, _, let ratio):
-            if let r = ratio, r >= 3.0 { return [.claudeOpus4_7, .claudeSonnet4_6] }
-            return [.claudeOpus4_7, .claudeSonnet4_6]
-
+            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
+        case .combined:
+            return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6]
         case .chatWithBook:
-            return [.claudeSonnet4_6, .claudeHaiku4_5]
+            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeHaiku4_5]
         }
     }
 
@@ -56,6 +50,7 @@ final actor LLMRouter {
         var lastError: Error = LLMError.noProviderAvailable
 
         for model in plan {
+            try Task.checkCancellation()
             let provider: LLMProvider
             switch model.providerID {
             case .foundationModels, .mlx: provider = local
@@ -66,12 +61,15 @@ final actor LLMRouter {
             attempt.model = model
             do {
                 return try await provider.complete(attempt)
+            } catch is CancellationError {
+                throw CancellationError()
             } catch let error as LLMError {
                 lastError = error
                 if case .missingAPIKey = error, model.providerID == .anthropic { continue }
                 if case .providerUnavailable = error { continue }
                 throw error
             } catch {
+                if error is CancellationError { throw error }
                 lastError = error
                 continue
             }
