@@ -23,6 +23,7 @@ struct BookDetailView: View {
     }
     @State private var route: Destination?
     @State private var showLearnings = false
+    @State private var originalProgress: Double = 0
 
     var body: some View {
         ScrollView {
@@ -61,6 +62,14 @@ struct BookDetailView: View {
         .sheet(isPresented: $showLearnings) {
             BookLearningsView(book: book)
                 .presentationDetents([.medium, .large])
+        }
+        .task {
+            // Read progress once when the screen appears — was running on
+            // every render via the body's computed-property call, hitting
+            // SwiftData each frame.
+            if let original = book.originalVariant {
+                originalProgress = currentProgress(for: original)
+            }
         }
     }
 
@@ -138,7 +147,7 @@ struct BookDetailView: View {
     @ViewBuilder
     private var continueButton: some View {
         if let original = book.originalVariant {
-            let progress = currentProgress(for: original)
+            let progress = originalProgress
             Button {
                 route = .reader(original.id)
             } label: {

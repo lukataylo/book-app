@@ -189,8 +189,6 @@ struct ReaderView: View {
                 TTSSettingsSheet()
                     .presentationDetents([.medium])
                     .presentationBackground(.regularMaterial)
-            case .speedReader:
-                SpeedReaderView(paragraphs: viewModel.paragraphs)
             case .transformations:
                 TransformationStudioView(book: book, sourceVariant: viewModel.currentVariant)
                     .presentationDetents([.medium, .large])
@@ -690,12 +688,21 @@ struct ReaderView: View {
             speedSettings = existing
         } else {
             modelContext.insert(speedSettings)
-            try? modelContext.save()
+            // First-time save can take 100-300ms while SwiftData flushes
+            // to disk + queues iCloud sync; defer it so the speed bar
+            // appears immediately on tap.
+            Task { @MainActor in
+                try? modelContext.save()
+            }
         }
     }
 
     private func persistSpeedSettings() {
-        try? modelContext.save()
+        // Slider changes fire many times per drag — debounce-ish: just queue
+        // the save off the immediate render path.
+        Task { @MainActor in
+            try? modelContext.save()
+        }
     }
 
     private func currentVisibleParagraphIndex(viewModel: ReaderViewModel) -> Int {

@@ -110,10 +110,9 @@ enum SeedBooksLoader {
         book.author = meta.author
         if !meta.categories.isEmpty { book.categoryTags = meta.categories }
         if !meta.themes.isEmpty     { book.detectedThemes = meta.themes }
-        // Tag the book with its seed slug so `bookAlreadyImported` can detect
-        // a re-run even if the UserDefaults completion flag is wiped (e.g.
-        // user reinstalls from a backup but keeps the SwiftData store).
-        book.notes = "seed:\(meta.slug)"
+        // `book.notes` is the user-facing notes field — leave it alone so
+        // people can write their own. UserDefaults `SeedBooks.completed-v1`
+        // is the actual idempotency guard.
 
         // Fallback cover when the parser didn't pick one up.
         if book.coverData == nil,
@@ -181,12 +180,13 @@ enum SeedBooksLoader {
     }
 
     private static func bookAlreadyImported(slug: String, context: ModelContext) -> Bool {
-        // We don't store slug on Book directly. Approximate by matching title +
-        // author of the curated meta — good enough since these are seeded
-        // exactly once per device.
-        let descriptor = FetchDescriptor<Book>()
-        guard let books = try? context.fetch(descriptor) else { return false }
-        return books.contains { $0.notes.contains("seed:\(slug)") }
+        // The UserDefaults `SeedBooks.completed-v1` flag is the real
+        // idempotency check. This function exists for future "re-import a
+        // single seed book" flows. For now we always return false and let
+        // the flag gate the loop in `runIfNeeded`.
+        _ = slug
+        _ = context
+        return false
     }
 
     /// Recovers a usable `SeedMeta` from a book folder when its `meta.json`

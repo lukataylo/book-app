@@ -15,7 +15,10 @@ final class ReaderViewModel {
     var sheet: Sheet?
 
     enum Sheet: Identifiable {
-        case readerSettings, ttsSettings, speedReader, transformations, chapters
+        // .speedReader is no longer used — Speed mode is inline now. Kept
+        // out of the enum so Swift's exhaustiveness checking surfaces any
+        // stale call sites.
+        case readerSettings, ttsSettings, transformations, chapters
         var id: String { String(describing: self) }
     }
 

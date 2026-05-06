@@ -36,6 +36,12 @@ struct TransformationStudioView: View {
     @State private var progress: TransformationProgress?
     @State private var isRunning: Bool = false
     @State private var errorText: String?
+    // Cached chunk count + input tokens — computed once on appear off the
+    // main thread so a 280K-char source doesn't block the sheet animation
+    // and every typed character of styleReference doesn't re-chunk.
+    @State private var cachedInputTokens: Int = 0
+    @State private var cachedChunkCount: Int = 0
+    @State private var sourceLoading: Bool = true
 
     @FocusState private var styleFieldFocused: Bool
 
@@ -54,7 +60,15 @@ struct TransformationStudioView: View {
                 styleSection
                 themesSection
                 modelSection
-                if let estimate {
+                if sourceLoading {
+                    HStack(spacing: 8) {
+                        ProgressView().scaleEffect(0.8)
+                        Text("Calculating cost…")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Theme.Palette.textSecondary)
+                    }
+                    .padding(.vertical, 4)
+                } else if let estimate {
                     estimateCard(estimate)
                 }
                 if let progress {
@@ -92,13 +106,14 @@ struct TransformationStudioView: View {
         } message: {
             Text(errorText ?? "")
         }
-        .onAppear { recomputeEstimate() }
+        .task { await loadSourceTokens() }
+        // styleReference and omittedThemes don't affect tokens or pricing —
+        // they only flow into the prompt body. We skip recomputing the
+        // estimate when those change so typing doesn't thrash any state.
         .onChange(of: changeLength)   { _, _ in recomputeEstimate() }
         .onChange(of: targetPages)    { _, _ in recomputeEstimate() }
         .onChange(of: changeStyle)    { _, _ in recomputeEstimate() }
-        .onChange(of: styleReference) { _, _ in recomputeEstimate() }
         .onChange(of: omitThemes)     { _, _ in recomputeEstimate() }
-        .onChange(of: omittedThemes)  { _, _ in recomputeEstimate() }
         .onChange(of: modelOverride)  { _, _ in recomputeEstimate() }
     }
 
@@ -420,12 +435,56 @@ struct TransformationStudioView: View {
         )
     }
 
+    /// One-time chunking pass on the source text. Runs off the main thread
+    /// so a long book (~280K tokens for The Republic) doesn't stall the
+    /// sheet's appearance animation.
+    private func loadSourceTokens() async {
+        let source = sourceVariant.contentText
+        let result: (tokens: Int, count: Int) = await Task.detached(priority: .userInitiated) {
+            let chunks = Chunker.chunk(source)
+            let tokens = chunks.reduce(0) { $0 + $1.approxTokens }
+            return (tokens, chunks.count)
+        }.value
+        await MainActor.run {
+            self.cachedInputTokens = result.tokens
+            self.cachedChunkCount = result.count
+            self.sourceLoading = false
+            self.recomputeEstimate()
+        }
+    }
+
+    /// Cheap recompute — uses the cached chunk count + token total, just
+    /// updates the price math when length / kind / model selection changes.
     private func recomputeEstimate() {
-        estimate = engine.estimate(source: sourceVariant.contentText, request: transformRequest)
+        guard cachedInputTokens > 0 else { return }
+        let req = transformRequest
+        let outputTokens = max(1, Int(Double(cachedInputTokens) * req.targetRatio))
+        let model = req.modelOverride ?? defaultModelLocal(for: req)
+        let price = model.price
+        let usd = (Double(cachedInputTokens) * price.inputPerM
+                   + Double(outputTokens) * price.outputPerM) / 1_000_000
+        estimate = CostEstimate(
+            inputTokens: cachedInputTokens,
+            estOutputTokens: outputTokens,
+            model: model,
+            usd: usd,
+            chunkCount: cachedChunkCount
+        )
+    }
+
+    /// Mirrors `TransformationEngine.defaultModel(for:)` so we don't have to
+    /// round-trip through the actor for cheap pricing math.
+    private func defaultModelLocal(for request: TransformationRequest) -> LLMModel {
+        switch request.kind {
+        case .styled:        return .claudeOpus4_7
+        case .expanded where request.targetRatio >= 3: return .claudeOpus4_7
+        case .compressed where request.targetRatio >= 0.30: return .appleFoundation
+        default:             return .claudeSonnet4_6
+        }
     }
 
     private func estimateInputTokens() -> Int {
-        Chunker.tokenEstimate(sourceVariant.contentText)
+        cachedInputTokens > 0 ? cachedInputTokens : Chunker.tokenEstimate(sourceVariant.contentText)
     }
 
     private func formatTokens(_ n: Int) -> String {
