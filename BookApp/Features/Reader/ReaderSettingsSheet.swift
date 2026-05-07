@@ -8,6 +8,7 @@ struct ReaderSettingsSheet: View {
     @Bindable var settings: ReaderSettings
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var persistTask: Task<Void, Never>?
 
     var body: some View {
         NavigationStack {
@@ -104,8 +105,18 @@ struct ReaderSettingsSheet: View {
         }
     }
 
+    /// Debounced save. The slider's binding fires writes on every drag
+    /// frame, and a synchronous SwiftData save can stall the main thread
+    /// for tens to hundreds of ms while CloudKit flushes — enough to make
+    /// the sheet feel like it's hung. Coalesce to a single write a quarter
+    /// second after the user stops touching the controls.
     private func persist() {
-        try? modelContext.save()
+        persistTask?.cancel()
+        persistTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            try? modelContext.save()
+        }
     }
 
     private var progressHelpText: String {

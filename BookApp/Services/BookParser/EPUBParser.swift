@@ -152,6 +152,12 @@ struct EPUBParser: BookParser {
         s = s.replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
         s = s.replacingOccurrences(of: " *\\n *", with: "\n", options: .regularExpression)
         s = s.replacingOccurrences(of: "\\n{3,}", with: "\n\n", options: .regularExpression)
+        // Lone newlines inside a paragraph become spaces — `\n\n` paragraph
+        // breaks survive because neither of their two newlines is "lone".
+        // Without this, hard-wrapped source HTML (Project Gutenberg ships
+        // `<p>` content split over many physical lines) renders with a
+        // visible break after every line.
+        s = s.replacingOccurrences(of: "(?<!\\n)\\n(?!\\n)", with: " ", options: .regularExpression)
         // Project Gutenberg HTML often wraps every visual line in its own
         // `<p>` tag, which produces a cascade of half-sentence paragraphs
         // after our `</p>` → `\n\n` substitution. Merge any "paragraph"

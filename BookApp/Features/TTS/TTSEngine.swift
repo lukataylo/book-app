@@ -45,6 +45,13 @@ final class TTSEngine: NSObject {
     private var paragraphs: [String] = []   // already cleaned of `# ` markers
     private var settings: TTSSettings = TTSSettings()
     private var sleepTimer: Timer?
+    /// Identifies the content currently loaded into the engine so callers
+    /// can detect "Listen tab tapped on a different book than the one we
+    /// were narrating". Without this, `togglePlayback` would resume the
+    /// previous book's paragraphs at the previous index — confusing at
+    /// best, and crash-prone when the old `currentParagraph` no longer
+    /// exists in the new content.
+    private var loadedKey: String?
     // Now-playing metadata for lock-screen / control-centre.
     private var nowPlayingTitle: String = "BookApp"
     private var nowPlayingAuthor: String = ""
@@ -60,6 +67,8 @@ final class TTSEngine: NSObject {
         super.init()
         synth.delegate = self
         configureRemoteControls()
+        configureAudioInterruptionHandling()
+        configureRouteChangeHandling()
         // Audio session is configured + activated lazily on first play —
         // doing it at init() can race with app launch and silently fail.
     }
@@ -79,22 +88,44 @@ final class TTSEngine: NSObject {
 
     var hasLoadedContent: Bool { !paragraphs.isEmpty }
 
+    /// True iff the engine's currently-loaded paragraphs come from the
+    /// given book + variant. The reader uses this when the user taps the
+    /// Listen tab to decide whether to keep narrating what's already
+    /// playing or restart with the visible book's content.
+    func isLoadedFor(bookID: UUID, variantID: UUID) -> Bool {
+        loadedKey == "\(bookID.uuidString)/\(variantID.uuidString)"
+    }
+
     /// Live rate (0.0…1.0 in AVSpeech units). Reading-app UI usually maps
     /// this onto "1×" / "1.5×" labels.
     var currentRate: Double { settings.rate }
 
-    /// Single entry-point for the reader's Listen button.
-    func togglePlayback(paragraphs rawParagraphs: [String]) {
+    /// Single entry-point for the reader's Listen button. Pass the book +
+    /// variant ID so the engine can tell whether the caller is asking it
+    /// to toggle the *current* narration or start one for fresh content
+    /// (e.g. user opened a different book and tapped Listen).
+    func togglePlayback(bookID: UUID, variantID: UUID, paragraphs rawParagraphs: [String]) {
+        let key = "\(bookID.uuidString)/\(variantID.uuidString)"
+        if loadedKey != nil, loadedKey != key {
+            // Switching content — stop the old utterance before loading
+            // the new one. Not stopping first means `synth.speak` runs
+            // while a previous utterance is still being cancelled, which
+            // is the iOS 18 race that surfaces as a hard crash inside
+            // AVSpeechSynthesizer.
+            stop()
+            play(bookID: bookID, variantID: variantID, paragraphs: rawParagraphs)
+            return
+        }
         if isPlaying {
             pause()
         } else if hasLoadedContent {
             resume()
         } else {
-            play(paragraphs: rawParagraphs)
+            play(bookID: bookID, variantID: variantID, paragraphs: rawParagraphs)
         }
     }
 
-    func play(paragraphs rawParagraphs: [String], startAt index: Int = 0) {
+    func play(bookID: UUID, variantID: UUID, paragraphs rawParagraphs: [String], startAt index: Int = 0) {
         let cleaned = rawParagraphs
             .map { Self.stripHeadingMarker($0) }
             .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -103,8 +134,12 @@ final class TTSEngine: NSObject {
             lastError = "Nothing to read in this section."
             return
         }
+        // Drain the synth before starting fresh — protects against a
+        // pending speak/stop cycle from the previous book.
+        synth.stopSpeaking(at: .immediate)
         self.paragraphs = cleaned
         self.currentParagraph = max(0, min(index, cleaned.count - 1))
+        self.loadedKey = "\(bookID.uuidString)/\(variantID.uuidString)"
         activateAudioSession()
         speakCurrent()
         isPlaying = true
@@ -134,6 +169,7 @@ final class TTSEngine: NSObject {
         synth.stopSpeaking(at: .immediate)
         isPlaying = false
         currentRange = NSRange(location: 0, length: 0)
+        currentText = ""
         sleepTimer?.invalidate()
         sleepFiresAt = nil
         deactivateAudioSession()
@@ -202,6 +238,19 @@ final class TTSEngine: NSObject {
         }
         settings.rate = Double(next)
         applyLiveSettingChange()
+        persistSettingsChange()
+    }
+
+    /// Mini-player rate / pitch / voice tweaks update the live `settings`
+    /// instance but were never written back to SwiftData — a force-quit
+    /// would lose the change. Push the model context to save (best
+    /// effort; the settings row is a singleton so we don't need to
+    /// re-resolve it).
+    private func persistSettingsChange() {
+        let ctx = settings.modelContext
+        Task { @MainActor in
+            try? ctx?.save()
+        }
     }
 
     func startSleepTimer(minutes: Int) {
@@ -309,6 +358,70 @@ final class TTSEngine: NSObject {
         #if canImport(UIKit)
         let session = AVAudioSession.sharedInstance()
         try? session.setActive(false, options: [.notifyOthersOnDeactivation])
+        #endif
+    }
+
+    /// Subscribe to system audio-interruption events (incoming phone call,
+    /// Siri, FaceTime, another app starting playback). Without this the
+    /// synth keeps "speaking" silently while the system has taken away
+    /// our audio focus, and on resume the user sees a paused state with
+    /// no obvious way back to where they were.
+    private func configureAudioInterruptionHandling() {
+        #if canImport(UIKit)
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            // Extract the Sendable primitives from `note.userInfo` *outside*
+            // the Task — `[AnyHashable: Any]` isn't Sendable, so capturing
+            // it across an actor hop trips Swift 6's strict-concurrency
+            // checker and refuses to compile.
+            guard let info = note.userInfo,
+                  let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+            let optsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt
+            Task { @MainActor in
+                switch type {
+                case .began:
+                    if self.isPlaying { self.pause() }
+                case .ended:
+                    let opts = optsRaw.map {
+                        AVAudioSession.InterruptionOptions(rawValue: $0)
+                    } ?? []
+                    if opts.contains(.shouldResume), self.hasLoadedContent {
+                        self.resume()
+                    }
+                @unknown default:
+                    break
+                }
+            }
+        }
+        #endif
+    }
+
+    /// Pause when a route change indicates the previous output went away
+    /// (AirPods unplugged, Bluetooth speaker disconnected). Apple's HIG
+    /// requires this — `routeChangeReason` `.oldDeviceUnavailable` should
+    /// stop playback so audio doesn't suddenly blast out of the iPhone
+    /// speaker into the user's pocket.
+    private func configureRouteChangeHandling() {
+        #if canImport(UIKit)
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            guard let info = note.userInfo,
+                  let raw = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                  let reason = AVAudioSession.RouteChangeReason(rawValue: raw) else { return }
+            guard reason == .oldDeviceUnavailable else { return }
+            Task { @MainActor in
+                if self.isPlaying { self.pause() }
+            }
+        }
         #endif
     }
 

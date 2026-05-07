@@ -108,7 +108,24 @@ struct ReaderView: View {
         .statusBarHidden(!showsChrome)
         .preferredColorScheme(settings.theme == .dark || settings.theme == .black ? .dark : .light)
         .onAppear { stats.start() }
-        .onDisappear { stats.stop() }
+        .onDisappear {
+            stats.stop()
+            // Speed mode is a foreground-only ticker (it scrolls the
+            // reader). Without this, popping the reader leaves the task
+            // running against orphaned `@State` storage and the next
+            // open of a book gets a stuttering scroll from the ghost
+            // ticker mutating viewModel.currentParagraph.
+            stopSpeedTicker()
+            // Cancel debounced background tasks that captured this
+            // reader's session — leaving them running risks writing the
+            // previous book's progress over the next reader's state, or
+            // racing against a fresh `currentParagraph` value the user
+            // hasn't actually scrolled to.
+            persistTask?.cancel()
+            persistTask = nil
+            toastTask?.cancel()
+            toastTask = nil
+        }
     }
 
     @ViewBuilder
@@ -117,10 +134,10 @@ struct ReaderView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: settings.paragraphSpacing) {
-                        ForEach(Array(blocksWithContext.enumerated()), id: \.offset) { idx, item in
+                        ForEach(viewModel.blocks.indices, id: \.self) { idx in
                             blockView(
-                                item.block,
-                                isFirstAfterHeading: item.firstAfterHeading,
+                                viewModel.blocks[idx].block,
+                                isFirstAfterHeading: viewModel.blocks[idx].firstAfterHeading,
                                 paragraphIndex: idx
                             )
                                 .id(idx)
@@ -252,39 +269,16 @@ struct ReaderView: View {
     }
 
     // MARK: - Block model
-
-    enum Block: Hashable {
-        case heading(String)
-        case paragraph(String)
-        case image(String)   // filename, resolved against the book's images/ folder
-    }
-
-    /// All blocks in reading order, paired with whether they are the first
-    /// paragraph after a `# Heading` (for drop-cap rendering).
-    private var blocksWithContext: [(block: Block, firstAfterHeading: Bool)] {
-        guard let viewModel else { return [] }
-        var result: [(Block, Bool)] = []
-        var prevWasHeading = false
-        for p in viewModel.paragraphs {
-            if p.hasPrefix("# ") {
-                let title = String(p.dropFirst(2)).trimmingCharacters(in: .whitespaces)
-                result.append((.heading(title), false))
-                prevWasHeading = true
-            } else if p.hasPrefix("[img:"), p.hasSuffix("]") {
-                let inner = String(p.dropFirst(5).dropLast())
-                let leaf = (inner as NSString).lastPathComponent
-                result.append((.image(leaf), false))
-                prevWasHeading = false
-            } else {
-                result.append((.paragraph(p), prevWasHeading))
-                prevWasHeading = false
-            }
-        }
-        return result
-    }
+    //
+    // The block list (paragraph / heading / image classification + the
+    // first-after-heading flag) lives on `ReaderViewModel` so it isn't
+    // recomputed on every body re-render. The reader's body re-runs on
+    // every settings tick (font size, line spacing, theme…), and rebuilding
+    // the block list each time was the dominant cost when adjusting type
+    // with a long book loaded.
 
     @ViewBuilder
-    private func blockView(_ block: Block, isFirstAfterHeading: Bool, paragraphIndex: Int?) -> some View {
+    private func blockView(_ block: ReaderBlock, isFirstAfterHeading: Bool, paragraphIndex: Int?) -> some View {
         switch block {
         case .heading(let text):
             Text(text)
@@ -362,26 +356,21 @@ struct ReaderView: View {
         mode == .speed ? textColor.opacity(0.40) : textColor
     }
 
-    /// Render an inline EPUB image extracted on import. Returns an empty view
-    /// when the bytes are missing — figures sometimes go missing from
-    /// re-zipped EPUBs and we don't want a broken-image placeholder.
-    /// Goes through `InlineImageCache` so the JPEG decode happens once
-    /// per session rather than on every scroll frame.
+    /// Render an inline EPUB image extracted on import. Goes through
+    /// `InlineFigureImage`, which decodes the JPEG on a background task
+    /// (preparingForDisplay can hang the main thread for 50–200 ms on
+    /// older devices). Layout reserves space the moment the figure block
+    /// is reached so the surrounding paragraphs don't jump when the
+    /// bitmap arrives.
     @ViewBuilder
     private func inlineImage(filename: String) -> some View {
         let url = BookStore.shared.imagesFolder(for: book.id, create: false)
             .appendingPathComponent(filename)
-        if let ui = InlineImageCache.image(at: url) {
-            Image(uiImage: ui)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                .padding(.vertical, Theme.Spacing.s)
-                .accessibilityLabel("Figure")
-        } else {
-            EmptyView()
-        }
+        InlineFigureImage(url: url)
+            .frame(maxWidth: .infinity)
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .padding(.vertical, Theme.Spacing.s)
+            .accessibilityLabel("Figure")
     }
 
     /// Build the paragraph as an `AttributedString` so the body font, drop
@@ -552,13 +541,7 @@ struct ReaderView: View {
     /// Tap on Listen — reuse the user's saved voice + rate + pitch + sleep
     /// timer rather than starting from blank defaults each time.
     private func toggleListen(viewModel: ReaderViewModel) {
-        let descriptor = FetchDescriptor<TTSSettings>()
-        let saved = (try? modelContext.fetch(descriptor).first) ?? {
-            let s = TTSSettings()
-            modelContext.insert(s)
-            try? modelContext.save()
-            return s
-        }()
+        let saved = SettingsStore.shared.tts(in: modelContext)
         ttsEngine.configure(settings: saved)
         ttsEngine.configureNowPlaying(
             title: book.title,
@@ -570,7 +553,11 @@ struct ReaderView: View {
         ttsEngine.onParagraphChange = { [ttsEngine] _ in
             ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
         }
-        ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+        ttsEngine.togglePlayback(
+            bookID: bookID,
+            variantID: variantID,
+            paragraphs: viewModel.paragraphs
+        )
         // Capture the resume point once now too — the listener only fires on
         // paragraph *changes*, not on the initial start.
         ttsEngine.persistResumePoint(bookID: bookID, variantID: variantID)
@@ -794,7 +781,11 @@ struct ReaderView: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    ttsEngine.togglePlayback(paragraphs: viewModel.paragraphs)
+                    ttsEngine.togglePlayback(
+                        bookID: book.id,
+                        variantID: viewModel.currentVariant.id,
+                        paragraphs: viewModel.paragraphs
+                    )
                 } label: {
                     Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
                         .font(.system(size: 22, weight: .bold))
@@ -842,8 +833,13 @@ struct ReaderView: View {
             stopSpeedTicker()
         case .listen:
             stopSpeedTicker()
-            // Start narration if we aren't already playing.
-            if !ttsEngine.isPlaying {
+            // Start narration when nothing is playing, or when the engine
+            // is mid-narration for a *different* book — without the second
+            // check, popping back to the library and opening another book
+            // would leave the Listen tab pointing at the previous book.
+            let bookID = book.id
+            let variantID = viewModel.currentVariant.id
+            if !ttsEngine.isPlaying || !ttsEngine.isLoadedFor(bookID: bookID, variantID: variantID) {
                 toggleListen(viewModel: viewModel)
             }
         case .speed:
@@ -860,18 +856,7 @@ struct ReaderView: View {
     // MARK: - Speed mode
 
     private func ensureSpeedSettings() {
-        let descriptor = FetchDescriptor<SpeedReaderSettings>()
-        if let existing = try? modelContext.fetch(descriptor).first {
-            speedSettings = existing
-        } else {
-            modelContext.insert(speedSettings)
-            // First-time save can take 100-300ms while SwiftData flushes
-            // to disk + queues iCloud sync; defer it so the speed bar
-            // appears immediately on tap.
-            Task { @MainActor in
-                try? modelContext.save()
-            }
-        }
+        speedSettings = SettingsStore.shared.speed(in: modelContext)
     }
 
     private func persistSpeedSettings() {
@@ -895,6 +880,10 @@ struct ReaderView: View {
         // Capture the paragraph list locally so the closure isn't reaching
         // back into the view's identity on every tick.
         let paragraphs = viewModel.paragraphs
+        guard !paragraphs.isEmpty else {
+            speedIsRunning = false
+            return
+        }
         speedTickerTask = Task { @MainActor in
             while speedIsRunning && !Task.isCancelled {
                 let baseIntervalMs = 60_000 / max(60, speedSettings.wpm)
@@ -904,7 +893,11 @@ struct ReaderView: View {
                     if word.hasSuffix(",") || word.hasSuffix(";") { dwellMs += speedSettings.commaPauseMS }
                     if word.hasSuffix(".") || word.hasSuffix("?") || word.hasSuffix("!") { dwellMs += speedSettings.periodPauseMS }
                 }
-                try? await Task.sleep(nanoseconds: UInt64(dwellMs) * 1_000_000)
+                // Clamp before the UInt64 conversion: a negative dwell
+                // (corrupted SwiftData / user-set zero pause values plus
+                // a weird wpm) would trap on UInt64(negative).
+                let safeDwellMs = max(16, dwellMs)
+                try? await Task.sleep(nanoseconds: UInt64(safeDwellMs) * 1_000_000)
                 guard !Task.isCancelled else { break }
                 advanceSpeedWord(in: paragraphs)
             }
@@ -1095,15 +1088,10 @@ struct ReaderView: View {
 
     @MainActor
     private func ensureReaderSettings() {
-        let descriptor = FetchDescriptor<ReaderSettings>()
-        if let existing = try? modelContext.fetch(descriptor).first {
-            settings = existing
-        } else {
-            let s = ReaderSettings()
-            modelContext.insert(s)
-            try? modelContext.save()
-            settings = s
-        }
+        // Settings are app-wide singletons; SettingsStore caches the
+        // resolved instance so repeated reader opens don't pay the
+        // FetchDescriptor cost.
+        settings = SettingsStore.shared.reader(in: modelContext)
     }
 
 }

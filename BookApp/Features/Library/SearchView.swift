@@ -5,6 +5,8 @@ struct SearchView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var books: [Book]
     @State private var query = ""
+    @State private var debouncedQuery = ""
+    @State private var debounceTask: Task<Void, Never>?
     @State private var selected: Book?
 
     var body: some View {
@@ -42,12 +44,25 @@ struct SearchView: View {
             .navigationDestination(item: $selected) { book in
                 ReaderView(book: book)
             }
+            // Debounce keystrokes — without this every character rescans
+            // the whole library and re-diffs the LazyVGrid. 250ms keeps
+            // the search feeling immediate while letting the user finish
+            // typing a word before we do real work.
+            .onChange(of: query) { _, newValue in
+                debounceTask?.cancel()
+                debounceTask = Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    guard !Task.isCancelled else { return }
+                    debouncedQuery = newValue
+                }
+            }
+            .onAppear { debouncedQuery = query }
         }
     }
 
     private var filtered: [Book] {
-        guard !query.isEmpty else { return books }
-        let q = query.lowercased()
+        guard !debouncedQuery.isEmpty else { return books }
+        let q = debouncedQuery.lowercased()
         return books.filter {
             $0.title.lowercased().contains(q)
             || $0.author.lowercased().contains(q)
