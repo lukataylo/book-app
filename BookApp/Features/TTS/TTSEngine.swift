@@ -487,12 +487,13 @@ final class TTSEngine: NSObject {
         // image at a different size — Apple's sample explicitly does this
         // and skipping it has been the source of intermittent
         // dispatch-queue traps on iOS 18.
+        // Route through ImageDecoding rather than `UIImage(data:)` so a
+        // partially-corrupt cover doesn't print "-17102 decompressing
+        // image" to the console as a side effect of touching Listen.
         if let data = nowPlayingCoverData,
-           let raw = UIImage(data: data),
-           let _ = raw.cgImage,
-           raw.size.width > 0,
-           raw.size.height > 0 {
-            let source = raw
+           let source = ImageDecoding.decode(data: data),
+           source.size.width > 0,
+           source.size.height > 0 {
             let art = MPMediaItemArtwork(boundsSize: source.size) { requested in
                 let renderer = UIGraphicsImageRenderer(size: requested)
                 return renderer.image { _ in

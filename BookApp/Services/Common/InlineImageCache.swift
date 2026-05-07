@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 #if canImport(UIKit)
 import UIKit
 import SwiftUI
@@ -32,19 +33,14 @@ enum InlineImageCache {
 
     /// Decode + warm the cache off the main actor. Returns the cached
     /// image (now decoded) so the call site can update its @State directly.
-    /// Same `cgImage`-validity check as `CoverImageCache` so we don't
-    /// hand back images that print "-17102 decompressing image" warnings
-    /// at draw time.
+    /// Routes through `ImageDecoding` so corrupt EPUB figures don't
+    /// trigger the "-17102 decompressing image" log spam during scroll.
     static func prepare(at url: URL) async -> UIImage? {
         let key = url.path as NSString
         if let cached = cache.object(forKey: key) { return cached }
         let path = url.path
         let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
-            guard let raw = UIImage(contentsOfFile: path) else { return nil }
-            let prepared = raw.preparingForDisplay() ?? raw
-            guard prepared.cgImage != nil,
-                  prepared.size.width > 0, prepared.size.height > 0 else { return nil }
-            return prepared
+            ImageDecoding.decode(fileURL: URL(fileURLWithPath: path))
         }.value
         guard let img = decoded else { return nil }
         let cost = Int(img.size.width * img.size.height * 4)

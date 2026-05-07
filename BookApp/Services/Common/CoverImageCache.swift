@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 #if canImport(UIKit)
 import UIKit
 import SwiftUI
@@ -34,22 +35,16 @@ enum CoverImageCache {
     /// publish to subscribers. Idempotent — concurrent calls for the same
     /// book are deduped by the NSCache lookup before decoding.
     ///
-    /// Validates `cgImage` after decode to weed out images that ImageIO
-    /// will fail to render at draw time — those are the source of the
-    /// "Error -17102 decompressing image" warnings flooding the console.
+    /// Goes through `ImageDecoding.decode` rather than `UIImage(data:)`
+    /// directly: UIKit's initialiser logs "-17102 decompressing image"
+    /// to the console *before* it returns nil for corrupt sources, and
+    /// we have no way to silence that from Swift. The CGImageSource
+    /// path checks status first and skips the decode attempt for known-
+    /// bad bytes, so the console stays clean.
     static func prepare(for bookID: UUID, data: Data) async -> UIImage? {
         if let cached = cache.object(forKey: bookID as NSUUID) { return cached }
         let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
-            guard let raw = UIImage(data: data) else { return nil }
-            let prepared = raw.preparingForDisplay() ?? raw
-            // Final correctness check — `preparingForDisplay()` will hand
-            // back an image that still has no usable CGImage when the
-            // source bytes are partially corrupt. Drawing it later prints
-            // the -17102 warning. Reject here so the fallback view renders
-            // instead.
-            guard prepared.cgImage != nil,
-                  prepared.size.width > 0, prepared.size.height > 0 else { return nil }
-            return prepared
+            ImageDecoding.decode(data: data)
         }.value
         guard let img = decoded else { return nil }
         let cost = Int(img.size.width * img.size.height * 4)
