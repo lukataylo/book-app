@@ -162,7 +162,20 @@ struct ReaderView: View {
                 .scrollPositionTracking(progress: $scrollProgress, container: $viewportHeight)
                 .scrollPosition($scrollPosition)
                 .onChange(of: viewModel.currentParagraph) { _, newValue in
+                    // Animated scroll for user-driven jumps (chapter list,
+                    // search result tap, bookmark navigation). NOT used by
+                    // speed mode — that has its own un-animated scroll
+                    // hook on `speedParagraphIndex` because animating 5-20
+                    // scrolls per second monopolises the gesture system
+                    // and locks the tab pill against taps.
+                    guard mode != .speed else { return }
                     withAnimation { proxy.scrollTo(newValue, anchor: .top) }
+                }
+                .onChange(of: speedParagraphIndex) { _, newValue in
+                    // Direct scroll, no animation — keeps the gesture
+                    // recogniser responsive while the ticker fires.
+                    guard mode == .speed else { return }
+                    proxy.scrollTo(newValue, anchor: .top)
                 }
                 .onAppear {
                     // Restore the last-read paragraph. Resume targets set
@@ -943,10 +956,13 @@ struct ReaderView: View {
         if nextIdx < paragraphs.count {
             speedParagraphIndex = nextIdx
             speedWordIndex = 0
-            // Auto-scroll the new paragraph into view via ReaderViewModel —
-            // its `currentParagraph` -> ScrollViewReader hookup already
-            // handles the smooth scroll.
-            viewModel?.currentParagraph = nextIdx
+            // The dedicated `.onChange(of: speedParagraphIndex)` handler
+            // in `content(viewModel:)` un-animatedly scrolls the new
+            // paragraph into view. We deliberately do NOT also write to
+            // `viewModel.currentParagraph` here — doing that fired the
+            // animated scroll handler 5-20 times per second, which
+            // hijacked SwiftUI's gesture system and made the mode-tab
+            // pill unresponsive once Speed was running.
         } else {
             speedIsRunning = false
         }
@@ -968,7 +984,7 @@ struct ReaderView: View {
         guard nextIdx < paragraphs.count else { return }
         speedParagraphIndex = nextIdx
         speedWordIndex = 0
-        viewModel.currentParagraph = nextIdx
+        // Scroll happens via the dedicated speedParagraphIndex onChange.
     }
 
     private func rewindSpeedSentence() {
@@ -983,10 +999,11 @@ struct ReaderView: View {
         if i <= 0, speedParagraphIndex > 0 {
             speedParagraphIndex -= 1
             speedWordIndex = 0
-            vm.currentParagraph = speedParagraphIndex
+            // Scroll happens via the dedicated speedParagraphIndex onChange.
         } else {
             speedWordIndex = max(0, i)
         }
+        _ = vm  // viewModel is still required to compute `paragraphs` above
     }
 
     @ViewBuilder

@@ -44,6 +44,14 @@ final class TTSEngine: NSObject {
     private let synth = AVSpeechSynthesizer()
     private var paragraphs: [String] = []   // already cleaned of `# ` markers
     private var settings: TTSSettings = TTSSettings()
+    /// Identity of the utterance the engine *intends* to be speaking right
+    /// now. The `AVSpeechSynthesizerDelegate` callbacks fire asynchronously
+    /// for cancelled/finished utterances; without an identity check, a
+    /// stale `didFinish` from a previously-stopped utterance can race the
+    /// freshly-started one and call `skipForward()` against the new
+    /// paragraph list, jumping the user past paragraph 0 the moment they
+    /// tap Listen.
+    private var activeUtterance: AVSpeechUtterance?
     private var sleepTimer: Timer?
     /// Identifies the content currently loaded into the engine so callers
     /// can detect "Listen tab tapped on a different book than the one we
@@ -134,9 +142,15 @@ final class TTSEngine: NSObject {
             lastError = "Nothing to read in this section."
             return
         }
-        // Drain the synth before starting fresh — protects against a
-        // pending speak/stop cycle from the previous book.
-        synth.stopSpeaking(at: .immediate)
+        // Drain the synth ONLY when it's actually speaking. iOS 18 has a
+        // race where a `stopSpeaking` immediately followed by `speak` on
+        // the same runloop tick can silently drop the new utterance —
+        // checking `isSpeaking` first avoids the no-op stop that triggers
+        // the race on a fresh first tap of Listen.
+        if synth.isSpeaking || synth.isPaused {
+            activeUtterance = nil   // any pending didFinish will be ignored
+            synth.stopSpeaking(at: .immediate)
+        }
         self.paragraphs = cleaned
         self.currentParagraph = max(0, min(index, cleaned.count - 1))
         self.loadedKey = "\(bookID.uuidString)/\(variantID.uuidString)"
@@ -166,6 +180,10 @@ final class TTSEngine: NSObject {
     }
 
     func stop() {
+        // Mark the active utterance dead before cancelling so the delegate's
+        // didFinish/didCancel callbacks bail out instead of racing the
+        // next play() call.
+        activeUtterance = nil
         synth.stopSpeaking(at: .immediate)
         isPlaying = false
         currentRange = NSRange(location: 0, length: 0)
@@ -305,6 +323,10 @@ final class TTSEngine: NSObject {
             utterance.preUtteranceDelay = 0
             utterance.postUtteranceDelay = 0.15
         }
+        // Stash identity so the delegate callbacks can tell stale events
+        // (cancelled by stop() / play() during a content switch) apart
+        // from the natural end of the current utterance.
+        activeUtterance = utterance
         synth.speak(utterance)
     }
 
@@ -520,17 +542,29 @@ extension TTSEngine: AVSpeechSynthesizerDelegate {
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
                                        didFinish utterance: AVSpeechUtterance) {
+        // ObjectIdentifier is Sendable; the AVSpeechUtterance itself is
+        // not, so we capture identity by pointer value rather than the
+        // object. Identity guard prevents stale didFinish events for
+        // cancelled-during-content-switch utterances from advancing the
+        // freshly-started new utterance past paragraph 0.
+        let id = ObjectIdentifier(utterance)
         Task { @MainActor in
-            // didFinish fires for empty/cancelled utterances too — only
-            // advance if the user is still in playing mode (manual stops
-            // already updated state).
+            guard let active = self.activeUtterance,
+                  ObjectIdentifier(active) == id else { return }
             guard self.isPlaying else { return }
+            self.activeUtterance = nil
             self.skipForward()
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
                                        didCancel utterance: AVSpeechUtterance) {
-        // Do nothing — caller has already set new state.
+        let id = ObjectIdentifier(utterance)
+        Task { @MainActor in
+            if let active = self.activeUtterance,
+               ObjectIdentifier(active) == id {
+                self.activeUtterance = nil
+            }
+        }
     }
 }
