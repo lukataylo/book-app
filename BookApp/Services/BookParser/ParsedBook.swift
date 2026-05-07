@@ -11,10 +11,12 @@ struct ParsedBook: Sendable {
     var chapters: [ParsedChapter]
     var fullText: String
     var format: BookFormat
-    /// Inline images extracted from the source. Reader paragraphs that
-    /// originally contained an `<img>` are emitted as `[img:<filename>]`
-    /// markers; this dictionary holds the bytes the importer should write
-    /// into the book folder so the reader can load them by filename.
+    /// Inline images extracted from the source. The new EPUB code path
+    /// streams bytes directly to disk during parse and returns
+    /// filename-only entries here, so an image-heavy book doesn't
+    /// buffer 50–100 MB of bitmap data in `[ParsedImage]` before the
+    /// importer writes it back out. Older parsers (PDF) still populate
+    /// `data`; the importer treats both shapes uniformly.
     var images: [ParsedImage] = []
 
     var totalWords: Int {
@@ -38,7 +40,16 @@ struct ParsedImage: Sendable {
     /// Filename only — the importer writes the bytes to
     /// `<bookFolder>/images/<filename>`.
     var filename: String
-    var data: Data
+    /// Either the raw bytes (legacy / PDF path), or `nil` when the
+    /// parser already wrote the file directly into the book folder
+    /// (new EPUB streaming path). When `nil` the importer should not
+    /// write again.
+    var data: Data?
+
+    init(filename: String, data: Data? = nil) {
+        self.filename = filename
+        self.data = data
+    }
 }
 
 enum ParserError: Error, LocalizedError {
@@ -58,5 +69,18 @@ enum ParserError: Error, LocalizedError {
 }
 
 protocol BookParser: Sendable {
-    func parse(fileURL: URL) async throws -> ParsedBook
+    /// Parse a book file. `imagesDirectory`, when non-nil, lets the
+    /// parser stream extracted images directly to disk instead of
+    /// buffering bytes in `ParsedImage.data`. Parsers that don't extract
+    /// images (PDF) can ignore the parameter; parsers that do (EPUB)
+    /// should write into the directory and return filename-only
+    /// `ParsedImage` entries.
+    func parse(fileURL: URL, imagesDirectory: URL?) async throws -> ParsedBook
+}
+
+extension BookParser {
+    /// Backwards-compatible overload that buffers images in memory.
+    func parse(fileURL: URL) async throws -> ParsedBook {
+        try await parse(fileURL: fileURL, imagesDirectory: nil)
+    }
 }

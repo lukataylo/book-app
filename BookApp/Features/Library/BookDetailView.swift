@@ -101,7 +101,9 @@ struct BookDetailView: View {
 
     @ViewBuilder
     private var cover: some View {
-        if let data = book.coverData,
+        // Read through `coverImageData()` so this view sees both the
+        // legacy in-row blob and the new disk-backed cover.
+        if let data = book.coverImageData(),
            let image = BookCardView.platformImage(from: data) {
             image
                 .resizable()

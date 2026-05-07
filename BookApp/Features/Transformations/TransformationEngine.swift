@@ -170,7 +170,7 @@ final class TransformationEngine {
         let newVariant = BookVariant(
             book: book,
             kind: request.kind,
-            contentText: merged,
+            contentText: "",
             targetPages: targetPages,
             styleReference: request.styleReference,
             omittedThemes: request.omittedThemes,
@@ -181,9 +181,16 @@ final class TransformationEngine {
         newVariant.outputTokens = totalOutput
         newVariant.costUSD = totalCost
 
-        // Stash the body on disk too so downstream consumers can stream it.
+        // Body text lives on disk so this row stays sync-friendly. Keep
+        // the bookmark for legacy resume paths but route reads through
+        // the deterministic `variantTextURL`.
         if let (_, bookmark) = try? store.saveVariant(text: merged, bookID: book.id, variantID: newVariant.id) {
             newVariant.contentBookmark = bookmark
+            newVariant.contentFilename = "variant-\(newVariant.id.uuidString).txt"
+        } else {
+            // Disk write failed — keep the body in-row so the variant
+            // is still readable.
+            newVariant.contentText = merged
         }
 
         context.insert(newVariant)

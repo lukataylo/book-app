@@ -148,10 +148,14 @@ enum SeedBooksLoader {
         // people can write their own. UserDefaults `SeedBooks.completed-v1`
         // is the actual idempotency guard.
 
-        // Fallback cover when the parser didn't pick one up.
-        if book.coverData == nil,
+        // Fallback cover when the parser didn't pick one up. Stored on
+        // disk under `<bookFolder>/cover.jpg` instead of the @Model
+        // `coverData` blob — matches the ImportService path so CloudKit
+        // sync stays small for seeded rows too.
+        if book.coverFilename.isEmpty, book.coverData == nil,
            let coverData = try? Data(contentsOf: bookFolder.appendingPathComponent("cover.jpg")) {
-            book.coverData = coverData
+            BookStore.shared.writeCover(coverData, bookID: book.id)
+            book.coverFilename = "cover.jpg"
         }
 
         // Pre-populated key learnings — created independently of variants so
@@ -159,7 +163,11 @@ enum SeedBooksLoader {
         // generation pipeline didn't finish.
         seedLearnings(book: book, bookFolder: bookFolder)
 
-        // Variants — one BookVariant per .txt file in meta.json.
+        // Variants — one BookVariant per .txt file in meta.json. Body
+        // text is written to disk under `<bookFolder>` and the @Model
+        // row stores only the filename, mirroring the path
+        // `ImportService` and `TransformationEngine` use for fresh
+        // content.
         var addedCount = 0
         for v in meta.variants {
             let txtURL = bookFolder.appendingPathComponent(v.file)
@@ -174,7 +182,7 @@ enum SeedBooksLoader {
             let variant = BookVariant(
                 book: book,
                 kind: kind,
-                contentText: txt,
+                contentText: "",
                 targetPages: v.target_pages,
                 styleReference: v.style_reference,
                 modelUsed: v.model
@@ -182,6 +190,11 @@ enum SeedBooksLoader {
             variant.inputTokens  = v.input_tokens ?? 0
             variant.outputTokens = v.output_tokens ?? 0
             variant.costUSD      = v.cost_usd ?? 0
+            if BookStore.shared.writeVariantText(txt, bookID: book.id, variantID: variant.id) {
+                variant.contentFilename = "variant-\(variant.id.uuidString).txt"
+            } else {
+                variant.contentText = txt
+            }
             context.insert(variant)
             addedCount += 1
         }
