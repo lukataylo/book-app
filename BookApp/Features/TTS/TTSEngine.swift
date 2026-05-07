@@ -374,17 +374,20 @@ final class TTSEngine: NSObject {
             queue: .main
         ) { [weak self] note in
             guard let self else { return }
+            // Extract the Sendable primitives from `note.userInfo` *outside*
+            // the Task — `[AnyHashable: Any]` isn't Sendable, so capturing
+            // it across an actor hop trips Swift 6's strict-concurrency
+            // checker and refuses to compile.
             guard let info = note.userInfo,
                   let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
                   let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+            let optsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt
             Task { @MainActor in
                 switch type {
                 case .began:
-                    // System took our audio focus — pause so the
-                    // play / pause UI mirrors reality.
                     if self.isPlaying { self.pause() }
                 case .ended:
-                    let opts = (info[AVAudioSessionInterruptionOptionKey] as? UInt).map {
+                    let opts = optsRaw.map {
                         AVAudioSession.InterruptionOptions(rawValue: $0)
                     } ?? []
                     if opts.contains(.shouldResume), self.hasLoadedContent {

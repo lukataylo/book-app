@@ -120,8 +120,9 @@ final class ImportService {
         // user deleting the book mid-tag doesn't leave us writing to an
         // orphaned instance. The Task re-fetches by ID and bails when
         // the book is gone.
+        // `bookID` is already in scope from the start of this function —
+        // same UUID used to seed the Book. No need to re-bind it.
         let sampleSnippet = String(parsed.fullText.prefix(2_000))
-        let bookID = book.id
         let title = parsed.title
         let author = parsed.author
         Task { [weak self] in
