@@ -51,7 +51,16 @@ struct BookDetailView: View {
             switch dest {
             case .reader(let id):
                 if let v = (book.variants ?? []).first(where: { $0.id == id }) {
-                    ReaderView(book: book, variant: v)
+                    // PDFs render through PDFKit when the user opens the
+                    // original variant — preserves layout, embedded
+                    // images, equations, page geometry. AI-transformed
+                    // variants of a PDF stay in the text reader because
+                    // they're plain text by construction.
+                    if book.format == .pdf, v.kind == .original {
+                        PDFReaderView(book: book, variant: v)
+                    } else {
+                        ReaderView(book: book, variant: v)
+                    }
                 }
             case .transform(let id):
                 if let v = (book.variants ?? []).first(where: { $0.id == id }) {
