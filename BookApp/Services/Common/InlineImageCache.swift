@@ -32,13 +32,19 @@ enum InlineImageCache {
 
     /// Decode + warm the cache off the main actor. Returns the cached
     /// image (now decoded) so the call site can update its @State directly.
+    /// Same `cgImage`-validity check as `CoverImageCache` so we don't
+    /// hand back images that print "-17102 decompressing image" warnings
+    /// at draw time.
     static func prepare(at url: URL) async -> UIImage? {
         let key = url.path as NSString
         if let cached = cache.object(forKey: key) { return cached }
         let path = url.path
         let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
             guard let raw = UIImage(contentsOfFile: path) else { return nil }
-            return raw.preparingForDisplay() ?? raw
+            let prepared = raw.preparingForDisplay() ?? raw
+            guard prepared.cgImage != nil,
+                  prepared.size.width > 0, prepared.size.height > 0 else { return nil }
+            return prepared
         }.value
         guard let img = decoded else { return nil }
         let cost = Int(img.size.width * img.size.height * 4)

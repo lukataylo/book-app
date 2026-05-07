@@ -33,11 +33,23 @@ enum CoverImageCache {
     /// Decode the cover off the main thread, store in the cache, and
     /// publish to subscribers. Idempotent — concurrent calls for the same
     /// book are deduped by the NSCache lookup before decoding.
+    ///
+    /// Validates `cgImage` after decode to weed out images that ImageIO
+    /// will fail to render at draw time — those are the source of the
+    /// "Error -17102 decompressing image" warnings flooding the console.
     static func prepare(for bookID: UUID, data: Data) async -> UIImage? {
         if let cached = cache.object(forKey: bookID as NSUUID) { return cached }
         let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
             guard let raw = UIImage(data: data) else { return nil }
-            return raw.preparingForDisplay() ?? raw
+            let prepared = raw.preparingForDisplay() ?? raw
+            // Final correctness check — `preparingForDisplay()` will hand
+            // back an image that still has no usable CGImage when the
+            // source bytes are partially corrupt. Drawing it later prints
+            // the -17102 warning. Reject here so the fallback view renders
+            // instead.
+            guard prepared.cgImage != nil,
+                  prepared.size.width > 0, prepared.size.height > 0 else { return nil }
+            return prepared
         }.value
         guard let img = decoded else { return nil }
         let cost = Int(img.size.width * img.size.height * 4)

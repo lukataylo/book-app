@@ -150,16 +150,19 @@ struct ReaderView: View {
                     .frame(maxWidth: 720, alignment: .leading)         // measure cap
                     .frame(maxWidth: .infinity, alignment: .center)    // centre on iPad
                     .scrollTargetLayout()
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(key: ContentHeightKey.self, value: geo.size.height)
-                        }
-                    )
                 }
                 .modifier(PagingModifier(enabled: settings.paginatedScroll))
-                .onPreferenceChange(ContentHeightKey.self) { contentHeight = max(1, $0) }
-                .scrollPositionTracking(progress: $scrollProgress, container: $viewportHeight)
+                // Single source of truth for content/viewport sizes —
+                // `onScrollGeometryChange` already fires whenever the
+                // layout settles, so the previous `ContentHeightKey` +
+                // GeometryReader pipeline was redundant work and produced
+                // "Bound preference … updated multiple times per frame"
+                // log spam.
+                .scrollPositionTracking(
+                    progress: $scrollProgress,
+                    container: $viewportHeight,
+                    contentHeight: $contentHeight
+                )
                 .scrollPosition($scrollPosition)
                 .onChange(of: viewModel.currentParagraph) { _, newValue in
                     // Animated scroll for user-driven jumps (chapter list,
@@ -1201,13 +1204,6 @@ private struct IconBarButton: View {
 
 // MARK: - Scroll progress
 
-private struct ContentHeightKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
 private struct ProgressBar: View {
     let progress: Double
     let tint: Color
@@ -1298,15 +1294,21 @@ private struct PagingModifier: ViewModifier {
 private extension View {
     func scrollPositionTracking(
         progress: Binding<Double>,
-        container: Binding<CGFloat>
+        container: Binding<CGFloat>,
+        contentHeight: Binding<CGFloat>
     ) -> some View {
-        self.modifier(ScrollProgressModifier(progress: progress, container: container))
+        self.modifier(ScrollProgressModifier(
+            progress: progress,
+            container: container,
+            contentHeight: contentHeight
+        ))
     }
 }
 
 private struct ScrollProgressModifier: ViewModifier {
     @Binding var progress: Double
     @Binding var container: CGFloat
+    @Binding var contentHeight: CGFloat
 
     func body(content: Content) -> some View {
         content
@@ -1317,9 +1319,23 @@ private struct ScrollProgressModifier: ViewModifier {
                     containerSize: geo.containerSize.height
                 )
             } action: { _, newValue in
+                // Equality guard the bindings — SwiftUI fires
+                // onScrollGeometryChange whenever any of the three values
+                // change, but we only need to push back what's actually
+                // different. Without this guard, paging through a long
+                // book triggered redundant state-write storms that
+                // surfaced as "multiple times per frame" warnings.
                 let total = max(1, newValue.contentSize - newValue.containerSize)
-                progress  = Double(newValue.offset) / Double(total)
-                container = newValue.containerSize
+                let nextProgress = Double(newValue.offset) / Double(total)
+                if abs(progress - nextProgress) > 0.0005 {
+                    progress = nextProgress
+                }
+                if container != newValue.containerSize {
+                    container = newValue.containerSize
+                }
+                if contentHeight != newValue.contentSize {
+                    contentHeight = newValue.contentSize
+                }
             }
     }
 
