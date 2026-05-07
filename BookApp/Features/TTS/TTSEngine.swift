@@ -474,19 +474,50 @@ final class TTSEngine: NSObject {
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
         #if canImport(UIKit)
-        // Defensive: malformed cover data or zero-size images would crash
-        // `MPMediaItemArtwork(boundsSize:)`. Skip artwork in those cases —
-        // Listen still works, the lock-screen just falls back to the
+        // Defensive: malformed cover data, zero-size images, or images
+        // whose CGImage failed to decode would each crash the
+        // MPMediaItemArtwork pipeline (it calls dispatch_assert_queue_fail
+        // when its internal asserts trip). Reject all three up front;
+        // Listen still works, the lock screen just falls back to the
         // generic icon.
+        //
+        // The artwork request handler is called by MediaPlayer on its own
+        // serial queue. We render into the *requested* size with
+        // UIGraphicsImageRenderer rather than returning the original
+        // image at a different size — Apple's sample explicitly does this
+        // and skipping it has been the source of intermittent
+        // dispatch-queue traps on iOS 18.
         if let data = nowPlayingCoverData,
-           let image = UIImage(data: data),
-           image.size.width > 0,
-           image.size.height > 0 {
-            let art = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+           let raw = UIImage(data: data),
+           let _ = raw.cgImage,
+           raw.size.width > 0,
+           raw.size.height > 0 {
+            let source = raw
+            let art = MPMediaItemArtwork(boundsSize: source.size) { requested in
+                let renderer = UIGraphicsImageRenderer(size: requested)
+                return renderer.image { _ in
+                    source.draw(in: CGRect(origin: .zero, size: requested))
+                }
+            }
             info[MPMediaItemPropertyArtwork] = art
         }
         #endif
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+
+        // `MPNowPlayingInfoCenter.nowPlayingInfo =` MUST be set from the
+        // main thread. Even though TTSEngine is @MainActor, SwiftUI's
+        // async renderer can hop our `.onChange(of: mode)` action onto a
+        // background thread on iOS 18+ — the resulting trap is
+        // `dispatch_assert_queue_fail` deep inside MediaPlayer's own
+        // serial queue. Force the actual setter call onto the main queue
+        // so the contract is honoured regardless of how we got here.
+        let payload = info
+        if Thread.isMainThread {
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = payload
+        } else {
+            DispatchQueue.main.async {
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = payload
+            }
+        }
     }
 
     // MARK: - Resume persistence
