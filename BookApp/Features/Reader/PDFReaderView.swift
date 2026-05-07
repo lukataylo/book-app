@@ -199,7 +199,12 @@ struct PDFReaderView: View {
 struct PDFKitView: UIViewRepresentable {
     let document: PDFDocument
     let initialPage: Int
-    let onPageChange: (Int) -> Void
+    /// MainActor-typed because the PDFReaderView's `currentPage` /
+    /// `schedulePersist` calls are SwiftData-bound and must run on the
+    /// main actor. Without the annotation, Swift 6 strict concurrency
+    /// warns ("can not be referenced from a nonisolated context") because
+    /// the Coordinator that fires this closure is a plain NSObject.
+    let onPageChange: @MainActor (Int) -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(onPageChange: onPageChange) }
 
@@ -235,7 +240,7 @@ struct PDFKitView: UIViewRepresentable {
         // load — without this, the first page change fires when the user
         // turns past the first page, and the resume locator never gets
         // refreshed for read-from-the-top sessions.
-        DispatchQueue.main.async {
+        Task { @MainActor in
             context.coordinator.notifyCurrentPage(of: view)
         }
         return view
@@ -251,15 +256,29 @@ struct PDFKitView: UIViewRepresentable {
         NotificationCenter.default.removeObserver(coordinator)
     }
 
-    final class Coordinator: NSObject {
-        let onPageChange: (Int) -> Void
-        init(onPageChange: @escaping (Int) -> Void) { self.onPageChange = onPageChange }
-
-        @objc func pageChanged(_ notification: Notification) {
-            guard let view = notification.object as? PDFView else { return }
-            notifyCurrentPage(of: view)
+    /// `@unchecked Sendable` because the only stored property is a `let`
+    /// (immutable after init) and the only methods either run synchronously
+    /// from the notification thread or hop to MainActor explicitly. NSObject
+    /// can't be Sendable conventionally, but for this read-only Coordinator
+    /// the contract holds.
+    final class Coordinator: NSObject, @unchecked Sendable {
+        let onPageChange: @MainActor (Int) -> Void
+        init(onPageChange: @escaping @MainActor (Int) -> Void) {
+            self.onPageChange = onPageChange
         }
 
+        @objc func pageChanged(_ notification: Notification) {
+            // NotificationCenter dispatches the .PDFViewPageChanged
+            // notification on the thread that posted it (main, in
+            // PDFKit's case, but we don't rely on that). Hop explicitly
+            // to the main actor before invoking the SwiftUI-bound
+            // closure so the @MainActor contract is honoured even if
+            // PDFKit ever changes its dispatch behaviour.
+            guard let view = notification.object as? PDFView else { return }
+            Task { @MainActor in self.notifyCurrentPage(of: view) }
+        }
+
+        @MainActor
         func notifyCurrentPage(of view: PDFView) {
             guard let document = view.document, let page = view.currentPage else { return }
             let idx = document.index(for: page)

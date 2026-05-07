@@ -218,7 +218,11 @@ struct TTSSettingsSheet: View {
         }
     }
 
-    private static func qualityLabel(_ q: AVSpeechSynthesisVoiceQuality) -> String {
+    /// `nonisolated` because the detached task that populates `voices`
+    /// runs off the main actor — calling a MainActor-isolated static
+    /// function from there would warn under Swift 6 strict concurrency.
+    /// This is a pure function over an enum value, no state access.
+    nonisolated private static func qualityLabel(_ q: AVSpeechSynthesisVoiceQuality) -> String {
         switch q {
         case .default:  return "Standard"
         case .enhanced: return "Enhanced"
