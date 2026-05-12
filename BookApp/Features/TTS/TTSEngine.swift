@@ -43,6 +43,12 @@ final class TTSEngine: NSObject {
 
     private let synth = AVSpeechSynthesizer()
     private var paragraphs: [String] = []   // already cleaned of `# ` markers
+    /// For each entry in `paragraphs`, the index it occupied in the caller's
+    /// raw paragraph list (i.e. the reader's `viewModel.paragraphs`). The
+    /// engine drops empties + image markers, so engine-index ≠ block-index;
+    /// the reader needs the original index to highlight + auto-scroll the
+    /// active block in the body.
+    private var sourceIndexes: [Int] = []
     private var settings: TTSSettings = TTSSettings()
     /// Identity of the utterance the engine *intends* to be speaking right
     /// now. The `AVSpeechSynthesizerDelegate` callbacks fire asynchronously
@@ -108,6 +114,19 @@ final class TTSEngine: NSObject {
     /// this onto "1×" / "1.5×" labels.
     var currentRate: Double { settings.rate }
 
+    /// Index in the reader's body block list of the paragraph currently
+    /// being narrated, or nil when nothing is loaded. Used to highlight +
+    /// auto-scroll the active paragraph.
+    var currentSourceParagraph: Int? {
+        guard sourceIndexes.indices.contains(currentParagraph) else { return nil }
+        return sourceIndexes[currentParagraph]
+    }
+
+    /// User-configured colour for the per-word cursor the reader paints
+    /// over the active paragraph. Exposed here so the reader doesn't have
+    /// to round-trip through SettingsStore on every paragraph re-render.
+    var highlightColorHex: String { settings.highlightColorHex }
+
     /// Single entry-point for the reader's Listen button. Pass the book +
     /// variant ID so the engine can tell whether the caller is asking it
     /// to toggle the *current* narration or start one for fresh content
@@ -134,10 +153,17 @@ final class TTSEngine: NSObject {
     }
 
     func play(bookID: UUID, variantID: UUID, paragraphs rawParagraphs: [String], startAt index: Int = 0) {
-        let cleaned = rawParagraphs
-            .map { Self.stripHeadingMarker($0) }
-            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-            .filter { !($0.hasPrefix("[img:") && $0.hasSuffix("]")) }
+        var cleaned: [String] = []
+        var sources: [Int] = []
+        cleaned.reserveCapacity(rawParagraphs.count)
+        sources.reserveCapacity(rawParagraphs.count)
+        for (originalIndex, raw) in rawParagraphs.enumerated() {
+            let stripped = Self.stripHeadingMarker(raw)
+            if stripped.trimmingCharacters(in: .whitespaces).isEmpty { continue }
+            if stripped.hasPrefix("[img:") && stripped.hasSuffix("]") { continue }
+            cleaned.append(stripped)
+            sources.append(originalIndex)
+        }
         guard !cleaned.isEmpty else {
             lastError = "Nothing to read in this section."
             return
@@ -152,6 +178,7 @@ final class TTSEngine: NSObject {
             synth.stopSpeaking(at: .immediate)
         }
         self.paragraphs = cleaned
+        self.sourceIndexes = sources
         self.currentParagraph = max(0, min(index, cleaned.count - 1))
         self.loadedKey = "\(bookID.uuidString)/\(variantID.uuidString)"
         activateAudioSession()
@@ -188,6 +215,7 @@ final class TTSEngine: NSObject {
         isPlaying = false
         currentRange = NSRange(location: 0, length: 0)
         currentText = ""
+        sourceIndexes = []
         sleepTimer?.invalidate()
         sleepFiresAt = nil
         deactivateAudioSession()
@@ -241,6 +269,14 @@ final class TTSEngine: NSObject {
         guard isPlaying else { return }
         synth.stopSpeaking(at: .immediate)
         speakCurrent()
+    }
+
+    /// Reapply the audio-session category so a flip of the "mix with other
+    /// audio" toggle takes effect mid-playback (otherwise the new mode
+    /// only kicks in on the next play()).
+    func applyAudioRoutingChange() {
+        activateAudioSession()
+        updateNowPlaying()
     }
 
     /// Cycles through 0.4 → 0.5 → 0.6 → 0.7 → 0.4 … so a single tap on the
@@ -359,14 +395,29 @@ final class TTSEngine: NSObject {
             // narration. `.spokenAudio` mode triggers the right ducking
             // behaviour against music apps.
             //
-            // Options note: `.duckOthers` + `.interruptSpokenAudioAndMixWithOthers`
-            // are mutually exclusive — passing both threw on iOS 18 and
-            // crashed Listen on first tap. `.duckOthers` alone is the
-            // right behaviour for narration over background music.
+            // Two distinct behaviours, toggled by the user in TTS Settings:
+            //
+            //  • `mixWithOtherAudio = true` (default): pass `.duckOthers`
+            //    so any active music/podcast gets quieter while TTS
+            //    speaks. As a side effect iOS treats us as secondary
+            //    audio and DOES NOT promote us into the lock-screen
+            //    now-playing card.
+            //
+            //  • `mixWithOtherAudio = false`: no options. TTS becomes the
+            //    primary audio session, other audio is paused, and the
+            //    lock-screen mini-player shows the book cover + transport
+            //    controls wired up via `configureRemoteControls`.
+            //
+            // `.duckOthers` + `.interruptSpokenAudioAndMixWithOthers` are
+            // mutually exclusive — passing both threw on iOS 18 and
+            // crashed Listen on first tap; don't combine them.
+            let options: AVAudioSession.CategoryOptions = settings.mixWithOtherAudio
+                ? [.duckOthers]
+                : []
             try session.setCategory(
                 .playback,
                 mode: .spokenAudio,
-                options: [.duckOthers]
+                options: options
             )
             try session.setActive(true, options: [.notifyOthersOnDeactivation])
             lastError = nil
@@ -494,13 +545,7 @@ final class TTSEngine: NSObject {
            let source = ImageDecoding.decode(data: data),
            source.size.width > 0,
            source.size.height > 0 {
-            let art = MPMediaItemArtwork(boundsSize: source.size) { requested in
-                let renderer = UIGraphicsImageRenderer(size: requested)
-                return renderer.image { _ in
-                    source.draw(in: CGRect(origin: .zero, size: requested))
-                }
-            }
-            info[MPMediaItemPropertyArtwork] = art
+            info[MPMediaItemPropertyArtwork] = Self.makeArtwork(from: source)
         }
         #endif
 
@@ -520,6 +565,24 @@ final class TTSEngine: NSObject {
             }
         }
     }
+
+    #if canImport(UIKit)
+    /// Build the lock-screen artwork in a `nonisolated` context so the
+    /// rendering closure doesn't inherit `@MainActor` from the enclosing
+    /// `updateNowPlaying`. MediaPlayer invokes the closure on its own
+    /// internal serial queue (`*/accessQueue`); under Swift 6's strict
+    /// concurrency, an inferred-MainActor closure executed off the main
+    /// thread trips `dispatch_assert_queue_fail` and crashes the app the
+    /// instant the user taps Listen with a cover-bearing book.
+    nonisolated private static func makeArtwork(from image: UIImage) -> MPMediaItemArtwork {
+        MPMediaItemArtwork(boundsSize: image.size) { requested in
+            let renderer = UIGraphicsImageRenderer(size: requested)
+            return renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: requested))
+            }
+        }
+    }
+    #endif
 
     // MARK: - Resume persistence
 

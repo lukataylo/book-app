@@ -151,18 +151,34 @@ struct TTSSettingsSheet: View {
 
     @ViewBuilder
     private var playbackSection: some View {
-        Section {
-            HStack {
-                Spacer()
-                Button {
-                    engine.isPlaying ? engine.pause() : engine.resume()
-                } label: {
-                    Image(systemName: engine.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 56))
-                        .foregroundStyle(Theme.Palette.accent)
+        if let settings {
+            Section {
+                Toggle("Mix with other audio", isOn: Binding(
+                    get: { settings.mixWithOtherAudio },
+                    set: {
+                        settings.mixWithOtherAudio = $0
+                        persist()
+                        engine.applyAudioRoutingChange()
+                    }
+                ))
+            } footer: {
+                Text(settings.mixWithOtherAudio
+                     ? "Other audio stays playing underneath. TTS won't appear in the lock-screen mini-player."
+                     : "TTS takes over playback. Other audio pauses, and you get cover + skip controls on the lock screen.")
+            }
+            Section {
+                HStack {
+                    Spacer()
+                    Button {
+                        engine.isPlaying ? engine.pause() : engine.resume()
+                    } label: {
+                        Image(systemName: engine.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                            .font(.system(size: 56))
+                            .foregroundStyle(Theme.Palette.accent)
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
                 }
-                .buttonStyle(.plain)
-                Spacer()
             }
         }
     }

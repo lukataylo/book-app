@@ -29,6 +29,8 @@ struct TransformationStudioView: View {
     // Themes
     @State private var omitThemes: Bool = false
     @State private var omittedThemes: [String] = []
+    @State private var customThemeDraft: String = ""
+    @FocusState private var customThemeFieldFocused: Bool
 
     // Model + run
     @State private var modelOverride: LLMModel?
@@ -247,50 +249,115 @@ struct TransformationStudioView: View {
 
     @ViewBuilder
     private var themesSection: some View {
-        if !book.detectedThemes.isEmpty {
-            SectionCard(
-                title: "Omit themes",
-                subtitle: omitThemes && !omittedThemes.isEmpty
-                    ? omittedThemes.joined(separator: ", ")
-                    : "Keep all themes",
-                isOn: $omitThemes
-            ) {
-                FlowLayout(spacing: 6) {
-                    ForEach(book.detectedThemes, id: \.self) { theme in
-                        let on = omittedThemes.contains(theme)
-                        Button {
-                            if on { omittedThemes.removeAll { $0 == theme } }
-                            else  { omittedThemes.append(theme) }
-                        } label: {
-                            HStack(spacing: 4) {
-                                if on { Image(systemName: "xmark").font(.system(size: 10, weight: .bold)) }
-                                Text(theme).font(.system(size: 12, weight: .medium))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .foregroundStyle(on ? .white : Theme.Palette.textPrimary)
-                            .background(
-                                Capsule().fill(on ? Color.black : Color.clear)
-                            )
-                            .overlay(
-                                Capsule().stroke(
-                                    on ? Color.black : Theme.Palette.divider,
-                                    lineWidth: 0.5
-                                )
-                            )
+        // Themes the user typed in themselves — they live only in
+        // `omittedThemes` until added to the book. We surface them as
+        // chips alongside auto-detected themes so the UX is consistent.
+        let detected = book.detectedThemes
+        let custom = omittedThemes.filter { !detected.contains($0) }
+
+        SectionCard(
+            title: "Omit themes",
+            subtitle: omitThemes && !omittedThemes.isEmpty
+                ? omittedThemes.joined(separator: ", ")
+                : (detected.isEmpty && custom.isEmpty
+                   ? "Type any theme you want skipped"
+                   : "Keep all themes"),
+            isOn: $omitThemes
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                if !detected.isEmpty || !custom.isEmpty {
+                    FlowLayout(spacing: 6) {
+                        ForEach(detected, id: \.self) { theme in
+                            themeChip(theme, isCustom: false)
                         }
-                        .buttonStyle(.plain)
+                        ForEach(custom, id: \.self) { theme in
+                            themeChip(theme, isCustom: true)
+                        }
                     }
                 }
+                customThemeField
             }
-        } else {
-            SectionCard(
-                title: "Omit themes",
-                subtitle: "Detected themes will appear after auto-tagging",
-                isOn: .constant(false),
-                disabled: true
-            ) { EmptyView() }
         }
+    }
+
+    @ViewBuilder
+    private func themeChip(_ theme: String, isCustom: Bool) -> some View {
+        let on = omittedThemes.contains(theme)
+        Button {
+            if on { omittedThemes.removeAll { $0 == theme } }
+            else  { omittedThemes.append(theme) }
+        } label: {
+            HStack(spacing: 4) {
+                if on { Image(systemName: "xmark").font(.system(size: 10, weight: .bold)) }
+                Text(theme).font(.system(size: 12, weight: .medium))
+                if isCustom {
+                    // Pencil hint distinguishes user-typed chips from
+                    // auto-detected ones — clarifies that deleting one
+                    // from `omittedThemes` makes it disappear entirely.
+                    Image(systemName: "pencil")
+                        .font(.system(size: 9, weight: .semibold))
+                        .opacity(0.6)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .foregroundStyle(on ? .white : Theme.Palette.textPrimary)
+            .background(
+                Capsule().fill(on ? Color.black : Color.clear)
+            )
+            .overlay(
+                Capsule().stroke(
+                    on ? Color.black : Theme.Palette.divider,
+                    lineWidth: 0.5
+                )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var customThemeField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "plus")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.Palette.textSecondary)
+            TextField("Add a theme", text: $customThemeDraft)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .focused($customThemeFieldFocused)
+                .submitLabel(.done)
+                .onSubmit(addCustomTheme)
+                .font(.system(size: 13))
+            if !customThemeDraft.isEmpty {
+                Button("Add", action: addCustomTheme)
+                    .font(.system(size: 12, weight: .semibold))
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.Palette.textPrimary)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .overlay(
+            Capsule().stroke(Theme.Palette.divider, lineWidth: 0.5)
+        )
+    }
+
+    private func addCustomTheme() {
+        let trimmed = customThemeDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        // Dedupe case-insensitively against both detected + already-added.
+        let alreadyKnown = (book.detectedThemes + omittedThemes)
+            .contains { $0.caseInsensitiveCompare(trimmed) == .orderedSame }
+        if !alreadyKnown {
+            omittedThemes.append(trimmed)
+        } else if !omittedThemes.contains(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
+            // Already detected but user re-typed — flip it on.
+            if let match = book.detectedThemes.first(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
+                omittedThemes.append(match)
+            }
+        }
+        customThemeDraft = ""
+        customThemeFieldFocused = true
     }
 
     // MARK: - Model

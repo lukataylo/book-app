@@ -180,6 +180,15 @@ struct ReaderView: View {
                     guard mode == .speed else { return }
                     proxy.scrollTo(newValue, anchor: .top)
                 }
+                .onChange(of: ttsEngine.currentSourceParagraph) { _, newValue in
+                    // Follow narration: when the engine moves to the next
+                    // paragraph, animate-scroll the body so the highlighted
+                    // paragraph stays roughly under the user's eye.
+                    guard mode == .listen, let newValue else { return }
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        proxy.scrollTo(newValue, anchor: .center)
+                    }
+                }
                 .onAppear {
                     // Restore the last-read paragraph. Resume targets set
                     // by ReaderViewModel.init are silent — `.onChange`
@@ -326,14 +335,18 @@ struct ReaderView: View {
                                paragraphIndex: Int?) -> some View {
         let needsDropCap = isFirstAfterHeading && settings.dropCaps
         let isActiveSpeedPara = mode == .speed && paragraphIndex == speedParagraphIndex
-        let needsAttributed = needsDropCap || isActiveSpeedPara
+        let isActiveListenPara = mode == .listen
+            && paragraphIndex != nil
+            && paragraphIndex == ttsEngine.currentSourceParagraph
+        let needsAttributed = needsDropCap || isActiveSpeedPara || isActiveListenPara
 
         Group {
             if needsAttributed {
                 Text(paragraphAttributed(
                     text,
                     dropCap: needsDropCap,
-                    paragraphIndex: paragraphIndex
+                    paragraphIndex: paragraphIndex,
+                    isActiveListenPara: isActiveListenPara
                 ))
             } else {
                 Text(text)
@@ -391,7 +404,10 @@ struct ReaderView: View {
 
     /// Build the paragraph as an `AttributedString` so the body font, drop
     /// cap, and the speed-mode word/paragraph highlight share one `Text`.
-    private func paragraphAttributed(_ text: String, dropCap: Bool, paragraphIndex: Int?) -> AttributedString {
+    private func paragraphAttributed(_ text: String,
+                                     dropCap: Bool,
+                                     paragraphIndex: Int?,
+                                     isActiveListenPara: Bool) -> AttributedString {
         var attr = AttributedString(text)
         attr.font = Typography.reader(settings.font, size: settings.fontSize)
 
@@ -417,8 +433,36 @@ struct ReaderView: View {
         if isActiveSpeedPara {
             applySpeedWordHighlight(to: &attr, in: text)
         }
+        if isActiveListenPara {
+            applyListenWordHighlight(to: &attr, in: text)
+        }
 
         return attr
+    }
+
+    /// Highlight the substring AVSpeechSynthesizer is currently speaking
+    /// (reported via `currentRange`, in UTF-16 units relative to the
+    /// engine's `currentText`). The reader's body text is identical to the
+    /// engine's spoken text for this paragraph because both come from the
+    /// same source string with `# ` headings stripped.
+    private func applyListenWordHighlight(to attr: inout AttributedString, in source: String) {
+        let range = ttsEngine.currentRange
+        guard range.length > 0 else { return }
+        // Engine reports the range against `currentText`; only highlight
+        // when the body paragraph matches what's actually being spoken.
+        // (Avoids painting a stale highlight on the previous paragraph
+        // during the brief moment between paragraphs.)
+        guard ttsEngine.currentText == source,
+              let stringRange = Range(range, in: source),
+              let attrStart = AttributedString.Index(stringRange.lowerBound, within: attr),
+              let attrEnd = AttributedString.Index(stringRange.upperBound, within: attr)
+        else { return }
+        let attrRange = attrStart..<attrEnd
+        // User-configured highlight (default: warm yellow). Force a near-
+        // black foreground so the spoken word stays readable on the
+        // tinted background regardless of the page theme.
+        attr[attrRange].backgroundColor = Color(hex: ttsEngine.highlightColorHex)
+        attr[attrRange].foregroundColor = Color(hex: "111111")
     }
 
     /// Walk the source string by whitespace boundaries and tag the word at
@@ -763,14 +807,6 @@ struct ReaderView: View {
     @ViewBuilder
     private func listenControls(viewModel: ReaderViewModel, isDark: Bool) -> some View {
         VStack(spacing: 8) {
-            if !ttsEngine.currentText.isEmpty {
-                Text(ttsEngine.currentText.replacingOccurrences(of: "\n", with: " "))
-                    .font(.system(size: 13, weight: .regular, design: .serif))
-                    .foregroundStyle(textColor.opacity(0.92))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
             HStack(spacing: 16) {
                 Button {
                     viewModel.sheet = .ttsSettings

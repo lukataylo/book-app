@@ -12,6 +12,12 @@ final class TTSSettings {
     var autoPageFlip: Bool = true
     var pauseAtPunctuation: Bool = false
     var sleepTimerMinutes: Int = 0
+    /// When true (default), TTS ducks other audio and stays out of the
+    /// lock-screen now-playing card — convenient when you want to keep
+    /// a podcast/music quietly running underneath. Turn it off to make
+    /// TTS the primary audio source: other audio pauses, and the
+    /// lock-screen mini-player shows the book cover + play/skip controls.
+    var mixWithOtherAudio: Bool = true
 
     init(id: UUID = UUID()) {
         self.id = id
