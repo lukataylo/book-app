@@ -58,6 +58,14 @@ final class ReaderSettings {
     var dropCaps: Bool = true
     /// What appears in the bottom bar's left slot.
     var progressIndicatorRaw: String = ProgressIndicatorStyle.timeLeft.rawValue
+    /// Honour the system Dynamic Type setting for the reader body. When
+    /// off (default) the reader uses the in-app `fontSize` slider — the
+    /// natural choice for readers who prefer total control over their
+    /// page. When on, the reader scales with the user's system text size
+    /// instead, so users who already crank Dynamic Type in iOS Settings
+    /// don't have to also crank it here. Optional default keeps the
+    /// SwiftData migration silent for users on a pre-toggle build.
+    var useSystemTextSize: Bool? = false
 
     init(id: UUID = UUID()) {
         self.id = id

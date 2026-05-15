@@ -36,7 +36,15 @@ enum ImageDecoding {
 
     /// Decode an image file by URL. Routes through `CGImageSource` so a
     /// truncated or corrupt file logs nothing.
-    static func decode(fileURL: URL) -> UIImage? {
+    ///
+    /// `maxPixelDimension` downsamples on the way in via
+    /// `kCGImageSourceCreateThumbnailFromImageAlways` — recommended by
+    /// Apple's Image I/O sample for any UI that doesn't need the full
+    /// resolution. EPUB figures often arrive at 3-4K which would otherwise
+    /// hold ~50MB per figure resident in `InlineImageCache`.
+    /// Pass `nil` for a full-resolution decode (e.g. when generating
+    /// lock-screen artwork that genuinely needs the source size).
+    static func decode(fileURL: URL, maxPixelDimension: Int? = nil) -> UIImage? {
         let options: [CFString: Any] = [
             kCGImageSourceShouldCache: false
         ]
@@ -44,11 +52,25 @@ enum ImageDecoding {
               CGImageSourceGetStatus(source) == .statusComplete else {
             return nil
         }
-        return imageFromSource(source)
+        return imageFromSource(source, maxPixelDimension: maxPixelDimension)
     }
 
-    private static func imageFromSource(_ source: CGImageSource) -> UIImage? {
+    private static func imageFromSource(_ source: CGImageSource, maxPixelDimension: Int? = nil) -> UIImage? {
         guard CGImageSourceGetCount(source) > 0 else { return nil }
+        if let max = maxPixelDimension, max > 0 {
+            // CGImageSource can downsample during decode — much cheaper
+            // than `cgImage.scale(to:)` after the fact and avoids holding
+            // the full-resolution bitmap in memory at any point.
+            let thumbnailOptions: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceShouldCacheImmediately: true,
+                kCGImageSourceThumbnailMaxPixelSize: max
+            ]
+            guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary),
+                  cg.width > 0, cg.height > 0 else { return nil }
+            return UIImage(cgImage: cg)
+        }
         let imageOptions: [CFString: Any] = [
             kCGImageSourceShouldCache: true,
             kCGImageSourceShouldAllowFloat: false

@@ -65,9 +65,23 @@ final actor LLMRouter {
                 throw CancellationError()
             } catch let error as LLMError {
                 lastError = error
-                if case .missingAPIKey = error, model.providerID == .anthropic { continue }
-                if case .providerUnavailable = error { continue }
-                throw error
+                // Fall through to the next provider for any *recoverable*
+                // error: missing key (user hasn't pasted one yet), the
+                // provider explicitly told us it's unavailable, transient
+                // rate limiting, decode failures (cloud sometimes returns
+                // partial JSON), or a 5xx from the upstream API. A real
+                // user-input or auth failure (4xx other than 401/429) is
+                // not the next provider's problem — surface it.
+                switch error {
+                case .missingAPIKey, .providerUnavailable, .rateLimited, .decodingFailed:
+                    continue
+                case .http(let code, _) where code >= 500 || code == 401 || code == 429:
+                    continue
+                case .cancelled:
+                    throw error
+                default:
+                    throw error
+                }
             } catch {
                 if error is CancellationError { throw error }
                 lastError = error

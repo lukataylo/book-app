@@ -123,3 +123,38 @@ lives in iCloud Drive, not in CloudKit. CloudKit holds only metadata
 (title, locators, costs, settings). This keeps the user's CloudKit
 quota basically free even for thousands of books, and makes the files
 visible in the Files app.
+
+## Conflict resolution policy
+
+SwiftData's CloudKit backing is **last-write-wins** with no per-field
+merge. We deliberately don't implement a custom merge policy. Why:
+
+- **Annotations + Bookmarks are append-only in practice.** The user
+  flow is "highlight a passage" or "mark a page" — both create a new
+  row. Edits to existing rows are rare (changing a highlight's note
+  or color). Last-write-wins on these fields is acceptable: whichever
+  device touched the row most recently wins, which matches user
+  intuition.
+- **ReadingProgress is correctly last-write-wins.** "Where did I leave
+  off?" is a question about the most recent state, not a merge of
+  positions. CloudKit's sync delay (~30s) means rapid two-device
+  switching may briefly show the other device's older position; the
+  next progress write reconciles.
+- **Settings (Reader/TTS/Speed) are de-facto singletons.** Same logic
+  as ReadingProgress.
+- **BookVariant.contentText** is set once at generation and never
+  edited. Conflicts impossible.
+- **Book.title / .author** can be edited via "Edit metadata" sheet.
+  Two-device concurrent edits to these would lose data, but this is
+  not a frequent flow and we accept the risk for v1.
+
+`Annotation.lastEditedAt` is recorded so a future "show conflicting
+edits" UI (or a manual reconciliation tool) has a reliable ordering
+signal. Today nothing reads it; the field is forward-compatibility
+for v1.1.
+
+If a user reports lost annotations after multi-device editing, we
+have two escalation paths:
+1. Bump SwiftData's `mergePolicy` to a property-trump variant.
+2. Snapshot annotations to JSON in the iCloud Drive folder so a
+   user-visible recovery file exists.

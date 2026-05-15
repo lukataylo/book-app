@@ -66,6 +66,27 @@ final class TTSEngine: NSObject {
     /// best, and crash-prone when the old `currentParagraph` no longer
     /// exists in the new content.
     private var loadedKey: String?
+    /// Timestamp of the last in-app `pause()` / `resume()`. The audio-session
+    /// interruption observer consults this to ignore the spurious `.began`
+    /// notification iOS sometimes posts in immediate response to our own
+    /// `pauseSpeaking` / `setActive(true)` calls. Without this guard,
+    /// tapping pause then play immediately re-paused the synth — the
+    /// observer's `.began` handler fired AFTER `resume()` flipped
+    /// `isPlaying` back to true, and called `pause()` a second time.
+    private var lastUserAction: Date?
+    /// Notification observers held so they can be cleanly removed in
+    /// `deinit`. Required even though `TTSEngine.shared` lives for the
+    /// app's lifetime — without it, any future code path that creates a
+    /// second engine (tests, previews, future split-window iPad support)
+    /// would leave the original observer alive and double-fire on every
+    /// audio interruption.
+    ///
+    /// `nonisolated(unsafe)` is safe here: the array is only mutated
+    /// during `init` (which runs on the MainActor), and the only read
+    /// is from `deinit` (one-shot, after which `self` no longer exists).
+    /// No concurrent access is possible.
+    @ObservationIgnored
+    private nonisolated(unsafe) var observers: [NSObjectProtocol] = []
     // Now-playing metadata for lock-screen / control-centre.
     private var nowPlayingTitle: String = "BookApp"
     private var nowPlayingAuthor: String = ""
@@ -127,6 +148,11 @@ final class TTSEngine: NSObject {
     /// to round-trip through SettingsStore on every paragraph re-render.
     var highlightColorHex: String { settings.highlightColorHex }
 
+    /// Test-only accessor for the interruption-suppression timestamp.
+    /// Production callers should use `shouldSuppressInterruption(...)`
+    /// directly instead of reaching into the raw value.
+    var lastUserActionForTesting: Date? { lastUserAction }
+
     /// Single entry-point for the reader's Listen button. Pass the book +
     /// variant ID so the engine can tell whether the caller is asking it
     /// to toggle the *current* narration or start one for fresh content
@@ -153,17 +179,9 @@ final class TTSEngine: NSObject {
     }
 
     func play(bookID: UUID, variantID: UUID, paragraphs rawParagraphs: [String], startAt index: Int = 0) {
-        var cleaned: [String] = []
-        var sources: [Int] = []
-        cleaned.reserveCapacity(rawParagraphs.count)
-        sources.reserveCapacity(rawParagraphs.count)
-        for (originalIndex, raw) in rawParagraphs.enumerated() {
-            let stripped = Self.stripHeadingMarker(raw)
-            if stripped.trimmingCharacters(in: .whitespaces).isEmpty { continue }
-            if stripped.hasPrefix("[img:") && stripped.hasSuffix("]") { continue }
-            cleaned.append(stripped)
-            sources.append(originalIndex)
-        }
+        let prepared = Self.cleanParagraphs(rawParagraphs)
+        let cleaned = prepared.cleaned
+        let sources = prepared.sources
         guard !cleaned.isEmpty else {
             lastError = "Nothing to read in this section."
             return
@@ -188,16 +206,21 @@ final class TTSEngine: NSObject {
     }
 
     func pause() {
+        lastUserAction = .now
         synth.pauseSpeaking(at: .word)
         isPlaying = false
         updateNowPlaying()
     }
 
     func resume() {
-        // If the synth is paused mid-utterance just continue. Otherwise
-        // re-speak the current paragraph from the top.
+        // If the synth is paused mid-utterance just continue. If a
+        // pause-at-word was requested but hasn't taken effect yet (the
+        // synth is still speaking the current word), `continueSpeaking`
+        // cancels the pending pause and lets it keep going. Only fall
+        // back to re-speaking when there's nothing in flight at all.
+        lastUserAction = .now
         activateAudioSession()
-        if synth.isPaused {
+        if synth.isPaused || synth.isSpeaking {
             synth.continueSpeaking()
         } else {
             speakCurrent()
@@ -312,7 +335,15 @@ final class TTSEngine: NSObject {
         guard minutes > 0 else { sleepFiresAt = nil; return }
         sleepFiresAt = Date.now.addingTimeInterval(TimeInterval(minutes * 60))
         sleepTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(minutes * 60), repeats: false) { [weak self] _ in
-            Task { @MainActor in self?.stop() }
+            Task { @MainActor in
+                self?.stop()
+                #if canImport(UIKit)
+                // Light tap so the user notices the timer fired even
+                // if the screen is off — useful when listening to a
+                // book at bedtime on a propped-up phone.
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                #endif
+            }
         }
     }
 
@@ -339,8 +370,41 @@ final class TTSEngine: NSObject {
 
     // MARK: - Private
 
-    private static func stripHeadingMarker(_ text: String) -> String {
+    static func stripHeadingMarker(_ text: String) -> String {
         text.hasPrefix("# ") ? String(text.dropFirst(2)) : text
+    }
+
+    /// Strip headings + image markers + empties from a raw paragraph list,
+    /// and record the original index of each surviving paragraph so the
+    /// reader can map engine-index → block-index for highlight + scroll.
+    /// Pure (no `self`) so tests can assert the mapping invariants without
+    /// instantiating the engine or touching audio APIs.
+    static func cleanParagraphs(_ raw: [String]) -> (cleaned: [String], sources: [Int]) {
+        var cleaned: [String] = []
+        var sources: [Int] = []
+        cleaned.reserveCapacity(raw.count)
+        sources.reserveCapacity(raw.count)
+        for (originalIndex, p) in raw.enumerated() {
+            let stripped = stripHeadingMarker(p)
+            if stripped.trimmingCharacters(in: .whitespaces).isEmpty { continue }
+            if stripped.hasPrefix("[img:") && stripped.hasSuffix("]") { continue }
+            cleaned.append(stripped)
+            sources.append(originalIndex)
+        }
+        return (cleaned, sources)
+    }
+
+    /// True when an audio-session `.began` interruption should be ignored
+    /// because the user just pressed pause or play in-app and iOS posted
+    /// the spurious notification in immediate response. Pure helper so a
+    /// test can pin behaviour without waiting on real timers.
+    static func shouldSuppressInterruption(
+        lastUserAction: Date?,
+        now: Date = .now,
+        window: TimeInterval = 0.6
+    ) -> Bool {
+        guard let last = lastUserAction else { return false }
+        return now.timeIntervalSince(last) < window
     }
 
     private func speakCurrent() {
@@ -441,7 +505,7 @@ final class TTSEngine: NSObject {
     /// no obvious way back to where they were.
     private func configureAudioInterruptionHandling() {
         #if canImport(UIKit)
-        NotificationCenter.default.addObserver(
+        let token = NotificationCenter.default.addObserver(
             forName: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance(),
             queue: .main
@@ -458,6 +522,14 @@ final class TTSEngine: NSObject {
             Task { @MainActor in
                 switch type {
                 case .began:
+                    // Suppress the spurious `.began` iOS posts in
+                    // immediate response to our own pauseSpeaking /
+                    // setActive(true) calls. Real interruptions (phone
+                    // call, Siri) don't arrive within milliseconds of a
+                    // user tap.
+                    if Self.shouldSuppressInterruption(lastUserAction: self.lastUserAction) {
+                        return
+                    }
                     if self.isPlaying { self.pause() }
                 case .ended:
                     let opts = optsRaw.map {
@@ -471,6 +543,7 @@ final class TTSEngine: NSObject {
                 }
             }
         }
+        observers.append(token)
         #endif
     }
 
@@ -481,7 +554,7 @@ final class TTSEngine: NSObject {
     /// speaker into the user's pocket.
     private func configureRouteChangeHandling() {
         #if canImport(UIKit)
-        NotificationCenter.default.addObserver(
+        let token = NotificationCenter.default.addObserver(
             forName: AVAudioSession.routeChangeNotification,
             object: AVAudioSession.sharedInstance(),
             queue: .main
@@ -495,7 +568,18 @@ final class TTSEngine: NSObject {
                 if self.isPlaying { self.pause() }
             }
         }
+        observers.append(token)
         #endif
+    }
+
+    deinit {
+        // Singleton in production but tests + previews may build a
+        // throwaway engine. Strip the observer subscriptions so the
+        // dead instance doesn't keep receiving system notifications
+        // and double-firing the live engine's handlers.
+        for token in observers {
+            NotificationCenter.default.removeObserver(token)
+        }
     }
 
     private func configureRemoteControls() {

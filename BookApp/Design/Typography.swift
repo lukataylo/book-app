@@ -32,4 +32,23 @@ enum Typography {
         default:      return .custom(readerFont.rawValue, size: size)
         }
     }
+
+    /// Reader body font that scales with Dynamic Type. Used when the
+    /// "Use system text size" toggle is on in Reader Settings — the
+    /// in-app `fontSize` slider is ignored; the user's iOS-wide
+    /// accessibility size drives the rendering instead.
+    static func readerDynamic(_ readerFont: ReaderFont) -> Font {
+        switch readerFont {
+        case .system:
+            return .body
+        case .serif:
+            return .system(.body, design: .serif)
+        default:
+            // Custom-font path — anchor at .body and let SwiftUI scale.
+            // 19pt is the user's default size in the slider, kept as the
+            // base so the visual size on a "Large" Dynamic Type setting
+            // matches what the slider would have produced.
+            return .custom(readerFont.rawValue, size: 19, relativeTo: .body)
+        }
+    }
 }

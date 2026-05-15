@@ -39,10 +39,12 @@
     </array>
     <key>UIBackgroundModes</key>
     <array>
+        <!-- Audio is the only justified background mode: TTSEngine
+             keeps narrating when the user backgrounds the app. The
+             previously declared `fetch`, `processing`, and
+             `remote-notification` modes had no corresponding code
+             paths and were a needless App Review red flag. -->
         <string>audio</string>
-        <string>fetch</string>
-        <string>processing</string>
-        <string>remote-notification</string>
     </array>
     <key>NSUbiquitousContainers</key>
     <dict>

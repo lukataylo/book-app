@@ -282,6 +282,11 @@ struct PDFKitView: UIViewRepresentable {
         func notifyCurrentPage(of view: PDFView) {
             guard let document = view.document, let page = view.currentPage else { return }
             let idx = document.index(for: page)
+            // PDFKit returns NSNotFound (and bridges to negative) when the
+            // page isn't in the document — happens during edits, when a
+            // notification fires for an in-flight page move, or on
+            // damaged PDFs. Persisting `-1` corrupts the resume locator.
+            guard idx >= 0, idx < document.pageCount else { return }
             onPageChange(idx)
         }
     }

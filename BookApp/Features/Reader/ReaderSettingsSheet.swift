@@ -16,7 +16,12 @@ struct ReaderSettingsSheet: View {
                 Section("Theme") {
                     Picker("Background", selection: $settings.theme) {
                         ForEach(ReaderTheme.allCases, id: \.self) { t in
-                            Text(t.displayName).tag(t)
+                            // Wrap the raw String in LocalizedStringKey so
+                            // the picker label routes through the
+                            // xcstrings catalog at render time. Without
+                            // this, `Text(stringValue)` bypasses
+                            // localization entirely.
+                            Text(LocalizedStringKey(t.displayName)).tag(t)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -25,23 +30,39 @@ struct ReaderSettingsSheet: View {
                 Section("Font") {
                     Picker("Family", selection: $settings.font) {
                         ForEach(ReaderFont.allCases, id: \.self) { f in
+                            // Reader font names are product names — keep
+                            // them as plain `Text` so they don't get
+                            // translated. ("Iowan Old Style" stays
+                            // "Iowan Old Style" everywhere.)
                             Text(f.displayName).tag(f)
                         }
                     }
                     .onChange(of: settings.font) { _, _ in persist() }
 
-                    Stepper(
-                        "Size: \(Int(settings.fontSize)) pt",
-                        value: $settings.fontSize,
-                        in: 12...28,
-                        step: 1,
-                        onEditingChanged: { _ in persist() }
-                    )
+                    Toggle("Use system text size", isOn: Binding(
+                        get: { settings.useSystemTextSize ?? false },
+                        set: { settings.useSystemTextSize = $0; persist() }
+                    ))
+
+                    if settings.useSystemTextSize == true {
+                        Text("Reader scales with the system Dynamic Type setting in iOS Settings → Display & Brightness.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Stepper(
+                            String(localized: "Size: \(Int(settings.fontSize)) pt",
+                                   comment: "Reader settings — font size stepper label"),
+                            value: $settings.fontSize,
+                            in: 12...28,
+                            step: 1,
+                            onEditingChanged: { _ in persist() }
+                        )
+                    }
                 }
                 Section("Layout") {
                     Picker("Margin", selection: $settings.margin) {
                         ForEach(ReaderMargin.allCases, id: \.self) { m in
-                            Text(m.rawValue.capitalized).tag(m)
+                            Text(LocalizedStringKey(m.rawValue.capitalized)).tag(m)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -86,7 +107,7 @@ struct ReaderSettingsSheet: View {
                 Section("Bottom indicator") {
                     Picker("Show", selection: $settings.progressIndicator) {
                         ForEach(ProgressIndicatorStyle.allCases, id: \.self) { style in
-                            Text(style.displayName).tag(style)
+                            Text(LocalizedStringKey(style.displayName)).tag(style)
                         }
                     }
                     .pickerStyle(.segmented)

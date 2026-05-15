@@ -14,9 +14,7 @@ struct SearchInBookSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
                 if !query.isEmpty {
-                    Text(matches.isEmpty
-                         ? "No matches in this variant."
-                         : "\(matches.count) match\(matches.count == 1 ? "" : "es")")
+                    Text(matchCountSummary)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .padding(.horizontal, 18)
@@ -34,7 +32,8 @@ struct SearchInBookSheet: View {
                                     .font(.system(size: 14))
                                     .foregroundStyle(Theme.Palette.textPrimary)
                                     .lineLimit(3)
-                                Text("Paragraph \(match.paragraphIndex + 1)")
+                                Text(String(localized: "Paragraph \(match.paragraphIndex + 1)",
+                                            comment: "Search result row — paragraph index"))
                                     .font(.system(size: 11, design: .monospaced))
                                     .foregroundStyle(Theme.Palette.textSecondary)
                             }
@@ -55,6 +54,16 @@ struct SearchInBookSheet: View {
                 }
             }
         }
+    }
+
+    /// Localized summary line. Uses Apple's `.inflect` plural rules so
+    /// translators can write "1 match" / "X matches" once per language
+    /// in the xcstrings catalog.
+    private var matchCountSummary: LocalizedStringKey {
+        if matches.isEmpty {
+            return "No matches in this variant."
+        }
+        return "^[\(matches.count) match](inflect: true)"
     }
 
     private struct Match {

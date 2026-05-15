@@ -22,6 +22,15 @@ struct ReaderView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    /// Honour the system-wide Reduce Motion preference. Used to gate the
+    /// animations on chrome show/hide, TTS follow-scroll, toast in/out
+    /// and the scrubber thumb. Per Apple HIG: don't animate decoratively
+    /// when the user has asked for less motion.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Honour Reduce Transparency: replace `.ultraThinMaterial` toast and
+    /// the bottom-bar gradient fade with solid colours so the chrome is
+    /// fully opaque for users who can't parse blurred backgrounds.
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var viewModel: ReaderViewModel?
     @State private var settings = ReaderSettings()
     @State private var showsChrome: Bool = true
@@ -172,7 +181,9 @@ struct ReaderView: View {
                     // scrolls per second monopolises the gesture system
                     // and locks the tab pill against taps.
                     guard mode != .speed else { return }
-                    withAnimation { proxy.scrollTo(newValue, anchor: .top) }
+                    withAnimation(reduceMotion ? nil : .default) {
+                        proxy.scrollTo(newValue, anchor: .top)
+                    }
                 }
                 .onChange(of: speedParagraphIndex) { _, newValue in
                     // Direct scroll, no animation — keeps the gesture
@@ -183,10 +194,15 @@ struct ReaderView: View {
                 .onChange(of: ttsEngine.currentSourceParagraph) { _, newValue in
                     // Follow narration: when the engine moves to the next
                     // paragraph, animate-scroll the body so the highlighted
-                    // paragraph stays roughly under the user's eye.
+                    // paragraph sits near the top of the visible area.
+                    // `.center` would have parked the new paragraph in the
+                    // middle of the viewport — for any paragraph longer than
+                    // a couple of lines that pushed the per-word cursor
+                    // straight into the bottom-bar gradient, where the
+                    // highlight is washed out and the icons obscure the text.
                     guard mode == .listen, let newValue else { return }
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        proxy.scrollTo(newValue, anchor: .center)
+                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
+                        proxy.scrollTo(newValue, anchor: ReaderMode.listenScrollAnchor)
                     }
                 }
                 .onAppear {
@@ -220,7 +236,9 @@ struct ReaderView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        withAnimation(.easeOut(duration: 0.18)) { showsChrome = true }
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                            showsChrome = true
+                        }
                     }
             }
 
@@ -229,7 +247,7 @@ struct ReaderView: View {
                 ProgressBar(progress: scrollProgress, tint: textColor.opacity(0.6))
                     .frame(height: 2)
                     .opacity(showsChrome ? 1 : 0)
-                    .animation(.easeInOut(duration: 0.2), value: showsChrome)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: showsChrome)
                 Spacer()
             }
             .allowsHitTesting(false)
@@ -237,7 +255,9 @@ struct ReaderView: View {
 
             if showsChrome {
                 bottomBar(viewModel: viewModel)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(reduceMotion
+                        ? .opacity
+                        : .move(edge: .bottom).combined(with: .opacity))
                     .zIndex(2)
             }
 
@@ -246,9 +266,18 @@ struct ReaderView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .background {
+                        if reduceTransparency {
+                            Capsule().fill(backgroundColor)
+                                .overlay(Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5))
+                        } else {
+                            Capsule().fill(.ultraThinMaterial)
+                        }
+                    }
                     .padding(.bottom, 110)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .transition(reduceMotion
+                        ? .opacity
+                        : .opacity.combined(with: .move(edge: .bottom)))
                     .zIndex(3)
                     .accessibilityLabel(toast)
             }
@@ -350,7 +379,7 @@ struct ReaderView: View {
                 ))
             } else {
                 Text(text)
-                    .font(Typography.reader(settings.font, size: settings.fontSize))
+                    .font(readerBodyFont)
                     .foregroundStyle(paragraphForeground)
             }
         }
@@ -385,6 +414,16 @@ struct ReaderView: View {
         mode == .speed ? textColor.opacity(0.40) : textColor
     }
 
+    /// Reader body font — switches between the in-app `fontSize` slider
+    /// and the system Dynamic Type setting based on the user's preference
+    /// in Reader Settings. Both branches respect the chosen font family.
+    private var readerBodyFont: Font {
+        if settings.useSystemTextSize == true {
+            return Typography.readerDynamic(settings.font)
+        }
+        return Typography.reader(settings.font, size: settings.fontSize)
+    }
+
     /// Render an inline EPUB image extracted on import. Goes through
     /// `InlineFigureImage`, which decodes the JPEG on a background task
     /// (preparingForDisplay can hang the main thread for 50–200 ms on
@@ -409,7 +448,7 @@ struct ReaderView: View {
                                      paragraphIndex: Int?,
                                      isActiveListenPara: Bool) -> AttributedString {
         var attr = AttributedString(text)
-        attr.font = Typography.reader(settings.font, size: settings.fontSize)
+        attr.font = readerBodyFont
 
         // Speed-mode dimming: paragraphs that aren't currently active fade
         // back so the eye lands on the cursor's paragraph.
@@ -588,11 +627,17 @@ struct ReaderView: View {
         // otherwise pile up overlapping 1.5s sleepers, each of which still
         // ends up calling `savedToast = nil` and clobbering newer toasts.
         toastTask?.cancel()
-        withAnimation(.easeOut(duration: 0.18)) { savedToast = message }
+        // Light success-style haptic on every save action. Cheap, native,
+        // and matches Apple Books' feedback model.
+        #if canImport(UIKit)
+        let haptic = UINotificationFeedbackGenerator()
+        haptic.notificationOccurred(.success)
+        #endif
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { savedToast = message }
         toastTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             guard !Task.isCancelled else { return }
-            withAnimation(.easeIn(duration: 0.2)) { savedToast = nil }
+            withAnimation(reduceMotion ? nil : .easeIn(duration: 0.2)) { savedToast = nil }
         }
     }
 
@@ -636,12 +681,22 @@ struct ReaderView: View {
         let bg = backgroundColor
 
         VStack(spacing: 0) {
-            LinearGradient(
-                colors: [bg.opacity(0), bg.opacity(0.55), bg.opacity(0.92), bg],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 60)
+            // Reduce Transparency: replace the soft fade with a solid
+            // strip so the boundary between scrolling text and the bar
+            // stays clearly readable when the system user can't parse
+            // gradient transparency.
+            Group {
+                if reduceTransparency {
+                    bg.frame(height: 60)
+                } else {
+                    LinearGradient(
+                        colors: [bg.opacity(0), bg.opacity(0.55), bg.opacity(0.92), bg],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 60)
+                }
+            }
             .allowsHitTesting(false)
 
             VStack(spacing: 8) {
@@ -672,22 +727,33 @@ struct ReaderView: View {
                     } else {
                         Spacer(minLength: 0)
                     }
-                    IconBarButton(systemImage: "textformat.size", isDark: isDark) {
+                    IconBarButton(
+                        systemImage: "textformat.size",
+                        isDark: isDark,
+                        accessibilityLabel: "Reader settings"
+                    ) {
                         viewModel.sheet = .readerSettings
                     }
-                    IconBarButton(systemImage: "wand.and.stars", isDark: isDark) {
+                    IconBarButton(
+                        systemImage: "wand.and.stars",
+                        isDark: isDark,
+                        accessibilityLabel: "AI transformations"
+                    ) {
                         viewModel.sheet = .transformations
                     }
                     Button {
-                        withAnimation(.easeOut(duration: 0.18)) { showsChrome = false }
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                            showsChrome = false
+                        }
                     } label: {
                         Image(systemName: "chevron.down")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(textColor.opacity(0.5))
-                            .frame(width: 38, height: 38)
+                            .frame(width: 44, height: 44)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Hide controls")
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, 2)
@@ -775,9 +841,12 @@ struct ReaderView: View {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Rewind sentence")
+                .accessibilityIdentifier("reader.speed.rewind")
 
                 Button {
                     if speedIsRunning { stopSpeedTicker() }
@@ -790,6 +859,8 @@ struct ReaderView: View {
                         .background(Circle().fill(isDark ? Color.white : Color.black))
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(speedIsRunning ? "Pause speed reading" : "Start speed reading")
+                .accessibilityIdentifier("reader.speed.playPause")
 
                 Button {
                     skipSpeedForward(viewModel: viewModel)
@@ -797,9 +868,12 @@ struct ReaderView: View {
                     Image(systemName: "forward.end.fill")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Skip to next paragraph")
+                .accessibilityIdentifier("reader.speed.skip")
             }
         }
     }
@@ -814,11 +888,12 @@ struct ReaderView: View {
                     Image(systemName: "person.wave.2")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(textColor.opacity(0.78))
-                        .frame(width: 36, height: 36)
+                        .frame(width: 44, height: 44)
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Voice settings")
+                .accessibilityIdentifier("reader.listen.voiceSettings")
 
                 Spacer()
 
@@ -828,9 +903,12 @@ struct ReaderView: View {
                     Image(systemName: "gobackward")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Previous paragraph")
+                .accessibilityIdentifier("reader.listen.previous")
 
                 Button {
                     ttsEngine.togglePlayback(
@@ -846,6 +924,8 @@ struct ReaderView: View {
                         .background(Circle().fill(isDark ? Color.white : Color.black))
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(ttsEngine.isPlaying ? "Pause narration" : "Resume narration")
+                .accessibilityIdentifier("reader.listen.playPause")
 
                 Button {
                     ttsEngine.skipForward()
@@ -853,9 +933,12 @@ struct ReaderView: View {
                     Image(systemName: "goforward")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Next paragraph")
+                .accessibilityIdentifier("reader.listen.next")
 
                 Spacer()
 
@@ -864,14 +947,19 @@ struct ReaderView: View {
                 } label: {
                     Text(rateLabel(for: ttsEngine.currentRate))
                         .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                        .frame(minWidth: 38, minHeight: 28)
+                        .frame(minWidth: 44, minHeight: 44)
                         .padding(.horizontal, 8)
                         .background(
                             Capsule().stroke(textColor.opacity(0.2), lineWidth: 0.5)
                         )
                         .foregroundStyle(textColor)
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Playback speed")
+                .accessibilityValue(rateLabel(for: ttsEngine.currentRate))
+                .accessibilityHint("Cycles through speed presets")
+                .accessibilityIdentifier("reader.listen.rate")
             }
         }
     }
@@ -1105,11 +1193,21 @@ struct ReaderView: View {
         if totalWords > 250 {
             let remaining = max(0, Double(totalWords) * (1.0 - pct))
             let mins = Int(remaining / 250)
-            if mins == 0 { return "Almost done" }
-            if mins < 60 { return "\(mins) min left" }
+            if mins == 0 {
+                return String(localized: "Almost done", comment: "Reader bottom indicator when <1 minute remains")
+            }
+            if mins < 60 {
+                return String(localized: "\(mins) min left",
+                              comment: "Reader bottom indicator: minutes remaining at 250 wpm")
+            }
             let h = mins / 60
             let m = mins % 60
-            return m == 0 ? "\(h) h left" : "\(h)h \(m)m left"
+            if m == 0 {
+                return String(localized: "\(h) h left",
+                              comment: "Reader bottom indicator: hours remaining (whole hours)")
+            }
+            return String(localized: "\(h)h \(m)m left",
+                          comment: "Reader bottom indicator: hours and minutes remaining")
         }
         return pageCountText()
     }
@@ -1118,7 +1216,8 @@ struct ReaderView: View {
         let pct = scrollProgress.clamped()
         let pages = max(1, book.totalPagesEstimate)
         let currentPage = max(1, Int(pct * Double(pages)).clampedToPages(pages))
-        return "\(currentPage) / \(pages)"
+        return String(localized: "Page \(currentPage) of \(pages)",
+                      comment: "Reader bottom indicator: current page out of total")
     }
 
 
@@ -1173,6 +1272,13 @@ enum ReaderMode: String, CaseIterable, Hashable {
         case .listen: return "Listen"
         }
     }
+
+    /// Anchor used by the listen-mode follow-scroll. Lives as a static
+    /// so a unit test can pin the value without instantiating the
+    /// view. `.top` keeps the active paragraph above the bottom-bar
+    /// gradient — historical `.center` parked the per-word cursor in
+    /// the faded/icon-obscured strip at the bottom of the viewport.
+    static let listenScrollAnchor: UnitPoint = .top
 }
 
 /// Three-segment selectable pill — Apple Books-style "Read / Listen" extended
@@ -1186,6 +1292,13 @@ private struct ModeTabPill: View {
         HStack(spacing: 0) {
             ForEach(ReaderMode.allCases, id: \.self) { tab in
                 Button {
+                    if mode != tab {
+                        #if canImport(UIKit)
+                        // Apple's tab-style selection feedback. Nothing
+                        // fires when the user re-taps the active tab.
+                        UISelectionFeedbackGenerator().selectionChanged()
+                        #endif
+                    }
                     mode = tab
                 } label: {
                     HStack(spacing: 6) {
@@ -1194,8 +1307,7 @@ private struct ModeTabPill: View {
                         Text(tab.label)
                             .font(.system(size: 13, weight: .semibold))
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 9)
+                    .frame(maxWidth: .infinity, minHeight: 38)
                     .foregroundStyle(
                         mode == tab
                             ? (isDark ? Color.black : Color.white)
@@ -1208,8 +1320,12 @@ private struct ModeTabPill: View {
                             }
                         }
                     )
+                    .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("\(tab.label) mode")
+                .accessibilityAddTraits(mode == tab ? [.isSelected, .isButton] : .isButton)
+                .accessibilityIdentifier("reader.mode.\(tab.rawValue)")
             }
         }
         .padding(3)
@@ -1224,6 +1340,7 @@ private struct ModeTabPill: View {
 private struct IconBarButton: View {
     let systemImage: String
     let isDark: Bool
+    let accessibilityLabel: String
     let action: () -> Void
 
     var body: some View {
@@ -1231,10 +1348,11 @@ private struct IconBarButton: View {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.78))
-                .frame(width: 38, height: 38)
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }
 
@@ -1272,6 +1390,7 @@ private struct ScrubBar: View {
     let track: Color
     let onChange: (Double) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isDragging: Bool = false
     @State private var dragValue: Double = 0
 
@@ -1304,7 +1423,7 @@ private struct ScrubBar: View {
                         isDragging = false
                     }
             )
-            .animation(.easeOut(duration: 0.15), value: isDragging)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: isDragging)
         }
         .frame(height: 16)        // total clickable height
     }

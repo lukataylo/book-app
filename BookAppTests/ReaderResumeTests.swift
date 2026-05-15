@@ -20,13 +20,21 @@ struct ReaderResumeTests {
         return try ModelContainer(for: schema, configurations: [config])
     }
 
+    /// Realistic body that survives `splitParagraphs`'s `mergeFragments`
+    /// heuristic — each paragraph ends in a sentence terminator and is
+    /// longer than the 40-char minimum, so the parser keeps them as
+    /// distinct paragraphs instead of joining them into one.
+    private func paragraph(_ n: Int) -> String {
+        "This is paragraph number \(n), long enough to remain its own block after the parser's defragmentation pass runs."
+    }
+
     @Test
     func paragraphLocatorRestoresExactPosition() throws {
         let container = try makeContainer()
         let context = container.mainContext
 
         let book = Book(title: "Test", author: "Author", format: .epub, coverData: nil)
-        let body = (0..<10).map { "Paragraph \($0)." }.joined(separator: "\n\n")
+        let body = (0..<10).map { paragraph($0) }.joined(separator: "\n\n")
         let variant = BookVariant(book: book, kind: .original, contentText: body)
         context.insert(book)
         context.insert(variant)
@@ -46,7 +54,7 @@ struct ReaderResumeTests {
         let context = container.mainContext
 
         let book = Book(title: "Test", author: "Author", format: .epub, coverData: nil)
-        let body = (0..<20).map { "P\($0)" }.joined(separator: "\n\n")
+        let body = (0..<20).map { paragraph($0) }.joined(separator: "\n\n")
         let variant = BookVariant(book: book, kind: .original, contentText: body)
         context.insert(book)
         context.insert(variant)
@@ -86,7 +94,7 @@ struct ReaderResumeTests {
         let book = Book(title: "Test", author: "Author", format: .epub, coverData: nil)
         // 3 paragraphs, locator points way past the end (e.g. variant
         // shrank after a re-transform).
-        let body = "P0\n\nP1\n\nP2"
+        let body = (0..<3).map { paragraph($0) }.joined(separator: "\n\n")
         let variant = BookVariant(book: book, kind: .original, contentText: body)
         context.insert(book)
         context.insert(variant)

@@ -35,12 +35,17 @@ enum InlineImageCache {
     /// image (now decoded) so the call site can update its @State directly.
     /// Routes through `ImageDecoding` so corrupt EPUB figures don't
     /// trigger the "-17102 decompressing image" log spam during scroll.
+    ///
+    /// `maxPixelDimension` of 1600 keeps figures sharp at the reader's
+    /// natural body width on every shipping iPhone/iPad while keeping
+    /// memory in check — a 4K source figure would otherwise sit at ~50MB
+    /// resident, blowing through `totalCostLimit` after a single image.
     static func prepare(at url: URL) async -> UIImage? {
         let key = url.path as NSString
         if let cached = cache.object(forKey: key) { return cached }
         let path = url.path
         let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
-            ImageDecoding.decode(fileURL: URL(fileURLWithPath: path))
+            ImageDecoding.decode(fileURL: URL(fileURLWithPath: path), maxPixelDimension: 1600)
         }.value
         guard let img = decoded else { return nil }
         let cost = Int(img.size.width * img.size.height * 4)

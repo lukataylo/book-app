@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- BookApp does not perform tracking, does not link any data to the
+         user, and does not collect data for the purposes of the App Store
+         privacy nutrition label. iCloud sync is user-controlled storage in
+         the user's own Apple ID account, not data collection by us; see
+         AppStore/data-safety.md and AppStore/privacy.md for the user-facing
+         disclosures. -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <!-- UserDefaults: TTSEngine resume persistence (TTS.resumeBookID,
+             TTS.resumeParagraph, etc.), SeedBooksLoader first-launch flags,
+             DevSeed gating. All values are app-private. -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>

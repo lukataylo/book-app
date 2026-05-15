@@ -5,8 +5,13 @@ import SwiftData
 struct BookAppApp: App {
     let container: ModelContainer?
     let containerError: String?
+    /// XCUITests pass `-uitesting` so the app skips onboarding and lands
+    /// straight on the library, which is the surface we want to drive.
+    /// CommandLine.arguments is read once at launch — no runtime overhead
+    /// once tests aren't running.
     @State private var onboardingDone: Bool = UserDefaults.standard
         .bool(forKey: OnboardingView.completedKey)
+        || CommandLine.arguments.contains("-uitesting")
 
     init() {
         // Try CloudKit-backed container first; fall back to in-memory if
@@ -23,6 +28,11 @@ struct BookAppApp: App {
             self.container = nil
             self.containerError = "BookApp couldn't load its data store. Reinstalling the app usually fixes this. If the problem persists, file a bug at github.com/lukataylo/book-app/issues."
         }
+        // Subscribe to MetricKit for crash + hang diagnostics. Apple
+        // delivers payloads roughly once a day; we drop them into the
+        // app's caches folder so the user can export them from Settings
+        // without us shipping a third-party crash SDK.
+        MetricsLog.shared.start()
     }
 
     var body: some Scene {

@@ -73,11 +73,16 @@ enum SeedBooksLoader {
     /// install. User-imported books will not match because the user
     /// can't have completed a picker flow before this code runs.
     private static func rollbackPartialSeed(modelContext: ModelContext) {
+        // SwiftData `#Predicate` capture of locally-bound variables is
+        // unreliable — the SQLite translator sometimes evaluates the
+        // captured expression at fetch time using a stale snapshot. Fetch
+        // all books and filter in-memory; the bundle ships at most a
+        // handful of seed books so the cost is negligible and the
+        // semantics are bulletproof.
         let cutoff = Date.now.addingTimeInterval(-5 * 60)
-        let descriptor = FetchDescriptor<Book>(
-            predicate: #Predicate { $0.importedAt >= cutoff }
-        )
-        guard let recent = try? modelContext.fetch(descriptor) else { return }
+        let descriptor = FetchDescriptor<Book>()
+        guard let books = try? modelContext.fetch(descriptor) else { return }
+        let recent = books.filter { $0.importedAt >= cutoff }
         for book in recent {
             modelContext.delete(book)
         }

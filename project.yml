@@ -52,7 +52,13 @@ targets:
         excludes:
           - "Supporting/Info.plist"
           - "Supporting/BookApp.entitlements"
+          - "Supporting/PrivacyInfo.xcprivacy"   # added below as explicit resource
           - "Resources/SeedBooks"     # added below as folder reference
+      # Privacy manifest — required by App Review since 2024. Apple wants
+      # this at the bundle root, so we add it as an explicit resource
+      # rather than letting it drop into a Supporting/ subfolder.
+      - path: BookApp/Supporting/PrivacyInfo.xcprivacy
+        buildPhase: resources
       # Folder-reference (blue folder) for SeedBooks so each book's files
       # — including identically-named `original.epub`, `cover.jpg`,
       # `meta.json` — survive into the .app bundle under their parent slug
@@ -108,3 +114,14 @@ targets:
       base:
         BUNDLE_LOADER: $(TEST_HOST)
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/BookApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookApp
+
+  BookAppUITests:
+    type: bundle.ui-testing
+    supportedDestinations: [iOS, iPadOS]
+    sources:
+      - BookAppUITests
+    dependencies:
+      - target: BookApp
+    settings:
+      base:
+        TEST_TARGET_NAME: BookApp

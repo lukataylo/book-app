@@ -18,7 +18,10 @@ struct SettingsView: View {
                     HStack {
                         Text("Current streak")
                         Spacer()
-                        Text(stats.currentStreak == 1 ? "1 day" : "\(stats.currentStreak) days")
+                        // ^[…](inflect: true) is Apple's automatic-grammar
+                        // morphology — translators write "1 day" and the
+                        // system pluralises per locale rules.
+                        Text("^[\(stats.currentStreak) day](inflect: true)")
                             .foregroundStyle(stats.currentStreak > 0 ? Theme.Palette.textPrimary : Theme.Palette.textSecondary)
                             .monospacedDigit()
                     }
@@ -56,6 +59,9 @@ struct SettingsView: View {
                                 .font(.caption)
                         }
                     }
+                    Text("Your key stays on this device in the iOS Keychain. It is sent only to api.anthropic.com when you run a Cloud transformation.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     HStack {
                         Text("Spend this month")
                         Spacer()
@@ -106,6 +112,10 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section("Diagnostics") {
+                    DiagnosticsRow()
+                }
+
                 Section("About") {
                     HStack { Text("Version"); Spacer(); Text("1.0").foregroundStyle(.secondary) }
                 }
@@ -145,4 +155,72 @@ struct SettingsView: View {
         let m = mins % 60
         return m == 0 ? "\(h) h" : "\(h)h \(m)m"
     }
+}
+
+/// Lightweight surface for the locally-stored MetricKit payloads — lets
+/// the user see whether the app has captured any crashes/hangs and share
+/// them out for a bug report. Apple delivers payloads in a daily batch,
+/// so an empty list here usually just means "no incidents in the last
+/// 24h", not "diagnostics aren't working".
+private struct DiagnosticsRow: View {
+    @State private var files: [URL] = []
+    @State private var shareItem: URL?
+
+    var body: some View {
+        Group {
+            if files.isEmpty {
+                Text("No diagnostics captured. MetricKit reports arrive in a daily batch, so check back tomorrow if the app crashed today.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(files, id: \.self) { url in
+                    Button {
+                        shareItem = url
+                    } label: {
+                        HStack {
+                            Image(systemName: "doc.text")
+                            Text(url.lastPathComponent)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.callout)
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button(role: .destructive) {
+                    MetricsLog.clearAll()
+                    refresh()
+                } label: {
+                    Label("Clear diagnostics", systemImage: "trash")
+                }
+            }
+        }
+        .onAppear { refresh() }
+        .sheet(item: $shareItem) { url in
+            ShareSheet(items: [url])
+        }
+    }
+
+    private func refresh() {
+        files = MetricsLog.storedFiles()
+    }
+}
+
+/// Minimal UIActivityViewController bridge — used by DiagnosticsRow to
+/// hand a payload file off to Mail / Messages / Files for a bug report.
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
+extension URL: @retroactive Identifiable {
+    public var id: String { absoluteString }
 }

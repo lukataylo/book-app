@@ -25,6 +25,12 @@ struct RootTabView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(Tab.settings)
         }
+        // `.sidebarAdaptable` (iOS 18+) keeps the iPhone tab-bar look but
+        // promotes the same tabs to a NavigationSplitView sidebar on
+        // iPad. Native, free, and the destination views render in the
+        // detail column with full screen width — no custom split-view
+        // refactor required.
+        .tabViewStyle(.sidebarAdaptable)
         .task {
             // Production demo content — runs once on first launch.
             await SeedBooksLoader.runIfNeeded(modelContext: modelContext)

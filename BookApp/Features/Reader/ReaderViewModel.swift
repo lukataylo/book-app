@@ -98,9 +98,61 @@ final class ReaderViewModel {
     }
 
     static func splitParagraphs(_ text: String) -> [String] {
-        text.components(separatedBy: "\n\n")
+        // Defensive normalisation: stored `contentText` from older parser
+        // versions can contain in-paragraph `\r` / lone `\n` (from
+        // Project-Gutenberg-style hard-wrapped HTML) which SwiftUI's `Text`
+        // renders as visible hard breaks, plus `\n\n` fragmentation
+        // (whole-paragraph-per-visual-line). We can't re-import without
+        // dropping the user's annotations + progress on the seed books,
+        // so the fix runs at read time.
+        var normalised = text
+        normalised = normalised.replacingOccurrences(of: "\r\n", with: "\n")
+        normalised = normalised.replacingOccurrences(of: "\r", with: "\n")
+        // Lone newline (not surrounded by another newline) → space, so
+        // a paragraph hard-wrapped over many physical lines flows back
+        // into one. `\n\n` paragraph boundaries survive because their
+        // newlines flank each other.
+        normalised = normalised.replacingOccurrences(
+            of: "(?<!\\n)\\n(?!\\n)",
+            with: " ",
+            options: .regularExpression
+        )
+        let parts = normalised.components(separatedBy: "\n\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+        return mergeFragments(parts)
+    }
+
+    /// Join consecutive paragraphs that don't end with sentence-terminating
+    /// punctuation — same heuristic the EPUB parser uses to repair
+    /// Project-Gutenberg-style one-line-per-paragraph HTML, applied at read
+    /// time so books imported before the parser had this step still flow.
+    private static func mergeFragments(_ parts: [String]) -> [String] {
+        guard parts.count > 1 else { return parts }
+        let terminals: Set<Character> = [".", "!", "?", ":", "”", "\"", "…", "’", "'", ")"]
+        var out: [String] = []
+        out.reserveCapacity(parts.count)
+        var buffer = ""
+        for part in parts {
+            // Headings + image markers are paragraph-final on their own
+            // regardless of trailing punctuation — keep them isolated so
+            // the reader's heading style + inline image rendering still
+            // pick them up.
+            let isHeading = part.hasPrefix("# ")
+            let isImage = part.hasPrefix("[img:") && part.hasSuffix("]")
+            if isHeading || isImage {
+                if !buffer.isEmpty { out.append(buffer); buffer = "" }
+                out.append(part)
+                continue
+            }
+            buffer = buffer.isEmpty ? part : "\(buffer) \(part)"
+            if let last = part.last, terminals.contains(last), buffer.count > 40 {
+                out.append(buffer)
+                buffer = ""
+            }
+        }
+        if !buffer.isEmpty { out.append(buffer) }
+        return out
     }
 
     /// Classify each paragraph string into a `ReaderBlock` and tag the first

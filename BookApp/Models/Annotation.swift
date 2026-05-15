@@ -25,6 +25,14 @@ final class Annotation {
     var note: String = ""
     var colorRaw: String = AnnotationColor.yellow.rawValue
     var createdAt: Date = Date.now
+    /// Wall-clock timestamp of the last in-app edit. SwiftData + CloudKit
+    /// resolve concurrent edits with last-write-wins; this field doesn't
+    /// change that, but it gives a future "show conflicting edits" UI
+    /// (or a manual reconciliation tool) the data it needs to detect
+    /// when two devices touched the same row in overlapping windows.
+    /// Optional default keeps the SwiftData migration silent for users
+    /// upgrading from a pre-`lastEditedAt` build.
+    var lastEditedAt: Date? = Date.now
 
     init(
         id: UUID = UUID(),
@@ -43,10 +51,22 @@ final class Annotation {
         self.note = note
         self.colorRaw = color.rawValue
         self.createdAt = .now
+        self.lastEditedAt = .now
     }
 
     var color: AnnotationColor {
         get { AnnotationColor(rawValue: colorRaw) ?? .yellow }
-        set { colorRaw = newValue.rawValue }
+        set {
+            colorRaw = newValue.rawValue
+            lastEditedAt = .now
+        }
+    }
+
+    /// Bump `lastEditedAt` after mutating `note`. Call sites must use
+    /// this rather than poking `note` directly so two-device conflict
+    /// detection has a reliable ordering signal.
+    func updateNote(_ value: String) {
+        note = value
+        lastEditedAt = .now
     }
 }
