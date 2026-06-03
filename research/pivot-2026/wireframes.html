@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pivot 2026 — Wireframes</title>
+<style>
+  :root{
+    --ink:#1c1c1e; --grey:#8e8e93; --line:#d1d1d6; --fill:#e9e9ee;
+    --fill2:#f2f2f7; --accent:#3b6ef5; --accent-soft:#e6edff;
+    --gold:#f6b73c; --green:#37b24d; --bg:#fafafa; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header.page{padding:28px 32px 8px;}
+  header.page h1{margin:0 0 4px;font-size:24px;letter-spacing:-.02em;}
+  header.page p{margin:0;color:var(--grey);max-width:760px;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;padding:10px 32px 0;color:var(--grey);font-size:12px;}
+  .legend b{color:var(--ink);}
+  .band{padding:22px 32px 8px;}
+  .band h2{margin:0 0 2px;font-size:18px;}
+  .band .sub{color:var(--grey);margin:0 0 4px;}
+  .row{display:flex;gap:34px;flex-wrap:wrap;padding:10px 32px 26px;align-items:flex-start;}
+  .col{width:300px;}
+  .cap{font-weight:600;margin:10px 2px 2px;}
+  .note{color:var(--grey);font-size:12px;margin:2px;}
+  .note ul{margin:4px 0 0;padding-left:16px;}
+
+  /* phone */
+  .phone{width:300px;height:620px;border:2px solid #c7c7cc;border-radius:38px;
+    background:var(--card);position:relative;overflow:hidden;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:120px;height:22px;background:#c7c7cc;border-radius:0 0 14px 14px;z-index:5;}
+  .screen{position:absolute;inset:0;padding:30px 14px 56px;overflow:hidden;display:flex;flex-direction:column;}
+  .screen.flush{padding:30px 0 56px;}
+
+  /* wireframe atoms */
+  .t-xs{font-size:10px;color:var(--grey);} .t-sm{font-size:11px;color:var(--grey);}
+  .t-b{font-weight:700;} .center{text-align:center;}
+  .bar{height:8px;border-radius:4px;background:var(--fill);}
+  .bar.s{width:60%;} .bar.m{width:80%;} .bar.l{width:100%;}
+  .ph{background:var(--fill);border-radius:8px;}
+  .ph.dash{background:repeating-linear-gradient(45deg,#eee,#eee 6px,#f6f6f6 6px,#f6f6f6 12px);}
+  .row-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .h-title{font-size:17px;font-weight:800;letter-spacing:-.02em;}
+  .chip{display:inline-block;padding:5px 10px;border-radius:20px;background:var(--fill);
+    font-size:11px;color:#3a3a3c;white-space:nowrap;}
+  .chip.on{background:var(--ink);color:#fff;}
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;
+    background:var(--fill2);font-size:11px;font-weight:600;}
+  .btn{display:block;text-align:center;padding:11px;border-radius:12px;background:var(--accent);
+    color:#fff;font-weight:700;font-size:13px;}
+  .btn.soft{background:var(--accent-soft);color:var(--accent);}
+  .btn.ghost{background:var(--fill);color:var(--ink);}
+  .cover{width:54px;height:74px;border-radius:6px;background:linear-gradient(135deg,#dfe3ea,#c9cfda);
+    flex:0 0 auto;position:relative;}
+  .cover::after{content:"cover";position:absolute;bottom:4px;left:0;right:0;text-align:center;
+    font-size:8px;color:#8a93a6;}
+  .cover.tall{height:120px;width:88px;}
+  .card{background:var(--fill2);border-radius:14px;padding:10px;}
+  .hcard{display:flex;gap:10px;align-items:center;}
+  .scrollx{display:flex;gap:10px;overflow:hidden;}
+  .scrollx .mini{flex:0 0 92px;}
+  .mini .cover{width:92px;height:120px;}
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:48px;border-top:1px solid var(--line);
+    background:#fff;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:var(--grey);}
+  .tabbar .tab{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .dot{width:18px;height:18px;border-radius:5px;background:var(--fill);}
+  .tab.on .dot{background:var(--ink);} .tab.on{color:var(--ink);font-weight:700;}
+  .ring{width:46px;height:46px;border-radius:50%;
+    background:conic-gradient(var(--accent) 65%, var(--fill) 0);display:flex;align-items:center;justify-content:center;}
+  .ring i{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+    font-style:normal;font-size:10px;font-weight:700;}
+  .flame{color:var(--gold);font-weight:800;}
+  .stat{display:flex;gap:12px;}
+  .stat .pill{background:#fff;border:1px solid var(--line);}
+  .stack{display:flex;flex-direction:column;gap:10px;overflow:hidden;}
+
+  /* learning tree / path */
+  .tree{flex:1;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:0;padding-top:6px;}
+  .node{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:18px;position:relative;z-index:2;}
+  .node.done{background:var(--green);color:#fff;}
+  .node.cur{background:var(--accent);color:#fff;box-shadow:0 0 0 6px var(--accent-soft);}
+  .node.lock{background:var(--fill);color:#b0b0b5;}
+  .node.boss{width:62px;height:62px;border-radius:16px;background:var(--gold);color:#fff;}
+  .conn{width:4px;height:20px;background:var(--line);z-index:1;}
+  .off-l{transform:translateX(-46px);} .off-r{transform:translateX(46px);}
+  .conn.off-l{transform:translateX(-23px) rotate(28deg);}
+  .conn.off-r{transform:translateX(23px) rotate(-28deg);}
+  .unit-h{align-self:stretch;margin:4px 14px 8px;background:var(--ink);color:#fff;border-radius:10px;
+    padding:7px 10px;font-size:11px;font-weight:700;display:flex;justify-content:space-between;}
+
+  /* feed (direction C) */
+  .feed{position:absolute;inset:0;}
+  .feed .slide{position:absolute;inset:0;padding:34px 16px 60px;display:flex;flex-direction:column;
+    background:linear-gradient(160deg,#eef2fb,#e3e9f7);}
+  .illus{flex:1;border-radius:18px;background:
+    radial-gradient(circle at 30% 30%,#cdd9f5,#aeb9e0);position:relative;display:flex;align-items:center;justify-content:center;
+    color:#6b76a3;font-size:11px;}
+  .railr{position:absolute;right:8px;bottom:120px;display:flex;flex-direction:column;gap:14px;align-items:center;}
+  .railr .rdot{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);
+    display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .dots{display:flex;gap:4px;justify-content:center;margin-top:8px;}
+  .dots i{width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.2);font-style:normal;}
+  .dots i.on{background:var(--ink);}
+  .deck{position:relative;height:300px;margin:6px 4px;}
+  .deck .dcard{position:absolute;inset:0;border-radius:18px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px;display:flex;flex-direction:column;}
+  .deck .dcard:nth-child(1){transform:rotate(-4deg) translateY(8px);opacity:.5;}
+  .deck .dcard:nth-child(2){transform:rotate(3deg) translateY(4px);opacity:.7;}
+  .deck .dcard:nth-child(3){transform:none;}
+  .grade{display:flex;gap:6px;}
+  .grade .g{flex:1;text-align:center;padding:8px 0;border-radius:10px;font-size:10px;font-weight:700;}
+  .g.again{background:#fde2e2;color:#c0392b;} .g.hard{background:#fdeede;color:#b9770f;}
+  .g.good{background:#e1f3e6;color:#1e7a34;} .g.easy{background:#e6edff;color:var(--accent);}
+  .heat{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;}
+  .heat i{aspect-ratio:1;border-radius:2px;background:var(--fill);font-style:normal;}
+  .heat i.l1{background:#cfe6d6;} .heat i.l2{background:#8fd0a3;} .heat i.l3{background:var(--green);}
+  /* constellation (C tree) */
+  .const{position:absolute;inset:0;padding:30px 0 56px;
+    background:radial-gradient(circle at 70% 20%,#2b3354,#1a1f33);overflow:hidden;}
+  .ctile{position:absolute;width:62px;height:62px;border-radius:16px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:9px;color:#fff;text-align:center;}
+  .ctile.on{background:rgba(255,255,255,.92);color:#1a1f33;}
+  .ctile.dim{background:rgba(255,255,255,.18);}
+  .ctile .e{font-size:18px;}
+  .cstar{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);}
+  .cline{position:absolute;height:2px;background:rgba(255,255,255,.25);transform-origin:left center;}
+  .seg{display:flex;background:var(--fill2);border-radius:10px;padding:3px;gap:3px;}
+  .seg .s{flex:1;text-align:center;padding:6px;border-radius:8px;font-size:11px;font-weight:600;color:var(--grey);}
+  .seg .s.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Pivot 2026 — wireframes</h1>
+  <p>Three design directions, each covering the three new screens: <b>Home</b>,
+  <b>Memories</b> (saved insights + spaced repetition), and the <b>Learning tree</b>
+  (Duolingo-style). These are different information-architecture philosophies — pick a corner
+  or hybridise. Low-fidelity on purpose: grey = placeholder, blue = primary action.</p>
+</header>
+<div class="legend">
+  <span><b>A · Catalog-first</b> — Blinkist/Headway DNA (discovery leads)</span>
+  <span><b>B · Habit-first</b> — Duolingo DNA (the tree is home)</span>
+  <span><b>C · Feed-first</b> — Imprint DNA (swipeable illustrated feed leads)</span>
+</div>
+
+<!-- =================== DIRECTION A =================== -->
+<div class="band">
+  <h2>Direction A — Catalog-first</h2>
+  <p class="sub">Discovery feed is the front door, like Blinkist/Headway. Learning &amp; memory live in tabs. Best for content browsing + conversion; lowest behaviour-change ambition.</p>
+</div>
+<div class="row">
+
+  <!-- A1 HOME -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="row-h">
+          <div><div class="t-xs">Good evening, Luka</div><div class="h-title">Discover</div></div>
+          <div class="pill"><span class="flame">🔥</span>7</div>
+        </div>
+        <div class="ph" style="height:34px;display:flex;align-items:center;padding:0 10px;color:#b0b0b5;font-size:12px;margin-bottom:12px;">🔍 Search 1,200 summaries…</div>
+        <div class="t-xs t-b" style="margin-bottom:6px;">CONTINUE</div>
+        <div class="card hcard" style="margin-bottom:14px;">
+          <div class="cover"></div>
+          <div style="flex:1;">
+            <div class="bar m" style="margin-bottom:6px;"></div>
+            <div class="bar s" style="margin-bottom:8px;"></div>
+            <div class="t-xs">6 of 9 ideas · 4 min left</div>
+          </div>
+        </div>
+        <div class="t-xs t-b" style="margin-bottom:6px;">TRENDING · 15-MIN READS</div>
+        <div class="scrollx" style="margin-bottom:14px;">
+          <div class="mini"><div class="cover"></div><div class="bar s" style="margin:6px 0 3px;"></div><div class="t-xs">12 min</div></div>
+          <div class="mini"><div class="cover"></div><div class="bar s" style="margin:6px 0 3px;"></div><div class="t-xs">9 min</div></div>
+          <div class="mini"><div class="cover"></div><div class="bar s" style="margin:6px 0 3px;"></div><div class="t-xs">15 min</div></div>
+        </div>
+        <div class="t-xs t-b" style="margin-bottom:6px;">CATEGORIES</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="chip on">Productivity</span><span class="chip">Psychology</span>
+          <span class="chip">Money</span><span class="chip">Health</span>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><div class="dot"></div>Home</div>
+        <div class="tab"><div class="dot"></div>Discover</div>
+        <div class="tab"><div class="dot"></div>Memories</div>
+        <div class="tab"><div class="dot"></div>Learn</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">A1 · Home = discovery</div>
+    <div class="note">Editorial catalog feed. Continue card, carousels, categories. Memory &amp; Learn are tabs, not the headline.</div>
+  </div>
+
+  <!-- A2 MEMORIES -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="row-h"><div class="h-title">Memories</div><div class="t-sm">248 saved</div></div>
+        <div class="card" style="background:var(--accent-soft);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+          <div class="ring"><i>12</i></div>
+          <div style="flex:1;"><div class="t-b" style="color:var(--accent);">12 due for review</div><div class="t-xs">~4 min · keep your streak</div></div>
+        </div>
+        <a class="btn" style="margin-bottom:12px;">Start review</a>
+        <div class="seg" style="margin-bottom:12px;">
+          <div class="s on">Insights</div><div class="s">Decks</div><div class="s">Highlights</div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <div class="t-xs" style="margin-bottom:5px;">⭐ From <b>Atomic Habits</b> · due in 2d</div>
+            <div class="bar l" style="margin-bottom:5px;"></div><div class="bar m"></div>
+          </div>
+          <div class="card">
+            <div class="t-xs" style="margin-bottom:5px;">From <b>Thinking Fast &amp; Slow</b> · due today</div>
+            <div class="bar l" style="margin-bottom:5px;"></div><div class="bar s"></div>
+          </div>
+          <div class="card">
+            <div class="t-xs" style="margin-bottom:5px;">From <b>Deep Work</b> · new</div>
+            <div class="bar m" style="margin-bottom:5px;"></div><div class="bar m"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="dot"></div>Home</div>
+        <div class="tab"><div class="dot"></div>Discover</div>
+        <div class="tab on"><div class="dot"></div>Memories</div>
+        <div class="tab"><div class="dot"></div>Learn</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">A2 · Memories = saved store + due banner</div>
+    <div class="note">Library of saved insights, segmented. "Due today" banner triggers an SRS session. Calm, list-driven.</div>
+  </div>
+
+  <!-- A3 TREE -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="row-h"><div class="h-title">Your shelf</div><div class="pill">3 in progress</div></div>
+        <div class="t-xs" style="margin-bottom:10px;">A structured path through each book's key ideas.</div>
+        <div class="stack">
+          <div class="card hcard">
+            <div class="ring"><i>100%</i></div>
+            <div style="flex:1;"><div class="t-b">Atomic Habits</div><div class="t-xs">9/9 ideas · mastered ✓</div></div>
+          </div>
+          <div class="card hcard" style="border:1.5px solid var(--accent);">
+            <div class="ring"><i>65%</i></div>
+            <div style="flex:1;"><div class="t-b">Thinking Fast &amp; Slow</div>
+              <div style="display:flex;gap:4px;margin-top:5px;">
+                <span class="node done" style="width:18px;height:18px;font-size:9px;">✓</span>
+                <span class="node done" style="width:18px;height:18px;font-size:9px;">✓</span>
+                <span class="node cur" style="width:18px;height:18px;font-size:9px;box-shadow:none;">▶</span>
+                <span class="node lock" style="width:18px;height:18px;font-size:9px;">🔒</span>
+                <span class="node lock" style="width:18px;height:18px;font-size:9px;">🔒</span>
+              </div></div>
+          </div>
+          <div class="card hcard">
+            <div class="ring" style="background:conic-gradient(var(--accent) 20%,var(--fill) 0);"><i>20%</i></div>
+            <div style="flex:1;"><div class="t-b">Deep Work</div><div class="t-xs">2/10 ideas · checkpoint at 5</div></div>
+          </div>
+        </div>
+        <a class="btn soft" style="margin-top:12px;">+ Add a book to your shelf</a>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="dot"></div>Home</div>
+        <div class="tab"><div class="dot"></div>Discover</div>
+        <div class="tab"><div class="dot"></div>Memories</div>
+        <div class="tab on"><div class="dot"></div>Learn</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">A3 · Tree = per-book progress shelf</div>
+    <div class="note">Tree expressed as a tidy shelf: each book a progress row → expand to its idea-by-idea path + checkpoints. Restrained, "grown-up" gamification.</div>
+  </div>
+</div>
+
+<!-- =================== DIRECTION B =================== -->
+<div class="band">
+  <h2>Direction B — Habit-first</h2>
+  <p class="sub">The learning tree <b>is</b> the home screen, like Duolingo. Streaks, hearts, XP, daily goal. Highest behaviour-change ambition; discovery is intentionally demoted to keep the loop tight.</p>
+</div>
+<div class="row">
+
+  <!-- B1 HOME = TREE -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen flush">
+        <div style="display:flex;justify-content:space-between;padding:0 14px 10px;">
+          <span class="pill"><span class="flame">🔥</span>7</span>
+          <span class="pill" style="color:var(--accent);">◆ 320</span>
+          <span class="pill" style="color:#e0556b;">♥ 5</span>
+        </div>
+        <div class="unit-h"><span>UNIT 2 · Thinking Fast &amp; Slow</span><span>★★☆</span></div>
+        <div class="tree">
+          <div class="node done off-l">✓</div>
+          <div class="conn off-l"></div>
+          <div class="node done">✓</div>
+          <div class="conn off-r"></div>
+          <div class="node cur off-r">▶</div>
+          <div class="t-xs" style="margin:4px 0;">Idea 3 · System 1 vs System 2</div>
+          <div class="conn off-l"></div>
+          <div class="node lock off-l">🔒</div>
+          <div class="conn"></div>
+          <div class="node boss">👑</div>
+          <div class="t-xs" style="margin-top:4px;">Checkpoint quiz</div>
+        </div>
+        <div style="padding:0 14px;">
+          <a class="btn">Continue · Idea 3</a>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><div class="dot"></div>Learn</div>
+        <div class="tab"><div class="dot"></div>Review</div>
+        <div class="tab"><div class="dot"></div>Browse</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">B1 · Home = the winding path</div>
+    <div class="note">Opens straight into the current node. Streak / gems / hearts up top. One obvious next action. Browse is a back-tab, not the star.</div>
+  </div>
+
+  <!-- B2 MEMORIES = REVIEW QUEUE -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="row-h"><div class="h-title">Review</div><span class="pill"><span class="flame">🔥</span>7-day</span></div>
+        <div class="center t-xs" style="margin-bottom:8px;">12 memories due · card 1 of 12</div>
+        <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#fff;border:1px solid var(--line);margin-bottom:12px;">
+          <div class="t-xs" style="margin-bottom:10px;">From <b>Atomic Habits</b></div>
+          <div class="t-b" style="font-size:15px;line-height:1.5;padding:0 6px;">"Habits form via a 4-step loop: cue → ____ → response → reward."</div>
+          <div class="t-xs" style="margin-top:18px;color:var(--accent);">tap to reveal</div>
+        </div>
+        <div class="grade" style="margin-bottom:10px;">
+          <div class="g again">Again</div><div class="g hard">Hard</div>
+          <div class="g good">Good</div><div class="g easy">Easy</div>
+        </div>
+        <div class="stat">
+          <span class="pill" style="flex:1;justify-content:center;">Retention 92%</span>
+          <span class="pill" style="flex:1;justify-content:center;">Reviewed 1.2k</span>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="dot"></div>Learn</div>
+        <div class="tab on"><div class="dot"></div>Review</div>
+        <div class="tab"><div class="dot"></div>Browse</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">B2 · Memories = active review session</div>
+    <div class="note">Memory tab opens mid-session: a flashcard front-and-centre, SM-2/FSRS grade buttons, retention stats. Anki rigour, friendlier skin.</div>
+  </div>
+
+  <!-- B3 FULL TREE -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen flush">
+        <div class="unit-h" style="background:var(--green);"><span>UNIT 1 · Atomic Habits ✓</span><span>👑 5</span></div>
+        <div class="tree" style="gap:0;">
+          <div class="node done">✓</div><div class="conn off-r"></div>
+          <div class="node done off-r">✓</div><div class="conn off-r"></div>
+          <div class="node done">✓</div>
+          <div class="unit-h" style="background:var(--ink);margin-top:8px;"><span>UNIT 2 · Thinking Fast &amp; Slow</span><span>★★☆</span></div>
+          <div class="node done off-l">✓</div><div class="conn off-l"></div>
+          <div class="node cur">▶</div><div class="conn off-r"></div>
+          <div class="node lock off-r">🔒</div><div class="conn"></div>
+          <div class="node boss">👑</div>
+          <div class="t-xs" style="margin:4px 0 0;">Checkpoint → unlocks Unit 3</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><div class="dot"></div>Learn</div>
+        <div class="tab"><div class="dot"></div>Review</div>
+        <div class="tab"><div class="dot"></div>Browse</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">B3 · Tree = full multi-book journey</div>
+    <div class="note">The complete Duolingo path: units = books, lessons = ideas, crowns for mastery, boss checkpoints pull from spaced repetition. Scrollable, illustrated markers in hi-fi.</div>
+  </div>
+</div>
+
+<!-- =================== DIRECTION C =================== -->
+<div class="band">
+  <h2>Direction C — Feed-first</h2>
+  <p class="sub">A vertical, swipeable, illustrated feed is the whole product, like Imprint/TikTok. Snackable portrait cards mix new summaries, review prompts and micro-lessons. Most delightful + most production-heavy (illustration).</p>
+</div>
+<div class="row">
+
+  <!-- C1 HOME = FEED -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="feed">
+        <div class="slide">
+          <div style="display:flex;justify-content:space-between;color:#6b76a3;font-size:11px;margin-bottom:8px;">
+            <span>For you</span><span><span class="flame">🔥</span>7</span>
+          </div>
+          <div class="illus">illustration</div>
+          <div class="railr">
+            <div class="rdot">🔖</div><div class="rdot">♡</div><div class="rdot">↗</div>
+          </div>
+          <div style="padding-top:12px;color:#2c3357;">
+            <div class="t-xs" style="opacity:.7;">MINI-LESSON · from Atomic Habits</div>
+            <div class="t-b" style="font-size:16px;margin:4px 0;">Make it obvious: design your cues</div>
+            <div class="bar l" style="background:#ccd5ee;margin-bottom:5px;"></div>
+            <div class="bar m" style="background:#ccd5ee;"></div>
+          </div>
+          <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+          <div class="center t-xs" style="margin-top:6px;color:#6b76a3;">▲ swipe up for next</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><div class="dot"></div>Feed</div>
+        <div class="tab"><div class="dot"></div>Memories</div>
+        <div class="tab"><div class="dot"></div>Paths</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">C1 · Home = vertical illustrated feed</div>
+    <div class="note">Full-bleed portrait cards, swipe-up. Feed blends summary teasers, review prompts &amp; micro-lessons. Save/like/share rail. Minimal chrome — content is the UI.</div>
+  </div>
+
+  <!-- C2 MEMORIES = DECK -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="row-h"><div class="h-title">Memories</div><span class="pill">12 due</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;overflow:hidden;">
+          <span class="chip on">All</span><span class="chip">Habits</span><span class="chip">Psychology</span><span class="chip">Money</span>
+        </div>
+        <div class="deck">
+          <div class="dcard"></div>
+          <div class="dcard"></div>
+          <div class="dcard">
+            <div class="t-xs" style="margin-bottom:8px;">⭐ Atomic Habits</div>
+            <div class="illus" style="flex:0 0 110px;margin-bottom:10px;font-size:10px;">illustration</div>
+            <div class="t-b" style="font-size:14px;">The 2-minute rule: scale a habit down until it's easy to start.</div>
+            <div style="flex:1;"></div>
+            <div class="center t-xs" style="color:var(--accent);">swipe ← forgot · → got it</div>
+          </div>
+        </div>
+        <div class="t-xs t-b" style="margin:6px 0 5px;">THIS MONTH</div>
+        <div class="heat">
+          <i class="l2"></i><i class="l1"></i><i class="l3"></i><i></i><i class="l2"></i><i class="l3"></i><i class="l1"></i>
+          <i class="l3"></i><i class="l2"></i><i></i><i class="l1"></i><i class="l3"></i><i class="l2"></i><i class="l3"></i>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="dot"></div>Feed</div>
+        <div class="tab on"><div class="dot"></div>Memories</div>
+        <div class="tab"><div class="dot"></div>Paths</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">C2 · Memories = swipeable card deck</div>
+    <div class="note">A tactile illustrated card stack — swipe left/right to grade (maps to SRS underneath). Deck chips filter by theme. Review heatmap for streak pride.</div>
+  </div>
+
+  <!-- C3 TREE = CONSTELLATION -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="const">
+        <span class="cstar" style="top:50px;left:40px;"></span><span class="cstar" style="top:120px;left:200px;"></span>
+        <span class="cstar" style="top:260px;left:60px;"></span><span class="cstar" style="top:380px;left:230px;"></span>
+        <span class="cstar" style="top:460px;left:120px;"></span><span class="cstar" style="top:180px;left:120px;"></span>
+        <div class="cline" style="top:96px;left:64px;width:120px;transform:rotate(28deg);"></div>
+        <div class="cline" style="top:150px;left:120px;width:110px;transform:rotate(-50deg);"></div>
+        <div class="cline" style="top:230px;left:90px;width:150px;transform:rotate(35deg);"></div>
+        <div class="cline" style="top:330px;left:110px;width:130px;transform:rotate(-40deg);"></div>
+        <div class="ctile on" style="top:60px;left:36px;"><span class="e">✅</span>Habits</div>
+        <div class="ctile on" style="top:140px;left:188px;"><span class="e">🧠</span>Decisions</div>
+        <div class="ctile dim" style="top:250px;left:50px;"><span class="e">⏳</span>Focus</div>
+        <div class="ctile dim" style="top:360px;left:210px;"><span class="e">💬</span>Persuasion</div>
+        <div class="ctile dim" style="top:450px;left:104px;"><span class="e">🔒</span>Money</div>
+        <div style="position:absolute;top:30px;left:0;right:0;text-align:center;color:#fff;font-weight:800;">Your galaxy</div>
+        <div style="position:absolute;bottom:62px;left:14px;right:14px;">
+          <a class="btn" style="background:#fff;color:#1a1f33;">Resume · Focus</a>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="dot"></div>Feed</div>
+        <div class="tab"><div class="dot"></div>Memories</div>
+        <div class="tab on"><div class="dot"></div>Paths</div>
+        <div class="tab"><div class="dot"></div>You</div>
+      </div>
+    </div>
+    <div class="cap">C3 · Tree = themed constellation map</div>
+    <div class="note">Non-linear "galaxy" of illustrated mini-courses grouped by theme (spanning multiple books). Pick any unlocked node; completing lights up the map. Exploratory, not linear.</div>
+  </div>
+</div>
+
+<div style="padding:8px 32px 40px;color:var(--grey);font-size:12px;max-width:820px;">
+  <b>How to read these:</b> rows are the three directions, columns are the three screens.
+  Pick a direction (or hybridise — e.g. B's review engine inside A's calmer catalog, with C's
+  illustrated cards as the micro-lesson format). Next step once you choose: hi-fi mockups with
+  real type, colour and the house illustration style, plus the on-demand transformation /
+  credits flow that wires into <code>BookVariant</code>.
+</div>
+
+</body>
+</html>
