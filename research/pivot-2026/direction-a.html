@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction A — Catalog-first (hi-fi)</title>
+<style>
+  :root{
+    --paper:#fbf9f4; --ink:#211d24; --muted:#8c8690; --faint:#b8b2bc;
+    --line:#ece7df; --line2:#f3efe8;
+    --accent:#4f46e5; --accent-2:#7c6df2; --soft:#eee9fb; --softer:#f6f3fe;
+    --amber:#f59e0b; --amber-soft:#fef3da; --green:#16a34a; --green-soft:#e3f5e9;
+    --rose:#e11d6b; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#efe9df;color:var(--ink);
+    font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header.page{padding:30px 34px 6px;}
+  header.page h1{margin:0 0 5px;font-size:25px;letter-spacing:-.025em;}
+  header.page p{margin:0;color:#6b6570;max-width:780px;}
+  .flow{display:flex;gap:34px;flex-wrap:wrap;padding:22px 34px 40px;align-items:flex-start;}
+  .col{width:300px;}
+  .cap{font-weight:700;margin:12px 2px 2px;font-size:13px;}
+  .note{color:#6b6570;font-size:12px;margin:2px;}
+
+  /* phone */
+  .phone{width:300px;height:640px;border:9px solid #2a2630;border-radius:44px;
+    background:var(--paper);position:relative;overflow:hidden;
+    box-shadow:0 16px 40px rgba(40,30,50,.18);}
+  .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:108px;height:24px;background:#2a2630;border-radius:14px;z-index:30;}
+  .screen{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;}
+  .status{height:30px;flex:0 0 auto;}
+  .body{flex:1;overflow:hidden;padding:6px 16px 0;}
+  .body.flush{padding:0;}
+
+  /* type + atoms */
+  .h1{font-size:21px;font-weight:800;letter-spacing:-.02em;}
+  .h2{font-size:15px;font-weight:800;letter-spacing:-.01em;}
+  .eyebrow{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--muted);text-transform:uppercase;}
+  .muted{color:var(--muted);} .sm{font-size:12px;} .xs{font-size:10.5px;}
+  .row{display:flex;align-items:center;justify-content:space-between;}
+  .gap{gap:8px;} .mt8{margin-top:8px;} .mt12{margin-top:12px;} .mt16{margin-top:16px;} .mb8{margin-bottom:8px;} .mb12{margin-bottom:12px;}
+  .chip{display:inline-block;padding:6px 12px;border-radius:30px;background:#fff;border:1px solid var(--line);
+    font-size:11.5px;font-weight:600;color:#4a454f;white-space:nowrap;}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:30px;
+    background:#fff;border:1px solid var(--line);font-size:11.5px;font-weight:700;}
+  .pill.amber{background:var(--amber-soft);border-color:transparent;color:#b9770f;}
+  .pill.soft{background:var(--soft);border-color:transparent;color:var(--accent);}
+  .btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;border-radius:14px;
+    background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;}
+  .btn.soft{background:var(--soft);color:var(--accent);}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);}
+  .btn.amber{background:var(--amber);color:#fff;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px;}
+  .card.flat{border:none;background:#fff;box-shadow:0 4px 18px rgba(40,30,50,.06);}
+  .hr{height:1px;background:var(--line2);margin:12px 0;}
+
+  /* book cover */
+  .cover{border-radius:8px;position:relative;flex:0 0 auto;overflow:hidden;
+    box-shadow:0 4px 12px rgba(40,30,50,.16);display:flex;flex-direction:column;justify-content:flex-end;padding:7px;}
+  .cover .ct{font-size:8.5px;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.01em;}
+  .cover .ca{font-size:6.5px;color:rgba(255,255,255,.8);margin-top:2px;}
+  .c1{background:linear-gradient(150deg,#4f46e5,#7c6df2);}
+  .c2{background:linear-gradient(150deg,#0f766e,#14b8a6);}
+  .c3{background:linear-gradient(150deg,#b91c1c,#f97316);}
+  .c4{background:linear-gradient(150deg,#1e293b,#475569);}
+  .c5{background:linear-gradient(150deg,#7c2d12,#c2410c);}
+  .c6{background:linear-gradient(150deg,#6d28d9,#a855f7);}
+  .sz-sm{width:50px;height:70px;} .sz-md{width:66px;height:92px;}
+  .sz-lg{width:104px;height:146px;} .sz-xl{width:120px;height:168px;}
+
+  .scrollx{display:flex;gap:12px;overflow:hidden;padding-bottom:2px;}
+  .scrollx::after{content:"";flex:0 0 4px;}
+  .tile{flex:0 0 92px;}
+  .tile .ct{font-size:9px;}
+  .stack{display:flex;flex-direction:column;}
+
+  /* tab bar */
+  .tabbar{flex:0 0 auto;height:54px;border-top:1px solid var(--line);background:rgba(255,255,255,.94);
+    backdrop-filter:blur(8px);display:flex;justify-content:space-around;align-items:center;font-size:9.5px;color:var(--faint);}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;}
+  .tab .i{font-size:16px;filter:grayscale(1);opacity:.5;}
+  .tab.on{color:var(--accent);} .tab.on .i{filter:none;opacity:1;}
+
+  /* depth selector */
+  .depth{display:flex;background:#f1eee9;border-radius:14px;padding:4px;gap:4px;}
+  .depth .d{flex:1;text-align:center;padding:9px 4px;border-radius:11px;font-weight:700;font-size:11px;color:var(--muted);}
+  .depth .d.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(40,30,50,.1);}
+  .depth .d .t{font-size:9px;font-weight:600;color:var(--faint);margin-top:2px;}
+  .depth .d.on .t{color:var(--accent);}
+  .depth .d .lock{font-size:8px;}
+
+  .idea{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line2);}
+  .inum{width:22px;height:22px;border-radius:50%;background:var(--soft);color:var(--accent);
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .inum.done{background:var(--green-soft);color:var(--green);}
+
+  .ring{border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .ring i{border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;
+    font-style:normal;font-weight:800;}
+  .progress{height:6px;border-radius:4px;background:var(--line);overflow:hidden;}
+  .progress span{display:block;height:100%;background:var(--accent);border-radius:4px;}
+
+  /* sheet (modal) */
+  .scrim{position:absolute;inset:0;background:rgba(30,22,38,.42);z-index:20;display:flex;align-items:flex-end;}
+  .sheet{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:16px 16px 22px;}
+  .grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px;}
+  .opt{display:flex;align-items:center;gap:11px;border:1.5px solid var(--line);border-radius:14px;padding:12px;}
+  .opt.on{border-color:var(--accent);background:var(--softer);}
+  .opt .oi{font-size:18px;} .opt .price{margin-left:auto;font-weight:800;font-size:12px;color:var(--accent);}
+
+  /* reading view */
+  .read{padding:8px 18px 0;}
+  .readbar{height:5px;background:var(--line);border-radius:3px;}
+  .readbar span{display:block;height:100%;width:42%;background:var(--accent);border-radius:3px;}
+  .ptext{font-size:13.5px;line-height:1.7;color:#2c2730;}
+  .ptext .hl{background:var(--amber-soft);border-bottom:2px solid var(--amber);padding:1px 2px;border-radius:3px;}
+
+  /* review flashcard */
+  .flash{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+    border-radius:20px;background:#fff;border:1px solid var(--line);padding:20px;box-shadow:0 8px 24px rgba(40,30,50,.07);}
+  .grade{display:flex;gap:7px;}
+  .grade .g{flex:1;text-align:center;padding:11px 0;border-radius:13px;font-size:11px;font-weight:800;}
+  .g.again{background:#fde6ec;color:#c01e57;} .g.hard{background:#fef0dc;color:#b9770f;}
+  .g.good{background:var(--green-soft);color:#138a3e;} .g.easy{background:var(--soft);color:var(--accent);}
+
+  .seg{display:flex;background:#f1eee9;border-radius:12px;padding:3px;gap:3px;}
+  .seg .s{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:11.5px;font-weight:700;color:var(--muted);}
+  .seg .s.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(40,30,50,.1);}
+
+  .listrow{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line2);}
+  .badge{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .badge.a{background:var(--amber-soft);} .badge.b{background:var(--soft);} .badge.c{background:var(--green-soft);}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Direction A — Catalog-first · hi-fi flow</h1>
+  <p>The full loop in higher fidelity: discover a summary → read it at your chosen depth →
+  pay-per-resize (the <code>BookVariant</code> hook) → save insights into Memories → review on a
+  spaced cadence → track the shelf. Warm editorial palette, indigo accent. 8 screens, left-to-right.</p>
+</header>
+
+<div class="flow">
+
+  <!-- 1 · DISCOVER -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body">
+          <div class="row mb12">
+            <div><div class="xs muted">Tuesday · evening</div><div class="h1">Discover</div></div>
+            <span class="pill amber">🔥 7</span>
+          </div>
+          <div class="card" style="display:flex;align-items:center;gap:8px;padding:11px 13px;color:var(--faint);">🔍 Search 1,200 summaries…</div>
+
+          <div class="row mt16 mb8"><div class="eyebrow">Continue</div><div class="xs muted">4 min left</div></div>
+          <div class="card flat" style="display:flex;gap:12px;align-items:center;">
+            <div class="cover c1 sz-md"><div class="ct">Atomic Habits</div><div class="ca">J. Clear</div></div>
+            <div style="flex:1;">
+              <div class="h2">Atomic Habits</div>
+              <div class="xs muted mb8">Idea 6 of 9 · Make it easy</div>
+              <div class="progress"><span style="width:66%"></span></div>
+            </div>
+          </div>
+
+          <div class="row mt16 mb8"><div class="eyebrow">15-minute reads</div><div class="xs muted">See all</div></div>
+          <div class="scrollx">
+            <div class="tile"><div class="cover c2 sz-lg" style="width:92px;height:128px;"><div class="ct">Thinking, Fast and Slow</div><div class="ca">Kahneman</div></div><div class="xs muted mt8">12 min · 11 ideas</div></div>
+            <div class="tile"><div class="cover c3 sz-lg" style="width:92px;height:128px;"><div class="ct">Deep Work</div><div class="ca">Newport</div></div><div class="xs muted mt8">9 min · 8 ideas</div></div>
+            <div class="tile"><div class="cover c4 sz-lg" style="width:92px;height:128px;"><div class="ct">The Almanack</div><div class="ca">Jorgenson</div></div><div class="xs muted mt8">15 min</div></div>
+          </div>
+
+          <div class="row mt16 mb8"><div class="eyebrow">Browse by topic</div></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <span class="chip on">Productivity</span><span class="chip">Psychology</span>
+            <span class="chip">Money</span><span class="chip">Health</span><span class="chip">Leadership</span>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab on"><div class="i">🏠</div>Home</div>
+          <div class="tab"><div class="i">🧭</div>Discover</div>
+          <div class="tab"><div class="i">🧠</div>Memories</div>
+          <div class="tab"><div class="i">📚</div>Shelf</div>
+          <div class="tab"><div class="i">👤</div>You</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">1 · Discover (home)</div>
+    <div class="note">Editorial catalog: continue card, curated carousels, topics. Streak lives quietly top-right.</div>
+  </div>
+
+  <!-- 2 · SUMMARY DETAIL -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body">
+          <div class="xs muted mb8">‹ Discover</div>
+          <div style="display:flex;gap:14px;">
+            <div class="cover c2 sz-xl"><div class="ct" style="font-size:11px;">Thinking, Fast and Slow</div><div class="ca">D. Kahneman</div></div>
+            <div style="flex:1;">
+              <div class="h2">Thinking, Fast and Slow</div>
+              <div class="xs muted">The big ideas · based on Daniel Kahneman (2011)</div>
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                <span class="pill">⏱ 12 min</span><span class="pill">💡 11 ideas</span>
+              </div>
+              <div class="xs muted mt8">↗ Buy the original book</div>
+            </div>
+          </div>
+
+          <div class="eyebrow mt16 mb8">Read it your way</div>
+          <div class="depth">
+            <div class="d"><div>Gist</div><div class="t">1 min</div></div>
+            <div class="d on"><div>Summary</div><div class="t">included</div></div>
+            <div class="d"><div>Deep 🔒</div><div class="t">30 min</div></div>
+          </div>
+          <div class="xs muted mt8">Resize this summary to any depth — uses 1 credit. ›</div>
+
+          <div class="row mt16 mb8"><div class="eyebrow">11 key ideas</div><div class="xs muted">⊕ Add all to Memories</div></div>
+          <div class="stack">
+            <div class="idea"><div class="inum done">1</div><div><div class="sm" style="font-weight:600;">Two systems run your mind</div><div class="xs muted">Fast/intuitive vs. slow/deliberate</div></div></div>
+            <div class="idea"><div class="inum done">2</div><div><div class="sm" style="font-weight:600;">Anchoring distorts judgement</div></div></div>
+            <div class="idea"><div class="inum">3</div><div><div class="sm" style="font-weight:600;">Loss aversion ≈ 2× the pull</div></div></div>
+          </div>
+        </div>
+        <div style="padding:10px 16px 14px;display:flex;gap:9px;border-top:1px solid var(--line);background:#fff;">
+          <a class="btn ghost" style="flex:0 0 52px;">🎧</a>
+          <a class="btn" style="flex:1;">Read summary</a>
+        </div>
+      </div>
+    </div>
+    <div class="cap">2 · Summary detail</div>
+    <div class="note">Cover, key-idea list, "buy the original," <b>depth selector</b> (Gist / Summary / Deep) — Deep is the paid resize. Listen + Read CTAs.</div>
+  </div>
+
+  <!-- 3 · RESIZE SHEET (monetization) -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body" style="filter:saturate(.6);opacity:.5;">
+          <div class="h2">Thinking, Fast and Slow</div>
+          <div class="depth mt12"><div class="d">Gist</div><div class="d on">Summary</div><div class="d">Deep</div></div>
+        </div>
+        <div class="scrim">
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="row mb8"><div class="h2">Resize this summary</div><span class="pill soft">◆ 8 credits</span></div>
+            <div class="xs muted mb12">Generate a new length in your voice. Powered by your transform engine.</div>
+            <div class="stack" style="gap:9px;">
+              <div class="opt"><div class="oi">⚡️</div><div><div class="sm" style="font-weight:700;">Gist · 1 min</div><div class="xs muted">The single core thesis</div></div><div class="price">1 ◆</div></div>
+              <div class="opt on"><div class="oi">📖</div><div><div class="sm" style="font-weight:700;">Deep dive · 30 min</div><div class="xs muted">Every idea, examples, caveats</div></div><div class="price">2 ◆</div></div>
+              <div class="opt"><div class="oi">🎭</div><div><div class="sm" style="font-weight:700;">Restyle…</div><div class="xs muted">"Like Gladwell", for a teen, drop a theme</div></div><div class="price">2 ◆</div></div>
+            </div>
+            <a class="btn mt16">Generate deep dive · 2 ◆</a>
+            <div class="xs muted center mt8" style="text-align:center;">Plus includes 30 credits/mo · buy more anytime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">3 · Resize sheet — the monetization</div>
+    <div class="note">Pay-per-transform on credits. Gist / Deep dive / Restyle map straight to <code>VariantKind</code>. This is where your differentiated tech is metered.</div>
+  </div>
+
+  <!-- 4 · READING VIEW -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="read">
+          <div class="row mb8"><div class="xs muted">‹ 11 ideas</div><div style="display:flex;gap:12px;font-size:14px;">🎧 Aa 🔖</div></div>
+          <div class="readbar mb12"><span></span></div>
+          <div class="eyebrow">Idea 3 of 11</div>
+          <div class="h1 mt8" style="line-height:1.2;">Loss aversion ≈ twice the pull</div>
+        </div>
+        <div class="read" style="flex:1;overflow:hidden;padding-top:10px;">
+          <div class="ptext">
+            We don't weigh gains and losses evenly. Research suggests the sting of losing
+            <span class="hl">feels about twice as strong as the joy of an equivalent gain</span> —
+            a quirk that quietly shapes how we price risk, hold investments, and resist change.
+            <br><br>
+            Once you can name it, you start to see it everywhere: the reluctance to sell a
+            position at a loss, the over-weighting of a small downside, the fear of giving up
+            something you only just acquired.
+          </div>
+        </div>
+        <div style="padding:10px 18px;background:var(--amber-soft);border-top:1px solid #f3e6c8;display:flex;align-items:center;gap:10px;">
+          <div class="sm" style="flex:1;font-weight:700;color:#b9770f;">Selection saved as a Memory</div>
+          <span class="pill" style="background:#fff;">⊕ Add note</span>
+        </div>
+        <div style="padding:10px 16px 14px;display:flex;gap:9px;background:#fff;border-top:1px solid var(--line);">
+          <a class="btn ghost" style="flex:0 0 52px;">‹</a>
+          <a class="btn" style="flex:1;">Next idea ›</a>
+        </div>
+      </div>
+    </div>
+    <div class="cap">4 · Reading a key idea</div>
+    <div class="note">One idea per screen. Highlight any line → instantly becomes a Memory (the bridge from reading to retention).</div>
+  </div>
+
+  <!-- 5 · MEMORIES HOME -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body">
+          <div class="row mb12"><div class="h1">Memories</div><span class="pill">248 saved</span></div>
+          <div class="card" style="background:linear-gradient(135deg,#4f46e5,#7c6df2);border:none;color:#fff;display:flex;align-items:center;gap:13px;">
+            <div class="ring" style="width:52px;height:52px;background:conic-gradient(#fff 30%,rgba(255,255,255,.3) 0);">
+              <i style="width:38px;height:38px;background:#5a51e6;color:#fff;font-size:13px;">12</i></div>
+            <div style="flex:1;"><div style="font-weight:800;">12 due for review</div><div class="xs" style="opacity:.85;">~4 min · keep your 7-day streak alive</div></div>
+            <div style="font-size:20px;">›</div>
+          </div>
+          <a class="btn mt12">Start review session</a>
+
+          <div class="seg mt16 mb12"><div class="s on">Insights</div><div class="s">Decks</div><div class="s">Notes</div></div>
+          <div class="stack">
+            <div class="listrow"><div class="badge a">⭐</div><div style="flex:1;"><div class="sm" style="font-weight:700;">Loss aversion ≈ 2× the pull</div><div class="xs muted">Thinking, Fast and Slow · due in 2d</div></div></div>
+            <div class="listrow"><div class="badge b">💡</div><div style="flex:1;"><div class="sm" style="font-weight:700;">The 2-minute rule</div><div class="xs muted">Atomic Habits · due today</div></div></div>
+            <div class="listrow"><div class="badge c">✓</div><div style="flex:1;"><div class="sm" style="font-weight:700;">Deep work is a skill, not a trait</div><div class="xs muted">Deep Work · mastered</div></div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><div class="i">🏠</div>Home</div>
+          <div class="tab"><div class="i">🧭</div>Discover</div>
+          <div class="tab on"><div class="i">🧠</div>Memories</div>
+          <div class="tab"><div class="i">📚</div>Shelf</div>
+          <div class="tab"><div class="i">👤</div>You</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">5 · Memories</div>
+    <div class="note">Saved-insight store + a prominent "due" banner that launches spaced repetition. Segmented by insights / decks / notes.</div>
+  </div>
+
+  <!-- 6 · REVIEW SESSION -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body" style="display:flex;flex-direction:column;">
+          <div class="row mb8"><div class="xs muted">✕ End</div><div class="progress" style="flex:1;margin:0 12px;"><span style="width:8%"></span></div><div class="xs muted">1/12</div></div>
+          <div class="flash">
+            <div class="xs muted mb12">From <b>Atomic Habits</b></div>
+            <div style="font-size:16px;font-weight:700;line-height:1.5;">Habits run on a 4-step loop. Name the missing step:</div>
+            <div style="font-size:15px;margin-top:14px;color:var(--accent);font-weight:700;">cue → ____ → response → reward</div>
+            <div class="xs muted mt16">tap to reveal answer</div>
+          </div>
+          <div class="xs muted center mt12 mb8" style="text-align:center;">How well did you recall it?</div>
+          <div class="grade">
+            <div class="g again">Again<br><span class="xs" style="font-weight:600;">&lt;1m</span></div>
+            <div class="g hard">Hard<br><span class="xs" style="font-weight:600;">1d</span></div>
+            <div class="g good">Good<br><span class="xs" style="font-weight:600;">4d</span></div>
+            <div class="g easy">Easy<br><span class="xs" style="font-weight:600;">9d</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">6 · Review session</div>
+    <div class="note">A clean flashcard with SM-2/FSRS grades; each grade shows the next interval. Full-screen, distraction-free.</div>
+  </div>
+
+  <!-- 7 · SHELF (learning tree) -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body">
+          <div class="row mb12"><div class="h1">Your shelf</div><span class="pill amber">🔥 7</span></div>
+          <div class="xs muted mb12">Work through each book's ideas, then pass the checkpoint to master it.</div>
+          <div class="stack" style="gap:11px;">
+            <div class="card" style="display:flex;align-items:center;gap:12px;">
+              <div class="ring" style="width:46px;height:46px;background:conic-gradient(var(--green) 100%,var(--line) 0);"><i style="width:34px;height:34px;font-size:10px;color:var(--green);">✓</i></div>
+              <div style="flex:1;"><div class="sm" style="font-weight:800;">Atomic Habits</div><div class="xs muted">9/9 ideas · mastered</div></div>
+              <div class="cover c1 sz-sm"></div>
+            </div>
+            <div class="card" style="border-color:var(--accent);box-shadow:0 6px 18px rgba(79,70,229,.12);">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="ring" style="width:46px;height:46px;background:conic-gradient(var(--accent) 64%,var(--line) 0);"><i style="width:34px;height:34px;font-size:10px;color:var(--accent);">64%</i></div>
+                <div style="flex:1;"><div class="sm" style="font-weight:800;">Thinking, Fast and Slow</div><div class="xs muted">7/11 ideas</div></div>
+                <div class="cover c2 sz-sm"></div>
+              </div>
+              <div style="display:flex;gap:5px;margin-top:11px;align-items:center;">
+                <span class="inum done" style="width:18px;height:18px;font-size:9px;">✓</span>
+                <span class="inum done" style="width:18px;height:18px;font-size:9px;">✓</span>
+                <span class="inum" style="width:18px;height:18px;font-size:9px;background:var(--accent);color:#fff;">▶</span>
+                <span class="inum" style="width:18px;height:18px;font-size:9px;background:var(--line);color:#fff;">🔒</span>
+                <span style="margin-left:auto;font-size:13px;">👑</span>
+              </div>
+            </div>
+            <div class="card" style="display:flex;align-items:center;gap:12px;">
+              <div class="ring" style="width:46px;height:46px;background:conic-gradient(var(--accent) 22%,var(--line) 0);"><i style="width:34px;height:34px;font-size:10px;color:var(--accent);">22%</i></div>
+              <div style="flex:1;"><div class="sm" style="font-weight:800;">Deep Work</div><div class="xs muted">2/9 · checkpoint at 5</div></div>
+              <div class="cover c3 sz-sm"></div>
+            </div>
+          </div>
+          <a class="btn soft mt16">＋ Add a book to your shelf</a>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><div class="i">🏠</div>Home</div>
+          <div class="tab"><div class="i">🧭</div>Discover</div>
+          <div class="tab"><div class="i">🧠</div>Memories</div>
+          <div class="tab on"><div class="i">📚</div>Shelf</div>
+          <div class="tab"><div class="i">👤</div>You</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">7 · Shelf (learning tree)</div>
+    <div class="note">Tree as a tidy progress shelf: each book a ring → expands to its idea path + 👑 checkpoint. Restrained gamification that fits an editorial product.</div>
+  </div>
+
+  <!-- 8 · YOU / PLAN -->
+  <div class="col">
+    <div class="phone"><div class="notch"></div>
+      <div class="screen">
+        <div class="status"></div>
+        <div class="body">
+          <div class="h1 mb12">You</div>
+          <div class="card flat" style="display:flex;gap:13px;align-items:center;">
+            <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c6df2);"></div>
+            <div style="flex:1;"><div class="h2">Luka</div><div class="xs muted">Plus member</div></div>
+            <span class="pill amber">🔥 7</span>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <div class="card" style="flex:1;text-align:center;"><div class="h1">248</div><div class="xs muted">memories</div></div>
+            <div class="card" style="flex:1;text-align:center;"><div class="h1">92%</div><div class="xs muted">retention</div></div>
+            <div class="card" style="flex:1;text-align:center;"><div class="h1">31</div><div class="xs muted">ideas mastered</div></div>
+          </div>
+
+          <div class="card mt16" style="background:linear-gradient(135deg,#211d24,#3a3340);border:none;color:#fff;">
+            <div class="row"><div class="eyebrow" style="color:rgba(255,255,255,.6);">Transform credits</div><div style="font-size:22px;font-weight:800;">◆ 8</div></div>
+            <div class="progress mt8" style="background:rgba(255,255,255,.2);"><span style="width:27%;background:#fff;"></span></div>
+            <div class="xs mt8" style="opacity:.8;">8 of 30 monthly credits left · resets in 12 days</div>
+            <a class="btn amber mt12" style="padding:10px;">Buy more credits</a>
+          </div>
+
+          <div class="stack mt16">
+            <div class="listrow"><div class="badge b">⏰</div><div style="flex:1;font-weight:600;" class="sm">Daily reminder · 8:00pm</div><div class="muted">›</div></div>
+            <div class="listrow"><div class="badge b">🎧</div><div style="flex:1;font-weight:600;" class="sm">Voice &amp; playback</div><div class="muted">›</div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><div class="i">🏠</div>Home</div>
+          <div class="tab"><div class="i">🧭</div>Discover</div>
+          <div class="tab"><div class="i">🧠</div>Memories</div>
+          <div class="tab"><div class="i">📚</div>Shelf</div>
+          <div class="tab on"><div class="i">👤</div>You</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">8 · You — streak, stats, credits</div>
+    <div class="note">Retention stats make progress feel real; the credit wallet (◆) surfaces the transformation economy and the upsell. Daily reminder lives here.</div>
+  </div>
+
+</div>
+
+<div style="padding:4px 34px 44px;color:#6b6570;font-size:12px;max-width:840px;">
+  <b>The loop:</b> Discover → read at chosen depth → (resize on credits) → highlight saves a
+  Memory → spaced review → shelf mastery → stats &amp; streak pull you back tomorrow.
+  Everything in <b>blue</b> is reused tech: the depth selector + resize sheet are a thin UI over
+  your existing <code>BookVariant</code> compress/expand engine; Memories extend <code>KeyLearning</code>.
+  Next: pick the palette for real, then spec the <code>Summary</code> / <code>Memory</code> (SRS) data model.
+</div>
+
+</body>
+</html>
