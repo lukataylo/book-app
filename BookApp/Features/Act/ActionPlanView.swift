@@ -7,6 +7,7 @@ struct ActionPlanView: View {
     let book: Book
     @Environment(\.modelContext) private var modelContext
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showScheduleSheet = false
     @State private var startDate = Date.now
     @State private var isExporting = false
@@ -31,7 +32,7 @@ struct ActionPlanView: View {
                         isExporting ? "Adding to Calendar & Reminders…" : "Put this plan on my calendar",
                         systemImage: "calendar.badge.plus"
                     )
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(.subheadline, weight: .semibold))
                 }
                 .disabled(isExporting || allExported)
                 if allExported {
@@ -70,7 +71,7 @@ struct ActionPlanView: View {
         .overlay(alignment: .bottom) {
             if let statusText {
                 Text(statusText)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(.footnote, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
@@ -80,7 +81,7 @@ struct ActionPlanView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: statusText)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: statusText)
     }
 
     private var allExported: Bool {
@@ -102,7 +103,7 @@ struct ActionPlanView: View {
                         Task { await exportAll() }
                     } label: {
                         Label("Add \(pendingCount) steps", systemImage: "calendar.badge.plus")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.system(.subheadline, weight: .semibold))
                     }
                 }
             }
@@ -191,21 +192,22 @@ private struct ActionItemRow: View {
         HStack(alignment: .top, spacing: Theme.Spacing.m) {
             Button(action: onToggle) {
                 Image(systemName: item.completed ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
+                    .font(.system(.title2))
                     .foregroundStyle(item.completed ? Color.green : Theme.Palette.textSecondary)
             }
             .buttonStyle(.plain)
-            .sensoryFeedback(.impact(weight: .light), trigger: item.completed)
+            // Haptic on completing only — un-checking is a correction.
+            .sensoryFeedback(.impact(weight: .light), trigger: item.completed) { _, done in done }
             .accessibilityLabel(item.completed ? "Mark as not done" : "Mark as done")
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                     .strikethrough(item.completed)
                 if !item.detail.isEmpty {
                     Text(item.detail)
-                        .font(.system(size: 13))
+                        .font(.system(.footnote))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
                 HStack(spacing: 6) {
@@ -213,11 +215,11 @@ private struct ActionItemRow: View {
                         item.kind == .event ? eventBadge : "To-do",
                         systemImage: item.kind == .event ? "calendar" : "checkmark.square"
                     )
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(.caption2, weight: .medium))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     if item.exportedToSystem {
                         Label("Scheduled", systemImage: "checkmark.seal.fill")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(.caption2, weight: .medium))
                             .foregroundStyle(.green)
                     }
                 }

@@ -4,31 +4,29 @@ import Testing
 struct LLMJSONTests {
 
     @Test
-    func extractsBareArray() {
-        let data = LLMJSON.extractArray(#"[{"a": 1}]"#)
-        #expect(data != nil)
-        #expect(String(data: data!, encoding: .utf8) == #"[{"a": 1}]"#)
+    func extractsBareArray() throws {
+        let data = try #require(LLMJSON.extractArray(#"[{"a": 1}]"#))
+        #expect(String(data: data, encoding: .utf8) == #"[{"a": 1}]"#)
     }
 
     @Test
-    func stripsMarkdownFences() {
+    func stripsMarkdownFences() throws {
         let fenced = """
         ```json
         [{"title": "x"}]
         ```
         """
-        let data = LLMJSON.extractArray(fenced)
-        #expect(data != nil)
-        #expect(String(data: data!, encoding: .utf8)?.contains("\"title\"") == true)
-        #expect(String(data: data!, encoding: .utf8)?.contains("```") == false)
+        let data = try #require(LLMJSON.extractArray(fenced))
+        let text = try #require(String(data: data, encoding: .utf8))
+        #expect(text.contains("\"title\""))
+        #expect(!text.contains("```"))
     }
 
     @Test
-    func skipsPreambleAndAfterword() {
+    func skipsPreambleAndAfterword() throws {
         let chatty = "Here are your cards:\n[{\"q\": 1}]\nHope that helps!"
-        let data = LLMJSON.extractArray(chatty)
-        #expect(data != nil)
-        #expect(String(data: data!, encoding: .utf8) == #"[{"q": 1}]"#)
+        let data = try #require(LLMJSON.extractArray(chatty))
+        #expect(String(data: data, encoding: .utf8) == #"[{"q": 1}]"#)
     }
 
     @Test

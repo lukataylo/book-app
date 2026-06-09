@@ -30,9 +30,12 @@ struct BookCardView: View {
                 if progress > 0.01 {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            Capsule().fill(Color.black.opacity(0.18))
-                            Capsule().fill(Color.white)
+                            // Track + soft shadow on the fill keep the bar
+                            // visible over light covers too.
+                            Capsule().fill(.black.opacity(0.25))
+                            Capsule().fill(.white)
                                 .frame(width: geo.size.width * min(1, max(0, progress)))
+                                .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 0)
                         }
                     }
                     .frame(height: 3)
@@ -61,7 +64,7 @@ struct BookCardView: View {
     /// "15 MIN" pill marking catalog summary editions on the shelf.
     private var summaryBadge: some View {
         Text(book.readMinutesEstimate > 0 ? "\(book.readMinutesEstimate) MIN" : "KEY IDEAS")
-            .font(.system(size: 9, weight: .bold))
+            .font(.system(.caption2, weight: .bold))
             .tracking(0.5)
             .foregroundStyle(.primary)
             .padding(.horizontal, 7)
@@ -102,11 +105,11 @@ struct BookCardView: View {
                 )
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 Text(book.title)
-                    .font(.system(size: 15, weight: .semibold, design: .serif))
+                    .font(.system(.subheadline, design: .serif, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(3)
                 Text(book.author)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(.caption2, weight: .medium))
                     .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(1)
             }

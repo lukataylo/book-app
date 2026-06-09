@@ -18,6 +18,7 @@ struct LibraryView: View {
     @State private var editingBook: Book?
 
     @FocusState private var searchFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         // Compute the derived collections ONCE per body evaluation rather
@@ -28,6 +29,7 @@ struct LibraryView: View {
         let progress = Self.buildProgressMap(allProgress)
         let groups = Self.buildCategoryGroups(books)
         let resume = Self.firstResumeCandidate(allProgress)
+        let query = searchText.trimmingCharacters(in: .whitespaces)
 
         NavigationStack {
             ScrollView {
@@ -36,6 +38,8 @@ struct LibraryView: View {
                     searchBar
                     if books.isEmpty {
                         emptyState
+                    } else if !query.isEmpty {
+                        searchResults(for: query)
                     } else {
                         if let resume {
                             continueCard(book: resume.book, percent: resume.percent)
@@ -76,7 +80,7 @@ struct LibraryView: View {
                         presentingSearch = true
                     } label: {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(.title3, weight: .medium))
                             .foregroundStyle(Theme.Palette.accent)
                     }
                     .accessibilityLabel("Search")
@@ -86,7 +90,7 @@ struct LibraryView: View {
                         presentingPicker = true
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 22, weight: .medium))
+                            .font(.system(.title2, weight: .medium))
                             .foregroundStyle(Theme.Palette.accent)
                     }
                     .accessibilityLabel("Import a book")
@@ -176,21 +180,21 @@ struct LibraryView: View {
                 BookCardView(book: book, width: 56, showsTitle: false, progress: percent)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Continue reading")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(.caption2, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .textCase(.uppercase)
                     Text(book.title)
-                        .font(.system(size: 16, weight: .semibold, design: .serif))
+                        .font(.system(.callout, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(1)
                     Text("\(Int(percent * 100))% complete · \(book.author)")
-                        .font(.system(size: 12))
+                        .font(.system(.caption))
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .lineLimit(1)
                 }
                 Spacer()
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(.subheadline, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
             .padding(12)
@@ -227,10 +231,10 @@ struct LibraryView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(greetingName.isEmpty ? "Welcome." : "Hi \(greetingName),")
-                .font(.system(size: 17, weight: .regular))
+                .font(.system(.body, weight: .regular))
                 .foregroundStyle(Theme.Palette.textSecondary)
             Text("Sharpen your\nmind with\ngreat books.")
-                .font(.system(size: 38, weight: .bold, design: .serif))
+                .font(.system(.largeTitle, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
@@ -253,12 +257,15 @@ struct LibraryView: View {
                 Button { searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Theme.Palette.textSecondary)
+                        .frame(width: 36, height: 36)
+                        .contentShape(Rectangle())
                 }
+                .accessibilityLabel("Clear search")
             } else if searchFocused {
                 Button("Cancel") {
                     searchFocused = false
                 }
-                .font(.system(size: 14))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
@@ -274,20 +281,59 @@ struct LibraryView: View {
                 .strokeBorder(Theme.Palette.divider, lineWidth: 0.5)
         )
         .padding(.horizontal, Theme.Spacing.l)
-        .animation(.easeInOut(duration: 0.18), value: searchFocused)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: searchFocused)
+    }
+
+    /// Live results for the home search field — title, author, category and
+    /// theme matches across the whole shelf.
+    @ViewBuilder
+    private func searchResults(for query: String) -> some View {
+        let q = query.lowercased()
+        let matches = books.filter {
+            $0.title.lowercased().contains(q)
+            || $0.author.lowercased().contains(q)
+            || $0.detectedThemes.contains(where: { $0.lowercased().contains(q) })
+            || $0.categoryTags.contains(where: { $0.lowercased().contains(q) })
+        }
+        VStack(alignment: .leading, spacing: Theme.Spacing.m) {
+            Text(matches.isEmpty ? "No matches" : "Results")
+                .font(Typography.sectionTitle)
+                .foregroundStyle(Theme.Palette.textPrimary)
+                .padding(.horizontal, Theme.Spacing.l)
+            if matches.isEmpty {
+                Text("Nothing on your shelf matches \"\(query)\".")
+                    .font(Typography.secondary)
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                    .padding(.horizontal, Theme.Spacing.l)
+            } else {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 110), spacing: Theme.Spacing.m)],
+                    alignment: .leading,
+                    spacing: Theme.Spacing.l
+                ) {
+                    ForEach(matches, id: \.id) { book in
+                        Button { selectedBook = book } label: {
+                            BookCardView(book: book, width: 110)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, Theme.Spacing.l)
+            }
+        }
     }
 
     private var emptyState: some View {
         VStack(spacing: Theme.Spacing.m) {
             Image(systemName: "books.vertical")
-                .font(.system(size: 52, weight: .light))
+                .font(.system(.largeTitle, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.7))
                 .padding(.bottom, Theme.Spacing.xs)
             Text("Your shelf is empty")
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text("Import an epub, pdf, or mobi to get started.")
-                .font(.system(size: 15))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.l)
@@ -295,11 +341,12 @@ struct LibraryView: View {
                 presentingPicker = true
             } label: {
                 Label("Import a book", systemImage: "square.and.arrow.down")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(.callout, weight: .semibold))
                     .padding(.horizontal, Theme.Spacing.l)
                     .padding(.vertical, Theme.Spacing.s + 2)
                     .background(Theme.Palette.accent)
-                    .foregroundStyle(.white)
+                    // Inverted ink — readable in both color schemes.
+                    .foregroundStyle(Theme.Palette.appBackground)
                     .clipShape(Capsule())
             }
             .padding(.top, Theme.Spacing.xs)

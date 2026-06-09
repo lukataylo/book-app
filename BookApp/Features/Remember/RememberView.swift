@@ -13,17 +13,6 @@ struct RememberView: View {
     @State private var errorText: String?
     @State private var query = ""
 
-    private var decks: [Book] {
-        applyQuery(books.filter { !($0.knowledgeCards ?? []).isEmpty })
-    }
-
-    private var candidates: [Book] {
-        applyQuery(books.filter {
-            ($0.knowledgeCards ?? []).isEmpty
-            && !($0.originalVariant?.contentText.isEmpty ?? true)
-        })
-    }
-
     private func applyQuery(_ list: [Book]) -> [Book] {
         guard !query.isEmpty else { return list }
         let q = query.lowercased()
@@ -33,6 +22,17 @@ struct RememberView: View {
     }
 
     var body: some View {
+        // Computed once per body evaluation (the LibraryView pattern):
+        // `.searchable` re-runs body per keystroke, and at an 80-book
+        // catalog re-walking relationship arrays in every subview is a
+        // real hitch. The candidate check deliberately avoids touching
+        // `contentText` — `originalVariant != nil` is enough to know the
+        // book has source text, without materializing it.
+        let decks = applyQuery(books.filter { !($0.knowledgeCards ?? []).isEmpty })
+        let candidates = applyQuery(books.filter {
+            ($0.knowledgeCards ?? []).isEmpty && $0.originalVariant != nil
+        })
+
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
@@ -40,9 +40,9 @@ struct RememberView: View {
                     if decks.isEmpty && candidates.isEmpty {
                         emptyState
                     } else {
-                        deckGrid
+                        deckGrid(decks)
                         if !candidates.isEmpty {
-                            generateSection
+                            generateSection(candidates)
                         }
                     }
                     Spacer(minLength: Theme.Spacing.xxl)
@@ -69,15 +69,15 @@ struct RememberView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Remember")
-                .font(.system(size: 34, weight: .bold, design: .serif))
+                .font(.system(.largeTitle, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text("One idea per card. Swipe through a book's deck, save what you want to keep.")
-                .font(.system(size: 14))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
     }
 
-    private var deckGrid: some View {
+    private func deckGrid(_ decks: [Book]) -> some View {
         LazyVGrid(
             columns: [GridItem(.adaptive(minimum: 160), spacing: Theme.Spacing.m)],
             spacing: Theme.Spacing.m
@@ -95,6 +95,8 @@ struct RememberView: View {
         let cards = book.knowledgeCards ?? []
         let savedCount = cards.filter(\.saved).count
         let topCategory = cards.first?.category ?? ""
+        // The tile face leads with the book — the deck's identity — not
+        // with whichever card happens to be first.
         return VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             ZStack {
                 // Stacked-deck illusion: a quiet card back peeking out
@@ -106,17 +108,17 @@ struct RememberView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Image(systemName: KnowledgeCardStyle.symbol(for: topCategory))
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(.footnote, weight: .semibold))
                             .foregroundStyle(KnowledgeCardStyle.tint(for: topCategory))
                         Spacer()
                         Text("\(cards.count)")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(.caption, weight: .semibold))
                             .foregroundStyle(Theme.Palette.textSecondary)
                             .monospacedDigit()
                     }
                     Spacer()
-                    Text(cards.first?.title ?? book.title)
-                        .font(.system(size: 16, weight: .semibold, design: .serif))
+                    Text(book.title)
+                        .font(.system(.callout, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -127,22 +129,24 @@ struct RememberView: View {
             }
             .frame(height: 130)
             VStack(alignment: .leading, spacing: 2) {
-                Text(book.title)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
+                if !book.author.isEmpty {
+                    Text(book.author)
+                        .font(.system(.subheadline, weight: .semibold))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.leading)
+                }
                 Text(savedCount > 0 ? "\(cards.count) cards · \(savedCount) saved" : "\(cards.count) cards")
-                    .font(.system(size: 12))
+                    .font(.system(.caption))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
         }
     }
 
-    private var generateSection: some View {
+    private func generateSection(_ candidates: [Book]) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             Text("Create a deck")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             VStack(spacing: 0) {
                 ForEach(candidates, id: \.id) { book in
@@ -151,16 +155,16 @@ struct RememberView: View {
                     } label: {
                         HStack(spacing: Theme.Spacing.m) {
                             Image(systemName: generatingBookID == book.id ? "hourglass" : "sparkles")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(.subheadline, weight: .medium))
                                 .foregroundStyle(Theme.Palette.textSecondary)
                                 .frame(width: 22)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(book.title)
-                                    .font(.system(size: 15, weight: .medium))
+                                    .font(.system(.subheadline, weight: .medium))
                                     .foregroundStyle(Theme.Palette.textPrimary)
                                     .lineLimit(1)
                                 Text(generatingBookID == book.id ? "Generating cards…" : "Generate knowledge cards")
-                                    .font(.system(size: 11))
+                                    .font(.system(.caption2))
                                     .foregroundStyle(Theme.Palette.textSecondary)
                             }
                             Spacer()
@@ -184,13 +188,13 @@ struct RememberView: View {
     private var emptyState: some View {
         VStack(spacing: Theme.Spacing.m) {
             Image(systemName: "square.stack")
-                .font(.system(size: 52, weight: .light))
+                .font(.system(.largeTitle, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.7))
             Text("No decks yet")
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text("Open a summary from the Read tab, or import a book — every book can become a deck of idea cards.")
-                .font(.system(size: 15))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
         }

@@ -8,8 +8,11 @@ struct LearningsListView: View {
     @State private var query = ""
     @State private var starredOnly = false
 
+    // Hosted inside the Saved tab's NavigationStack (it was its own tab
+    // before the Read/Remember/Act redesign), so no stack of its own —
+    // searchable + toolbar attach to the parent's bar.
     var body: some View {
-        NavigationStack {
+        Group {
             List {
                 Toggle("Starred only", isOn: $starredOnly)
                     .listRowBackground(Color.clear)
@@ -35,7 +38,6 @@ struct LearningsListView: View {
                 }
             }
             .searchable(text: $query, prompt: "Search learnings")
-            .navigationTitle("Learnings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {

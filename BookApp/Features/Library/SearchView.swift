@@ -41,8 +41,10 @@ struct SearchView: View {
             }
             .background(Theme.Palette.appBackground.ignoresSafeArea())
             .navigationTitle("Search")
+            // Route through the detail screen like every other path — it
+            // owns variant selection and sends PDFs to the PDF reader.
             .navigationDestination(item: $selected) { book in
-                ReaderView(book: book)
+                BookDetailView(book: book)
             }
             // Debounce keystrokes — without this every character rescans
             // the whole library and re-diffs the LazyVGrid. 250ms keeps

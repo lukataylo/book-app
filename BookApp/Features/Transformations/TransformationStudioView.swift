@@ -491,16 +491,18 @@ struct TransformationStudioView: View {
         } label: {
             HStack {
                 if isRunning {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Theme.Palette.appBackground)
                 } else {
                     Text(canRun ? generateLabel() : "Enable at least one option")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(.callout, weight: .semibold))
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(canRun ? Color.black : Color.black.opacity(0.4))
-            .foregroundStyle(.white)
+            // Inverted ink — visible in dark mode, with a clearly-dimmed
+            // disabled state in both schemes.
+            .background(Theme.Palette.accent.opacity(canRun ? 1 : 0.35))
+            .foregroundStyle(Theme.Palette.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)

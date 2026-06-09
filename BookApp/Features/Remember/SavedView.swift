@@ -1,9 +1,11 @@
 import SwiftUI
 import SwiftData
 
-/// Saved tab — everything the user chose to keep, in one place:
-/// saved knowledge cards (new), key learnings and highlight cards (the
-/// pre-redesign Learnings + Bookmarks tabs, unchanged, as segments).
+/// Saved tab — everything the user chose to keep, in one place under one
+/// navigation identity: saved knowledge cards (new), plus the pre-redesign
+/// Learnings list and Bookmarks gallery as segments. One NavigationStack
+/// owns the bar; the segmented control lives pinned beneath the title so
+/// switching segments never tears down navigation or search state oddly.
 struct SavedView: View {
     private enum Segment: String, CaseIterable, Identifiable {
         case cards      = "Cards"
@@ -15,29 +17,31 @@ struct SavedView: View {
     @State private var segment: Segment = .cards
 
     var body: some View {
-        VStack(spacing: 0) {
-            Picker("Saved content", selection: $segment) {
-                ForEach(Segment.allCases) { s in
-                    Text(s.rawValue).tag(s)
+        NavigationStack {
+            Group {
+                switch segment {
+                case .cards:
+                    SavedCardsView()
+                case .learnings:
+                    LearningsListView()
+                case .highlights:
+                    BookmarksGalleryView()
                 }
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, Theme.Spacing.l)
-            .padding(.vertical, Theme.Spacing.s)
-            .background(Theme.Palette.appBackground)
-
-            switch segment {
-            case .cards:
-                SavedCardsView()
-            case .learnings:
-                // Pre-existing global learnings list — owns its NavigationStack.
-                LearningsListView()
-            case .highlights:
-                // Pre-existing highlights gallery — owns its NavigationStack.
-                BookmarksGalleryView()
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Picker("Saved content", selection: $segment) {
+                    ForEach(Segment.allCases) { s in
+                        Text(s.rawValue).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, Theme.Spacing.l)
+                .padding(.vertical, Theme.Spacing.s)
+                .background(Theme.Palette.appBackground)
             }
+            .navigationTitle("Saved")
+            .background(Theme.Palette.appBackground.ignoresSafeArea())
         }
-        .background(Theme.Palette.appBackground.ignoresSafeArea())
     }
 }
 
@@ -53,51 +57,48 @@ private struct SavedCardsView: View {
     @State private var expandedCard: KnowledgeCard?
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if cards.isEmpty {
-                    ContentUnavailableView(
-                        "Nothing saved yet",
-                        systemImage: "bookmark",
-                        description: Text("Tap the bookmark on any knowledge card in the Remember tab and it will live here.")
-                    )
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: Theme.Spacing.m) {
-                            ForEach(cards, id: \.id) { card in
-                                Button { expandedCard = card } label: {
-                                    savedRow(card)
+        Group {
+            if cards.isEmpty {
+                ContentUnavailableView(
+                    "Nothing saved yet",
+                    systemImage: "bookmark",
+                    description: Text("Tap the bookmark on any knowledge card in the Remember tab and it will live here.")
+                )
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: Theme.Spacing.m) {
+                        ForEach(cards, id: \.id) { card in
+                            Button { expandedCard = card } label: {
+                                savedRow(card)
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    unsave(card)
+                                } label: {
+                                    Label("Remove from Saved", systemImage: "bookmark.slash")
                                 }
-                                .buttonStyle(.plain)
-                                .contextMenu {
-                                    Button(role: .destructive) {
-                                        unsave(card)
-                                    } label: {
-                                        Label("Remove from Saved", systemImage: "bookmark.slash")
-                                    }
-                                    ShareLink(item: shareText(for: card)) {
-                                        Label("Share", systemImage: "square.and.arrow.up")
-                                    }
+                                ShareLink(item: shareText(for: card)) {
+                                    Label("Share", systemImage: "square.and.arrow.up")
                                 }
                             }
                         }
-                        .padding(.horizontal, Theme.Spacing.l)
-                        .padding(.vertical, Theme.Spacing.m)
                     }
+                    .padding(.horizontal, Theme.Spacing.l)
+                    .padding(.vertical, Theme.Spacing.m)
                 }
             }
-            .background(Theme.Palette.appBackground.ignoresSafeArea())
-            .navigationTitle("Saved cards")
-            .sheet(item: $expandedCard) { card in
-                KnowledgeCardFace(card: card) {
-                    card.saved.toggle()
-                    card.savedAt = card.saved ? .now : nil
-                    try? modelContext.save()
-                }
-                .padding(Theme.Spacing.l)
-                .presentationDetents([.large])
-                .presentationBackground(Theme.Palette.appBackground)
+        }
+        .background(Theme.Palette.appBackground.ignoresSafeArea())
+        .sheet(item: $expandedCard) { card in
+            KnowledgeCardFace(card: card) {
+                card.saved.toggle()
+                card.savedAt = card.saved ? .now : nil
+                try? modelContext.save()
             }
+            .padding(Theme.Spacing.l)
+            .presentationDetents([.large])
+            .presentationBackground(Theme.Palette.appBackground)
         }
     }
 
@@ -109,21 +110,21 @@ private struct SavedCardsView: View {
                 }
                 Spacer()
                 Image(systemName: "bookmark.fill")
-                    .font(.system(size: 13))
+                    .font(.system(.footnote))
                     .foregroundStyle(KnowledgeCardStyle.tint(for: card.category))
             }
             Text(card.title)
-                .font(.system(size: 19, weight: .bold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .multilineTextAlignment(.leading)
             Text(card.body)
-                .font(.system(size: 14))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textPrimary.opacity(0.8))
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
             if let title = card.book?.title {
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(.caption, weight: .medium))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .lineLimit(1)
             }

@@ -33,10 +33,13 @@ struct BookmarksGalleryView: View {
         }
     }
 
+    // Hosted inside the Saved tab's NavigationStack (it was its own tab
+    // before the Read/Remember/Act redesign), so no stack of its own —
+    // searchable and the detail push attach to the parent's bar.
     var body: some View {
         let items = filteredItems()
 
-        NavigationStack {
+        Group {
             ScrollView {
                 LazyVStack(spacing: 14, pinnedViews: []) {
                     header(count: items.count)
@@ -62,7 +65,6 @@ struct BookmarksGalleryView: View {
             .scrollDismissesKeyboard(.immediately)
             .background(Theme.Palette.appBackground.ignoresSafeArea())
             .searchable(text: $query, prompt: "Search highlights and bookmarks")
-            .navigationTitle("Bookmarks")
             .navigationDestination(item: $selectedBook) { book in
                 BookDetailView(book: book)
             }

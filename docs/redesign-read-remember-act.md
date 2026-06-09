@@ -65,15 +65,23 @@ footer on the detail screen.
 
 ## Design language
 
-Clean, minimal, iOS-native. **No gradients anywhere.** The editorial
-black-and-white palette (`Theme.Palette`) stays primary; elevated content sits
-on **glass** — `Material` surfaces with a hairline stroke and soft shadow
-(`glassCard()` in `Design/Glass.swift`): knowledge cards, deck tiles, saved
-rows, the continue-reading card, the search field, badges, toasts and the
-Transform CTA bar. Category identity is carried by a small tint + SF Symbol
-chip (`CategoryChip`), never by colored backgrounds. Generated book spines are
-flat category color. Haptics (`sensoryFeedback`) confirm saves and check-offs;
-materials degrade automatically with Reduce Transparency.
+Clean, minimal, iOS-native. **No decorative gradients.** (One sanctioned
+exception: the reader's bottom-bar legibility fade — a functional scrim drawn
+in the active reader theme's page color with a Reduce Transparency solid
+fallback, exactly the iOS Books treatment. A material there would tint the
+sepia/black reader themes.) The editorial black-and-white palette
+(`Theme.Palette`) stays primary; elevated content sits on **glass** —
+`Material` surfaces with a hairline stroke and soft shadow (`glassCard()` in
+`Design/Glass.swift`): knowledge cards, deck tiles, saved rows, the
+continue-reading card, the search field, badges, toasts and the Transform CTA
+bar. Category identity is carried by a small tint + SF Symbol chip
+(`CategoryChip`), never by colored backgrounds. Generated book spines are flat
+category color. Primary CTAs use inverted ink (accent background +
+app-background foreground) so they survive both color schemes. All type is
+anchored to Dynamic Type text styles (`Design/Typography.swift`); fixed point
+sizes are banned outside the reader's own size system. Haptics
+(`sensoryFeedback`) confirm saves and check-offs — never their undo — and
+animations respect Reduce Motion.
 
 ## The legally-safe summary model
 

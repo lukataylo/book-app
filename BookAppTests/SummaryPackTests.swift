@@ -24,7 +24,14 @@ struct SummaryPackTests {
             .filter { $0.pathExtension.lowercased() == "json" }
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try files.map { try decoder.decode(SummaryPack.self, from: Data(contentsOf: $0)) }
+        return try files.map { file in
+            let pack = try decoder.decode(SummaryPack.self, from: Data(contentsOf: file))
+            // The loader's skip-before-decode fast path keys on filename
+            // while persistence keys on slug — they must stay identical.
+            #expect(pack.slug == file.deletingPathExtension().lastPathComponent,
+                    "\(file.lastPathComponent): slug must match filename")
+            return pack
+        }
     }
 
     @Test

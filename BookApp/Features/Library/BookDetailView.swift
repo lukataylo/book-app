@@ -99,15 +99,15 @@ struct BookDetailView: View {
                 cover
                 VStack(alignment: .leading, spacing: 6) {
                     Text(book.title)
-                        .font(.system(size: 24, weight: .semibold, design: .serif))
+                        .font(.system(.title2, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(4)
                     Text(book.author)
-                        .font(.system(size: 15))
+                        .font(.system(.subheadline))
                         .foregroundStyle(Theme.Palette.textSecondary)
                     if book.totalPagesEstimate > 0 {
                         Text("\(book.totalPagesEstimate) pages · \(formatWords(book.totalWordsEstimate))")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(.caption, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
                             .padding(.top, 4)
                     }
@@ -135,7 +135,7 @@ struct BookDetailView: View {
                 .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
                 .overlay(
                     Text(book.title.prefix(1))
-                        .font(.system(size: 36, weight: .semibold, design: .serif))
+                        .font(.system(.largeTitle, design: .serif, weight: .semibold))
                         .foregroundStyle(.white)
                 )
         }
@@ -148,7 +148,7 @@ struct BookDetailView: View {
             HStack(spacing: 6) {
                 ForEach(categoryRow, id: \.self) { tag in
                     Text(tag)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(.caption2, weight: .medium))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
@@ -172,21 +172,23 @@ struct BookDetailView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(progress > 0 ? "Continue reading" : "Start reading")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(.callout, weight: .semibold))
                         if progress > 0 {
                             Text("\(Int(progress * 100))% complete")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.white.opacity(0.7))
+                                .font(.system(.caption))
+                                .foregroundStyle(Theme.Palette.appBackground.opacity(0.7))
                         }
                     }
                     Spacer()
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(.subheadline, weight: .semibold))
                 }
-                .foregroundStyle(.white)
+                // Inverted ink — accent flips with the color scheme, so the
+                // button stays visible on the pure-black dark background.
+                .foregroundStyle(Theme.Palette.appBackground)
                 .padding(.horizontal, Theme.Spacing.m)
                 .padding(.vertical, 14)
-                .background(Color.black)
+                .background(Theme.Palette.accent)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -199,14 +201,14 @@ struct BookDetailView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             HStack {
                 Text("Variants")
-                    .font(.system(size: 18, weight: .semibold, design: .serif))
+                    .font(.system(.title3, design: .serif, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Spacer()
                 Button {
                     if let original = book.originalVariant { route = .transform(original.id) }
                 } label: {
                     Label("Generate", systemImage: "wand.and.stars")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(.footnote, weight: .medium))
                 }
                 .foregroundStyle(Theme.Palette.textPrimary)
             }
@@ -236,22 +238,22 @@ struct BookDetailView: View {
     private func variantRow(_ v: BookVariant) -> some View {
         HStack(spacing: Theme.Spacing.m) {
             Image(systemName: iconName(for: v.kind))
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(.subheadline, weight: .medium))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(v.label.isEmpty ? v.kind.displayName : v.label)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 if v.kind != .original {
                     Text(metadataLine(for: v))
-                        .font(.system(size: 11))
+                        .font(.system(.caption2))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
         }
         .padding(.horizontal, Theme.Spacing.m)
@@ -331,20 +333,20 @@ struct BookDetailView: View {
     private func actionRow(systemImage: String, title: String, subtitle: String) -> some View {
         HStack(spacing: Theme.Spacing.m) {
             Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(.subheadline, weight: .medium))
                 .frame(width: 22)
                 .foregroundStyle(Theme.Palette.textSecondary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text(subtitle)
-                    .font(.system(size: 11))
+                    .font(.system(.caption2))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
         }
         .padding(.horizontal, Theme.Spacing.m)
@@ -356,7 +358,7 @@ struct BookDetailView: View {
 
     private var attributionFooter: some View {
         Text(book.sourceAttribution)
-            .font(.system(size: 11))
+            .font(.system(.caption2))
             .foregroundStyle(Theme.Palette.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Theme.Spacing.m)
@@ -372,7 +374,7 @@ struct BookDetailView: View {
     private func learningsPreview(_ learnings: [KeyLearning]) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             Text("Recent learnings")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             VStack(alignment: .leading, spacing: Theme.Spacing.s) {
                 ForEach(Array(learnings.prefix(3))) { l in
@@ -382,7 +384,7 @@ struct BookDetailView: View {
                             .frame(width: 5, height: 5)
                             .padding(.top, 8)
                         Text(l.text)
-                            .font(.system(size: 14))
+                            .font(.system(.subheadline))
                             .foregroundStyle(Theme.Palette.textPrimary)
                             .lineLimit(3)
                     }
