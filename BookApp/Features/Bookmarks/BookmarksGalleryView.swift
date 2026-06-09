@@ -88,12 +88,12 @@ struct BookmarksGalleryView: View {
     private func header(count: Int) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Your library, distilled.")
-                .font(.system(size: 28, weight: .bold, design: .serif))
+                .font(.system(.title, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(count == 0
                  ? "Highlight a passage or bookmark a paragraph to see it here."
                  : "\(count) saved \(count == 1 ? "passage" : "passages") across your books.")
-                .font(.system(size: 14))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -106,7 +106,7 @@ struct BookmarksGalleryView: View {
             ForEach(Filter.allCases) { f in
                 Button { filter = f } label: {
                     Text(f.label)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(.footnote, weight: .semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(
@@ -125,7 +125,7 @@ struct BookmarksGalleryView: View {
                     bookFilter = nil
                 } label: {
                     Label("Clear book", systemImage: "xmark.circle.fill")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(.caption, weight: .medium))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 7)
                         .background(Capsule().fill(Theme.Palette.surface))
@@ -172,7 +172,7 @@ struct BookmarksGalleryView: View {
                 .font(.system(size: 42, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.6))
             Text("Nothing matches your filters yet.")
-                .font(.system(size: 15))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -270,7 +270,7 @@ private struct BookmarkCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 topRow
                 Text(item.body)
-                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .font(.system(.body, design: .serif, weight: .regular))
                     .foregroundStyle(Theme.Palette.textPrimary)
                     .lineSpacing(2)
                     .multilineTextAlignment(.leading)
@@ -296,13 +296,13 @@ private struct BookmarkCard: View {
             kindBadge
             if !item.chapter.isEmpty, item.kind == .highlight {
                 Text(item.chapter)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(.caption2, weight: .medium))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .lineLimit(1)
             }
             Spacer()
             Text(item.createdAt.formatted(.relative(presentation: .named)))
-                .font(.system(size: 11))
+                .font(.system(.caption2))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
     }
@@ -310,9 +310,9 @@ private struct BookmarkCard: View {
     private var kindBadge: some View {
         HStack(spacing: 5) {
             Image(systemName: item.kind == .highlight ? "highlighter" : "bookmark.fill")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(.caption2, weight: .bold))
             Text(item.kind == .highlight ? "HIGHLIGHT" : "BOOKMARK")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(.caption2, weight: .bold))
                 .tracking(0.8)
         }
         .padding(.horizontal, 8)
@@ -329,12 +329,12 @@ private struct BookmarkCard: View {
                 BookCardView(book: book, width: 32, showsTitle: false)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(book.title)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(.footnote, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(1)
                     if !book.author.isEmpty {
                         Text(book.author)
-                            .font(.system(size: 11))
+                            .font(.system(.caption2))
                             .foregroundStyle(Theme.Palette.textSecondary)
                             .lineLimit(1)
                     }
@@ -342,7 +342,7 @@ private struct BookmarkCard: View {
             }
             Spacer()
             Image(systemName: "arrow.up.right")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(.caption2, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
     }

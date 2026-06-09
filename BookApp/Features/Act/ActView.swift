@@ -37,7 +37,11 @@ struct ActView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
                     header
                     if plans.isEmpty && candidates.isEmpty {
-                        emptyState
+                        if query.isEmpty {
+                            emptyState
+                        } else {
+                            noMatches
+                        }
                     } else {
                         planList(plans)
                         if !candidates.isEmpty {
@@ -164,6 +168,14 @@ struct ActView: View {
             .background(Theme.Palette.surface)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
         }
+    }
+
+    private var noMatches: some View {
+        Text("No plans match \"\(query)\".")
+            .font(.system(.subheadline))
+            .foregroundStyle(Theme.Palette.textSecondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Theme.Spacing.xl)
     }
 
     private var emptyState: some View {

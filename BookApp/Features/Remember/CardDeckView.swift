@@ -153,7 +153,9 @@ struct CardDeckView: View {
                     Capsule().fill(Theme.Palette.divider)
                     Capsule()
                         .fill(Theme.Palette.textPrimary)
-                        .frame(width: geo.size.width * min(CGFloat(position) / CGFloat(max(cards.count, 1)), 1))
+                        // Denominator counts the end card so the bar only
+                        // reads 100% on "Done", not on the last real card.
+                        .frame(width: geo.size.width * min(CGFloat(index + 1) / CGFloat(cards.count + 1), 1))
                         .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: index)
                 }
             }

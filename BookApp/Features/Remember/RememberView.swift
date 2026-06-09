@@ -38,7 +38,11 @@ struct RememberView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
                     header
                     if decks.isEmpty && candidates.isEmpty {
-                        emptyState
+                        if query.isEmpty {
+                            emptyState
+                        } else {
+                            noMatches
+                        }
                     } else {
                         deckGrid(decks)
                         if !candidates.isEmpty {
@@ -183,6 +187,14 @@ struct RememberView: View {
             .background(Theme.Palette.surface)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
         }
+    }
+
+    private var noMatches: some View {
+        Text("No decks match \"\(query)\".")
+            .font(.system(.subheadline))
+            .foregroundStyle(Theme.Palette.textSecondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Theme.Spacing.xl)
     }
 
     private var emptyState: some View {
