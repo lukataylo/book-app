@@ -30,6 +30,9 @@
 ```
 BookApp turns every book on your shelf into a tool that bends around your time.
 
+Read, Remember, Act
+Start with the big ideas: original 15-minute summaries of major non-fiction, written as idea-level companions with full attribution. Turn any book into a deck of swipeable knowledge cards — one idea per card — and save the keepers. Then put the book to work: a 14-day action plan per title, checkable in-app or exported straight to your Calendar (write-only) and Reminders.
+
 Compress or expand
 Have an hour, but the book takes ten? Compress it to a 20-page summary that keeps the author's voice and every key idea. Or take a five-page essay and expand it to a full chapter when you want to go deeper. Compression and expansion run on Apple's on-device intelligence when possible, and on Claude when the text is long or the task is hard — you always see the model and the cost before anything runs.
 

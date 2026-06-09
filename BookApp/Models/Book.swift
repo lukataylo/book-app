@@ -27,6 +27,14 @@ final class Book {
     var lastOpenedAt: Date?
     var rating: Int = 0
     var notes: String = ""
+    /// True for catalog titles that ship as original BookApp summaries
+    /// ("The Big Ideas in …") rather than user-imported files.
+    var isSummaryEdition: Bool = false
+    /// Legal attribution line shown for summary editions
+    /// ("An original summary of the ideas in … Not affiliated with …").
+    var sourceAttribution: String = ""
+    /// Estimated minutes to read the summary edition (0 for imported books).
+    var readMinutesEstimate: Int = 0
 
     @Relationship(deleteRule: .cascade, inverse: \BookVariant.book)
     var variants: [BookVariant]? = []
@@ -42,6 +50,12 @@ final class Book {
 
     @Relationship(deleteRule: .cascade, inverse: \Bookmark.book)
     var bookmarks: [Bookmark]? = []
+
+    @Relationship(deleteRule: .cascade, inverse: \KnowledgeCard.book)
+    var knowledgeCards: [KnowledgeCard]? = []
+
+    @Relationship(deleteRule: .cascade, inverse: \ActionItem.book)
+    var actionItems: [ActionItem]? = []
 
     init(
         id: UUID = UUID(),

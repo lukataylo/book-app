@@ -20,6 +20,8 @@ struct BookDetailView: View {
     private enum Destination: Hashable {
         case reader(UUID)         // variant id
         case transform(UUID)      // source variant id
+        case cards                // knowledge-card deck (Remember)
+        case plan                 // action plan (Act)
     }
     @State private var route: Destination?
     @State private var showLearnings = false
@@ -37,6 +39,9 @@ struct BookDetailView: View {
                 actionsSection
                 if let learnings = book.keyLearnings, !learnings.isEmpty {
                     learningsPreview(learnings)
+                }
+                if book.isSummaryEdition, !book.sourceAttribution.isEmpty {
+                    attributionFooter
                 }
                 Spacer(minLength: Theme.Spacing.xxl)
             }
@@ -66,6 +71,10 @@ struct BookDetailView: View {
                 if let v = (book.variants ?? []).first(where: { $0.id == id }) {
                     TransformationStudioView(book: book, sourceVariant: v)
                 }
+            case .cards:
+                CardDeckView(book: book)
+            case .plan:
+                ActionPlanView(book: book)
             }
         }
         .sheet(isPresented: $showLearnings) {
@@ -278,6 +287,26 @@ struct BookDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 0) {
+            if !(book.knowledgeCards ?? []).isEmpty {
+                Button {
+                    route = .cards
+                } label: {
+                    actionRow(systemImage: "square.stack.fill", title: "Remember",
+                              subtitle: "\(book.knowledgeCards?.count ?? 0) knowledge cards")
+                }
+                .buttonStyle(.plain)
+                Divider().background(Theme.Palette.divider)
+            }
+            if !(book.actionItems ?? []).isEmpty {
+                Button {
+                    route = .plan
+                } label: {
+                    actionRow(systemImage: "checklist", title: "Act",
+                              subtitle: "14-day plan · \(book.actionItems?.filter(\.completed).count ?? 0)/\(book.actionItems?.count ?? 0) done")
+                }
+                .buttonStyle(.plain)
+                Divider().background(Theme.Palette.divider)
+            }
             Button {
                 showLearnings = true
             } label: {
@@ -321,6 +350,20 @@ struct BookDetailView: View {
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
+    }
+
+    // MARK: - Attribution (summary editions)
+
+    private var attributionFooter: some View {
+        Text(book.sourceAttribution)
+            .font(.system(size: 11))
+            .foregroundStyle(Theme.Palette.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Theme.Spacing.m)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
+                    .stroke(Theme.Palette.divider, lineWidth: 0.5)
+            )
     }
 
     // MARK: - Learnings preview

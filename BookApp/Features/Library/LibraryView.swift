@@ -11,6 +11,7 @@ struct LibraryView: View {
 
     @State private var searchText = ""
     @State private var presentingPicker = false
+    @State private var presentingSearch = false
     @State private var selectedBook: Book?
     @State private var importErrorMessage: String?
     @State private var deleteCandidate: Book?
@@ -68,6 +69,18 @@ struct LibraryView: View {
             )
             .background(Theme.Palette.appBackground.ignoresSafeArea())
             .toolbar {
+                // Search lived in its own tab before the Read/Remember/Act
+                // redesign; it's the same SearchView, now one tap away here.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        presentingSearch = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Theme.Palette.accent)
+                    }
+                    .accessibilityLabel("Search")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         presentingPicker = true
@@ -76,7 +89,11 @@ struct LibraryView: View {
                             .font(.system(size: 22, weight: .medium))
                             .foregroundStyle(Theme.Palette.accent)
                     }
+                    .accessibilityLabel("Import a book")
                 }
+            }
+            .sheet(isPresented: $presentingSearch) {
+                SearchView()
             }
             .sheet(isPresented: $presentingPicker) {
                 DocumentPickerView { urls in

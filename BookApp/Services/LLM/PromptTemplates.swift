@@ -73,6 +73,54 @@ enum PromptTemplates {
         return (system, "Book content:\n\(book)")
     }
 
+    static func knowledgeCards(bookTitle: String, source: String, count: Int = 10) -> (system: String, user: String) {
+        let system = """
+        Create \(count) knowledge cards from the book provided — snackable, \
+        self-contained idea cards in the style of a learning app.
+
+        Each card:
+        - "title": a punchy 3–8 word name for the idea. Not a chapter title, \
+        not a question — the idea itself ("Environment beats willpower").
+        - "body": 40–70 words explaining the idea in your own words so it \
+        stands alone without the book. Second person where natural. \
+        Never quote the book verbatim.
+        - "category": exactly one of "Principle", "Mental Model", "Habit", \
+        "Insight", "Warning", "Practice".
+
+        Output strictly valid JSON, an array of objects:
+        [{"title": "...", "body": "...", "category": "..."}, ...]
+
+        - No commentary, no markdown code fences. JSON only.
+        """
+        return (system, "Book: \(bookTitle)\n\nContent:\n\(source)")
+    }
+
+    static func actionPlan(bookTitle: String, source: String, days: Int = 14) -> (system: String, user: String) {
+        let system = """
+        Build a practical \(days)-day plan that helps the reader implement \
+        this book's method in their life.
+
+        Each step:
+        - "title": imperative and concrete ("Design a phone-free desk", \
+        not "Think about distraction").
+        - "detail": 1–2 sentences on how to do it and why it works, tied to \
+        the book's method. Your own words; never quote the book.
+        - "kind": "task" for a one-off to-do, "event" for a practice the \
+        reader should put on their calendar at a specific time.
+        - "day": integer 1–\(days), ascending across the array.
+        - "duration_minutes": 15–90 for events, 0 for tasks.
+
+        Produce 8–10 steps mixing both kinds: early days set up the \
+        environment, later days build the repeated practice.
+
+        Output strictly valid JSON, an array of objects:
+        [{"title": "...", "detail": "...", "kind": "task", "day": 1, "duration_minutes": 0}, ...]
+
+        - No commentary, no markdown code fences. JSON only.
+        """
+        return (system, "Book: \(bookTitle)\n\nContent:\n\(source)")
+    }
+
     static func quizFromLearnings(_ learnings: [String]) -> (system: String, user: String) {
         let system = """
         Turn these key learnings into flashcards.

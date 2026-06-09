@@ -54,6 +54,7 @@ targets:
           - "Supporting/BookApp.entitlements"
           - "Supporting/PrivacyInfo.xcprivacy"   # added below as explicit resource
           - "Resources/SeedBooks"     # added below as folder reference
+          - "Resources/SummaryPacks"  # added below as folder reference
       # Privacy manifest — required by App Review since 2024. Apple wants
       # this at the bundle root, so we add it as an explicit resource
       # rather than letting it drop into a Supporting/ subfolder.
@@ -65,6 +66,13 @@ targets:
       # rather than colliding at the bundle root. SeedBooksLoader walks
       # this directory at first launch.
       - path: BookApp/Resources/SeedBooks
+        type: folder
+        buildPhase: resources
+        optional: true
+      # Folder-reference for the summary catalog ("The Big Ideas in …")
+      # JSON packs — Read/Remember/Act seed content. SummaryPackLoader
+      # walks this directory at launch.
+      - path: BookApp/Resources/SummaryPacks
         type: folder
         buildPhase: resources
         optional: true

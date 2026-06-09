@@ -1,0 +1,198 @@
+{
+  "slug": "thinking-fast-and-slow",
+  "title": "The Big Ideas in Thinking, Fast and Slow",
+  "source_title": "Thinking, Fast and Slow",
+  "source_author": "Daniel Kahneman",
+  "source_year": 2011,
+  "categories": [
+    "Psychology",
+    "Science"
+  ],
+  "themes": [
+    "cognitive biases",
+    "decision making under uncertainty",
+    "behavioral economics",
+    "intuition vs deliberate reasoning",
+    "loss aversion",
+    "overconfidence"
+  ],
+  "read_minutes": 15,
+  "attribution": "An original summary of the ideas in Thinking, Fast and Slow by Daniel Kahneman (2011). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
+  "summary": "Why do smart people make predictable mistakes? Daniel Kahneman spent five decades studying that question, and Thinking, Fast and Slow is his account of the answer: the human mind runs on two very different modes of thought, and the friction between them explains a remarkable share of our errors in judgment, money, medicine, hiring, and everyday life. This summary walks through the book's central ideas in plain language, so you can recognize the machinery of your own thinking while it runs.\n\n# Two characters in your head\n\nKahneman organizes the book around a pair of fictional characters: System 1 and System 2. System 1 is the fast mode. It works automatically, effortlessly, and constantly, generating impressions, intuitions, and snap judgments without being asked. It reads emotion in a face, completes familiar phrases, swerves the car before you know why. System 2 is the slow mode: deliberate, effortful, and lazy. It handles multiplication problems, tax forms, and careful comparisons, but it only engages when summoned, and it tires quickly.\n\nThe crucial claim is that System 1 is the real protagonist. Most of what we believe and choose originates in fast, automatic processing, while System 2 mostly rubber-stamps those suggestions and then constructs reasons after the fact. Kahneman argues that System 2 likes to think of itself as the hero of the story, but it is better described as a supporting actor who believes he is the lead. The errors the book catalogues are not signs of stupidity; they are the predictable output of a fast system doing its job in situations it was never designed for.\n\n# The lazy controller and the feeling of ease\n\nBecause deliberate thought consumes real energy, the mind economizes. Kahneman describes experiments in which people who are mentally loaded, tired, or even hungry become measurably more impulsive and more likely to accept whatever answer comes to mind first. Self-control and careful reasoning draw on the same limited budget, which is why a long day of decisions degrades the quality of the next one.\n\nA related idea is cognitive ease. When something is easy to process, because it is familiar, clearly printed, rhymes, or has been repeated, System 1 tags it as true, safe, and good. Repetition alone can manufacture belief, which is why slogans and falsehoods gain credibility through sheer exposure. The reverse also holds: when processing feels strained, System 2 wakes up, and people actually reason more carefully. Kahneman reports that people make fewer logical errors when a puzzle is printed in a hard-to-read font. Fluency, in other words, is a signal we constantly misread as evidence.\n\n# Shortcuts that quietly substitute the question\n\nSystem 1 cannot say \"I don't know.\" When it faces a hard question, it quietly swaps in an easier one and answers that instead. Asked how happy you are with your life, you may answer how you feel right now. Asked whether a company is a good investment, you may answer whether you like its products. Kahneman calls this substitution, and it underlies the famous heuristics he studied with Amos Tversky.\n\nAnchoring is the tendency for any number on the table, even an obviously arbitrary one, to drag estimates toward it; negotiators and retailers exploit this daily. The availability heuristic makes us judge frequency by how easily examples come to mind, so vivid plane crashes feel more probable than mundane risks that kill far more people. Representativeness leads us to judge probability by resemblance to a stereotype, which is how people decide a tidy, quiet stranger is more likely a librarian than a farmer despite farmers vastly outnumbering librarians. The same shortcut produces the conjunction fallacy, where a detailed, plausible-sounding story is rated more probable than a simpler claim that logically contains it. The shared lesson: when a judgment arrives instantly and feels obvious, ask which easier question your mind may have answered instead.\n\n# The overconfidence machine\n\nOne of the book's most quoted acronyms is WYSIATI: what you see is all there is. System 1 builds the most coherent story it can from currently available evidence and never flags what is missing. Confidence, Kahneman argues, is therefore a feeling about the coherence of a story, not a measure of its accuracy. People can be supremely confident on the basis of thin, one-sided information precisely because thin information is easier to weave into a tidy narrative.\n\nThis machinery produces hindsight bias, in which past events seem inevitable once we know the outcome, and the illusion of validity, in which professionals maintain confidence in judgments that demonstrably outperform chance by little or nothing. Kahneman describes evidence that simple statistical formulas frequently match or beat expert intuition in low-validity environments such as stock picking and long-range political forecasting. Intuition deserves trust, he argues, only when two conditions hold: the environment is regular enough to be learnable, and the person has had prolonged practice with fast, reliable feedback. Chess offers that; markets and punditry mostly do not. The planning fallacy belongs here too: we forecast projects from the inside, imagining best-case scenarios, instead of consulting the outside view, the statistics of similar projects, which would predict delays and overruns.\n\n# Losses loom larger than gains\n\nThe book's second half turns to choices, and to prospect theory, the work that won Kahneman the Nobel Prize in economics. Classical economics assumed people evaluate outcomes by final states of wealth. Kahneman and Tversky showed instead that people evaluate gains and losses relative to a reference point, and that losses hurt roughly twice as much as equivalent gains please. This asymmetry, loss aversion, explains why we reject attractive gambles, hold losing investments too long, and fight harder to keep things than to obtain them, the endowment effect.\n\nFraming follows directly: logically identical options trigger different choices depending on whether they are described as gains or losses. A surgery with ninety percent survival sounds acceptable; the same surgery with ten percent mortality sounds alarming. Kahneman also describes the fourfold pattern of risk attitudes, including why people simultaneously buy lottery tickets and insurance, and how overweighting of tiny probabilities makes rare, vivid threats dominate decision making. None of this is irrational noise; it is a consistent, predictable architecture of preference, which is exactly what makes it exploitable and worth knowing.\n\n# Two selves, one life\n\nThe final ideas concern wellbeing. Kahneman distinguishes the experiencing self, which lives through each moment, from the remembering self, which keeps score afterward and makes decisions. The two disagree systematically. Memory does not average an experience; it is dominated by its peak intensity and its ending, and it largely ignores duration. In one of the book's striking findings, patients preferred a longer painful medical procedure with a gentler ending over a shorter, objectively less painful one, because the memory was milder.\n\nSince the remembering self chooses our vacations, careers, and relationships, we routinely optimize for future anecdotes rather than lived experience. Kahneman also notes the focusing illusion: nothing in life is as important as you think it is while you are thinking about it. People overestimate how much income, climate, or a new car will change their happiness because attention inflates whatever it touches.\n\n# Putting the two systems to work\n\nKahneman is candid that knowing about biases barely protects the knower; his own intuitions, he admits, remain as overconfident as ever. The realistic goal is to recognize situations where errors are likely and slow down at those specific moments. Useful moves drawn from the book include adopting the outside view by asking what usually happens in cases like yours; running a premortem, in which a team imagines a decision has failed a year later and writes the story of why; treating any first number in a negotiation as an anchor to be actively countered; and building checklists and simple rules for repeated judgments rather than trusting case-by-case intuition. Organizations, he suggests, can do this better than individuals, because they can install procedures that force slow thinking where it matters.\n\n# Who should read the full book\n\nRead the complete book if you make consequential judgments under uncertainty: investors, physicians, managers, product leaders, policy makers, and anyone who negotiates. The full text offers dozens of experiments, worked examples, and a richness of argument no summary can carry, and Kahneman's habit of letting you fall into each trap before explaining it is itself the best teacher. It rewards slow reading, which is fitting, and it will permanently change the vocabulary you use to talk about your own mind.",
+  "learnings": [
+    {
+      "text": "Most judgments originate in fast, automatic System 1 processing; deliberate System 2 mostly endorses those impressions and invents reasons afterward.",
+      "chapter": "Two characters in your head"
+    },
+    {
+      "text": "Self-control and careful reasoning draw on one limited energy budget, so fatigue, hunger, and mental load make people measurably more impulsive.",
+      "chapter": "The lazy controller and the feeling of ease"
+    },
+    {
+      "text": "Repetition creates cognitive ease, and the mind tags easy-to-process statements as true — familiarity is routinely mistaken for accuracy.",
+      "chapter": "The lazy controller and the feeling of ease"
+    },
+    {
+      "text": "When a question is hard, System 1 silently substitutes an easier one and answers that instead; check which question you actually answered.",
+      "chapter": "Shortcuts that quietly substitute the question"
+    },
+    {
+      "text": "Any number on the table anchors your estimate, even when you know it is arbitrary — counter anchors actively rather than adjusting from them.",
+      "chapter": "Shortcuts that quietly substitute the question"
+    },
+    {
+      "text": "Confidence reflects the coherence of the story your mind built from available evidence (WYSIATI), not the quantity or quality of that evidence.",
+      "chapter": "The overconfidence machine"
+    },
+    {
+      "text": "Trust expert intuition only in regular, learnable environments with fast feedback; in low-validity domains, simple formulas often match or beat experts.",
+      "chapter": "The overconfidence machine"
+    },
+    {
+      "text": "Losses hurt roughly twice as much as equivalent gains please, which drives the endowment effect, holding losers too long, and rejecting good gambles.",
+      "chapter": "Losses loom larger than gains"
+    },
+    {
+      "text": "Memory scores experiences by their peak and their ending and ignores duration, so the remembering self routinely overrules the experiencing self.",
+      "chapter": "Two selves, one life"
+    },
+    {
+      "text": "Knowing about biases barely protects you; the workable strategy is recognizing high-risk situations and installing procedures that force slow thinking.",
+      "chapter": "Putting the two systems to work"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Your Intuition Answers First",
+      "body": "Before you consciously weigh anything, your fast, automatic mind has already produced an answer, and your deliberate mind usually just approves it. Treat your first impression as a draft from an eager assistant: often useful, never authoritative, and always worth a second look when stakes are high.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Easy Feels True",
+      "body": "Anything processed fluently — repeated, familiar, rhyming, clearly printed — gets tagged by your brain as true and safe. That is how slogans and myths earn belief through exposure alone. When a claim feels obviously right, ask whether you have evidence or merely familiarity.",
+      "category": "Warning"
+    },
+    {
+      "title": "What You See Is All There Is",
+      "body": "Your mind builds the most coherent story possible from the evidence in front of it and never flags what is missing. Thin information makes tidy stories, and tidy stories make confident people. Before deciding, deliberately list what you would want to know but do not.",
+      "category": "Principle"
+    },
+    {
+      "title": "Spot the Substituted Question",
+      "body": "Faced with a hard question, your mind quietly answers an easier one: 'Do I like this founder?' instead of 'Will this business succeed?'. When an answer arrives instantly, name the question it actually answered, then force yourself to address the original one.",
+      "category": "Practice"
+    },
+    {
+      "title": "Every Number Is an Anchor",
+      "body": "The first figure mentioned in any negotiation or estimate drags your judgment toward it, even when you know it is arbitrary. Do not politely adjust from a bad anchor. Reject it out loud, argue the opposite case, and re-estimate from your own independent reference points.",
+      "category": "Practice"
+    },
+    {
+      "title": "Vivid Is Not Frequent",
+      "body": "You judge how common something is by how easily examples come to mind, so dramatic, recent, or personally vivid events feel far more likely than they are. Whenever a risk feels urgent, look up the base rate before acting on the feeling.",
+      "category": "Warning"
+    },
+    {
+      "title": "Losses Hurt Twice as Much",
+      "body": "Losing something stings about twice as strongly as gaining it pleases. This asymmetry makes you cling to losing investments, overvalue what you already own, and reject favorable risks. When evaluating a change, ask how you would choose if you started from zero today.",
+      "category": "Principle"
+    },
+    {
+      "title": "Take the Outside View",
+      "body": "Plans fail because we forecast from the inside, imagining our own best case. Instead, find the reference class — projects like yours — and start from how those actually turned out. Your project is less special than it feels, and the statistics are the better prophet.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Run a Premortem",
+      "body": "Before committing to a major decision, imagine it is one year later and the plan has failed completely. Have everyone independently write the story of why. This legitimizes doubt, surfaces threats that optimism suppressed, and costs thirty minutes against months of cleanup.",
+      "category": "Practice"
+    },
+    {
+      "title": "The Fourfold Pattern of Risk",
+      "body": "People gamble to avoid sure losses and play it safe to lock in sure gains, while overweighting tiny probabilities — buying both lottery tickets and insurance. Knowing which quadrant a choice sits in tells you which mistake you are predisposed to make there.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "You Remember Peaks and Endings",
+      "body": "Memory does not average an experience; it keeps the most intense moment and the final one, and discards duration. Design experiences — trips, projects, difficult conversations — to end well, and be suspicious when a single bad ending makes you write off something long and good.",
+      "category": "Insight"
+    },
+    {
+      "title": "Decision Fatigue Is Real",
+      "body": "Careful thinking and self-control drain the same limited reserve. After a long run of choices you default to whatever is easiest or the status quo. Schedule consequential decisions early in the day and never finalize anything important while depleted, hungry, or rushed.",
+      "category": "Habit"
+    }
+  ],
+  "actions": [
+    {
+      "title": "Keep a snap-judgment log",
+      "detail": "Create a note and record three instant judgments you made today, then mark which easier question your mind may have substituted for the real one. This builds the recognition skill Kahneman says matters more than knowing bias names.",
+      "kind": "task",
+      "day": 1,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Schedule your hardest decision for the morning",
+      "detail": "Pick the most consequential choice on your plate and block a fresh-mind slot for it. Deliberate thinking draws on a limited energy budget, so protect it from decision fatigue.",
+      "kind": "event",
+      "day": 2,
+      "duration_minutes": 45
+    },
+    {
+      "title": "Find the base rate for a belief you hold",
+      "detail": "Take one risk or prediction you feel strongly about and look up the actual statistics. Comparing the felt likelihood with the base rate trains you to catch the availability heuristic in action.",
+      "kind": "task",
+      "day": 4,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Run a premortem on a current project",
+      "detail": "Set aside a session, alone or with your team, to imagine the project has failed a year from now and write the story of why. This surfaces threats that confident planning suppresses.",
+      "kind": "event",
+      "day": 5,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Re-estimate a plan using the outside view",
+      "detail": "For one ongoing project, find three comparable past projects and use their actual timelines and costs as your forecast baseline. The inside view systematically underestimates; the reference class does not.",
+      "kind": "task",
+      "day": 7,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Write an anchor-defense script before a negotiation",
+      "detail": "Before your next price or salary discussion, write down your independent valuation and your planned response to the first number offered. Anchors work even on people who know about them, so prepare the counter in advance.",
+      "kind": "task",
+      "day": 9,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Hold a disagreement-first meeting",
+      "detail": "For one group decision this week, collect everyone's written position before anyone speaks. This blocks the cascade where early confident voices anchor the room and coherence gets mistaken for correctness.",
+      "kind": "event",
+      "day": 10,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Audit one recurring judgment with a checklist",
+      "detail": "Pick a judgment you repeat — hiring screens, code reviews, purchase approvals — and turn your criteria into a short written checklist scored before you form an overall impression. Simple structured rules beat case-by-case intuition in noisy domains.",
+      "kind": "task",
+      "day": 12,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Design a better ending for a routine experience",
+      "detail": "Choose something you do weekly — the team meeting, a workout, a family dinner — and engineer its final five minutes to be genuinely good. The remembering self scores peaks and endings, so endings are the cheapest place to invest.",
+      "kind": "task",
+      "day": 13,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Review your two-week bias journal",
+      "detail": "Reread your snap-judgment log and mark which situations reliably trigger your worst thinking. End by writing one standing rule for each, since Kahneman argues situational recognition plus procedure beats willpower.",
+      "kind": "event",
+      "day": 14,
+      "duration_minutes": 30
+    }
+  ]
+}

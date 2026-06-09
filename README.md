@@ -23,6 +23,21 @@ Listen on-device. Speed-read at 1,000 wpm. Re-style any book to read like anothe
 
 Most reading apps assume you have time for the whole book. BookApp doesn't.
 
+**Read · Remember · Act** — the core loop
+([design doc](docs/redesign-read-remember-act.md)):
+
+- **Read.** A summary-first catalog of original "The Big Ideas in …" editions of
+  major non-fiction (~15 min each, legally-safe clean-room prose with attribution),
+  alongside everything you import yourself.
+- **Remember.** Every book becomes a deck of swipeable knowledge cards — one idea
+  per card, gradient-coded by kind (Principle, Mental Model, Habit…). Save the
+  keepers; they live in the Saved tab with your learnings and highlights.
+- **Act.** Every book becomes a 14-day implementation plan. Check steps off
+  in-app, or export them — practice sessions to your Calendar (write-only),
+  to-dos to Reminders.
+
+And the original toolkit still applies to all of it:
+
 - **Elastic length.** Compress a 400-page treatise into a 20-page summary that keeps the author's voice. Or expand a five-page essay into a chapter. The model preserves tone, structure and key arguments.
 - **Listen on-device.** Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken; the page flips itself.
 - **Speed-read three ways.** Paragraph + word highlighting, single-word focus, or Spritz-style RSVP at any pace from 150 to 1,200 wpm.

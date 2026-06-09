@@ -32,7 +32,11 @@ Set everything else to "Data not collected".
 ### What user data does the app handle?
 
 - Books you import (stay local + iCloud private DB).
-- Reading position, highlights, key learnings (stay local + iCloud private DB).
+- Reading position, highlights, key learnings, saved knowledge cards and
+  action-plan progress (stay local + iCloud private DB).
+- Calendar events / reminders the user explicitly exports from an action
+  plan (written to the system Calendar/Reminders via EventKit; calendar
+  access is write-only and nothing is read back or transmitted).
 - Anthropic API key (Keychain, never transmitted to BookApp).
 - Voice / typography / margin preferences (Keychain + iCloud private DB).
 
