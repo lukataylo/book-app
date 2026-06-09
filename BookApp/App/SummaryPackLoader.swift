@@ -37,21 +37,38 @@ enum SummaryPackLoader {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         for file in files {
+            // slug == filename for every shipped pack; skip before paying
+            // the decode cost on the main actor.
+            guard !loaded.contains(file.deletingPathExtension().lastPathComponent) else { continue }
             guard let data = try? Data(contentsOf: file),
                   let pack = try? decoder.decode(SummaryPack.self, from: data) else {
                 print("[SummaryPacks] failed to decode \(file.lastPathComponent)")
                 continue
             }
             guard !loaded.contains(pack.slug) else { continue }
-            seed(pack: pack, context: modelContext)
+            guard seed(pack: pack, context: modelContext) else { continue }
+            // Persist per pack, not after the loop — a crash mid-seed must
+            // not re-seed (and duplicate) the packs that already saved.
             loaded.insert(pack.slug)
+            UserDefaults.standard.set(Array(loaded).sorted(), forKey: loadedSlugsKey)
         }
-
-        UserDefaults.standard.set(Array(loaded).sorted(), forKey: loadedSlugsKey)
     }
 
-    private static func seed(pack: SummaryPack, context: ModelContext) {
-        let book = Book(title: pack.title, author: pack.sourceAuthor, format: .epub)
+    /// Returns true when the pack's records were saved (or already exist).
+    private static func seed(pack: SummaryPack, context: ModelContext) -> Bool {
+        // Content-based guard on top of the UserDefaults flag: the store is
+        // CloudKit-synced, so a second device must not insert its own copy
+        // of a summary book that already synced down. Captured-variable
+        // #Predicate translation is unreliable (see SeedBooksLoader), so
+        // fetch the summary editions and match in memory — the catalog is
+        // small by construction.
+        let descriptor = FetchDescriptor<Book>(predicate: #Predicate { $0.isSummaryEdition })
+        if let existing = try? context.fetch(descriptor),
+           existing.contains(where: { $0.title == pack.title }) {
+            return true
+        }
+
+        let book = Book(title: pack.title, author: pack.sourceAuthor, format: .unknown)
         book.isSummaryEdition = true
         book.sourceAttribution = pack.attribution
         book.readMinutesEstimate = pack.readMinutes
@@ -109,8 +126,12 @@ enum SummaryPackLoader {
             ))
         }
 
-        do { try context.save() } catch {
+        do {
+            try context.save()
+            return true
+        } catch {
             print("[SummaryPacks] save failed for \(pack.slug): \(error)")
+            return false
         }
     }
 

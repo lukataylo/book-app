@@ -15,7 +15,7 @@ struct KnowledgeCardEngine {
             system: system,
             user: user,
             cachedSourceText: nil,
-            maxOutputTokens: 2_000,
+            maxOutputTokens: 3_000,
             temperature: 0.4,
             model: .appleFoundation
         )
@@ -45,7 +45,7 @@ struct KnowledgeCardEngine {
     private struct Item { let title: String; let body: String; let category: String }
 
     private func parse(_ json: String) -> [Item] {
-        guard let data = json.data(using: .utf8),
+        guard let data = LLMJSON.extractArray(json),
               let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
             return []
         }

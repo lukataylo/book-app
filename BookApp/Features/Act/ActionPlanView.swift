@@ -139,9 +139,23 @@ struct ActionPlanView: View {
         }
     }
 
+    /// Day-1 anchor for single-item exports. If part of the plan was already
+    /// scheduled, derive the start the bulk export used (earliest exported
+    /// item's date minus its day offset) so a late export lands on the same
+    /// timeline; otherwise anchor at today.
+    private var planStartDate: Date {
+        let derived = (book.actionItems ?? []).compactMap { sibling -> Date? in
+            guard let scheduled = sibling.scheduledAt else { return nil }
+            return Calendar.current.date(
+                byAdding: .day, value: -(sibling.dayOffset - 1), to: scheduled
+            )
+        }.min()
+        return derived ?? Date.now
+    }
+
     private func exportSingle(_ item: ActionItem) async {
         let day = Calendar.current.date(
-            byAdding: .day, value: max(item.dayOffset - 1, 0), to: Date.now
+            byAdding: .day, value: max(item.dayOffset - 1, 0), to: planStartDate
         ) ?? Date.now
         do {
             switch item.kind {
