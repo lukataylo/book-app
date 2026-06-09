@@ -1,25 +1,59 @@
 import SwiftUI
 import SwiftData
 
-/// Shared visual language for knowledge cards — gradient per category.
+/// Shared visual language for knowledge cards — minimal, iOS-native, no
+/// gradients. Category identity is carried by a small tint + symbol on an
+/// otherwise glass (material) surface.
 enum KnowledgeCardStyle {
-    static func gradient(for category: String) -> LinearGradient {
-        let colors: [Color]
+    static func tint(for category: String) -> Color {
         switch category {
-        case "Principle":    colors = [Color(hex: "7C3AED"), Color(hex: "4C1D95")]
-        case "Mental Model": colors = [Color(hex: "2563EB"), Color(hex: "1E3A8A")]
-        case "Habit":        colors = [Color(hex: "059669"), Color(hex: "064E3B")]
-        case "Insight":      colors = [Color(hex: "EA580C"), Color(hex: "7C2D12")]
-        case "Warning":      colors = [Color(hex: "DC2626"), Color(hex: "7F1D1D")]
-        case "Practice":     colors = [Color(hex: "0891B2"), Color(hex: "164E63")]
-        default:             colors = [Color(hex: "475569"), Color(hex: "1E293B")]
+        case "Principle":    return Color(hex: "6D28D9")
+        case "Mental Model": return Color(hex: "1D4ED8")
+        case "Habit":        return Color(hex: "047857")
+        case "Insight":      return Color(hex: "C2410C")
+        case "Warning":      return Color(hex: "B91C1C")
+        case "Practice":     return Color(hex: "0E7490")
+        default:             return Color(hex: "475569")
         }
-        return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    static func symbol(for category: String) -> String {
+        switch category {
+        case "Principle":    return "key.fill"
+        case "Mental Model": return "cube.transparent"
+        case "Habit":        return "repeat"
+        case "Insight":      return "lightbulb.fill"
+        case "Warning":      return "exclamationmark.triangle.fill"
+        case "Practice":     return "target"
+        default:             return "circle.fill"
+        }
+    }
+
+}
+
+/// Small category identifier: tinted symbol + label in a frosted capsule.
+struct CategoryChip: View {
+    let category: String
+    var compact = false
+
+    var body: some View {
+        let tint = KnowledgeCardStyle.tint(for: category)
+        HStack(spacing: 5) {
+            Image(systemName: KnowledgeCardStyle.symbol(for: category))
+                .font(.system(size: compact ? 9 : 10, weight: .semibold))
+            Text(category.uppercased())
+                .font(.system(size: compact ? 9 : 11, weight: .bold))
+                .tracking(1.1)
+        }
+        .foregroundStyle(tint)
+        .padding(.horizontal, compact ? 8 : 10)
+        .padding(.vertical, compact ? 4 : 5)
+        .background(Capsule().fill(tint.opacity(0.12)))
     }
 }
 
-/// Swipeable full-bleed deck for one book — the Deepstash-style reading
-/// surface. Each card can be saved (→ Saved tab) or shared as text.
+/// Swipeable deck for one book — the Deepstash-style reading surface.
+/// Each card can be saved (→ Saved tab) or shared as text.
 struct CardDeckView: View {
     let book: Book
     @Environment(\.modelContext) private var modelContext
@@ -49,9 +83,7 @@ struct CardDeckView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
-                Text("\(min(index + 1, cards.count)) of \(cards.count)")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Theme.Palette.textSecondary)
+                deckProgress
                     .padding(.bottom, Theme.Spacing.s)
             }
         }
@@ -61,6 +93,29 @@ struct CardDeckView: View {
         .toolbar(.hidden, for: .tabBar)
     }
 
+    /// "3 of 12" plus a thin position bar — quieter than page dots at this
+    /// card count.
+    private var deckProgress: some View {
+        VStack(spacing: 6) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Theme.Palette.divider)
+                    Capsule()
+                        .fill(Theme.Palette.textPrimary)
+                        .frame(width: geo.size.width * CGFloat(index + 1) / CGFloat(max(cards.count, 1)))
+                        .animation(.easeOut(duration: 0.2), value: index)
+                }
+            }
+            .frame(width: 120, height: 3)
+            Text("\(min(index + 1, cards.count)) of \(cards.count)")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Theme.Palette.textSecondary)
+                .monospacedDigit()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Card \(min(index + 1, cards.count)) of \(cards.count)")
+    }
+
     private func toggleSave(_ card: KnowledgeCard) {
         card.saved.toggle()
         card.savedAt = card.saved ? .now : nil
@@ -68,8 +123,8 @@ struct CardDeckView: View {
     }
 }
 
-/// One rendered knowledge card. Reused at full size in the deck and at
-/// reduced size in the Saved tab.
+/// One rendered knowledge card. Reused at full size in the deck and inside
+/// the Saved tab's detail sheet.
 struct KnowledgeCardFace: View {
     let card: KnowledgeCard
     var onToggleSave: (() -> Void)?
@@ -78,33 +133,28 @@ struct KnowledgeCardFace: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.m) {
             HStack {
                 if !card.category.isEmpty {
-                    Text(card.category.uppercased())
-                        .font(.system(size: 11, weight: .bold))
-                        .tracking(1.2)
-                        .foregroundStyle(.white.opacity(0.85))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Capsule().fill(.white.opacity(0.18)))
+                    CategoryChip(category: card.category)
                 }
                 Spacer()
                 ShareLink(item: shareText) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.85))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.Palette.textSecondary)
                 }
+                .accessibilityLabel("Share card")
             }
 
             Spacer(minLength: 0)
 
             Text(card.title)
                 .font(.system(size: 28, weight: .bold, design: .serif))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.Palette.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(card.body)
                 .font(.system(size: 16))
-                .lineSpacing(4)
-                .foregroundStyle(.white.opacity(0.92))
+                .lineSpacing(5)
+                .foregroundStyle(Theme.Palette.textPrimary.opacity(0.85))
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
@@ -114,12 +164,12 @@ struct KnowledgeCardFace: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(title)
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.9))
+                            .foregroundStyle(Theme.Palette.textPrimary)
                             .lineLimit(1)
                         if let author = card.book?.author, !author.isEmpty {
                             Text(author)
                                 .font(.system(size: 11))
-                                .foregroundStyle(.white.opacity(0.7))
+                                .foregroundStyle(Theme.Palette.textSecondary)
                                 .lineLimit(1)
                         }
                     }
@@ -128,23 +178,25 @@ struct KnowledgeCardFace: View {
                 if let onToggleSave {
                     Button(action: onToggleSave) {
                         Image(systemName: card.saved ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .padding(10)
-                            .background(Circle().fill(.white.opacity(0.18)))
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(
+                                card.saved
+                                    ? KnowledgeCardStyle.tint(for: card.category)
+                                    : Theme.Palette.textSecondary
+                            )
+                            .padding(11)
+                            .background(Circle().fill(.thinMaterial))
+                            .overlay(Circle().strokeBorder(Theme.Palette.divider, lineWidth: 0.5))
                     }
                     .buttonStyle(.plain)
+                    .sensoryFeedback(.success, trigger: card.saved)
                     .accessibilityLabel(card.saved ? "Remove from saved" : "Save card")
                 }
             }
         }
         .padding(Theme.Spacing.l)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            KnowledgeCardStyle.gradient(for: card.category)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous))
-        )
-        .shadow(color: Theme.Palette.bookShadow, radius: 12, x: 0, y: 6)
+        .glassCard()
     }
 
     private var shareText: String {

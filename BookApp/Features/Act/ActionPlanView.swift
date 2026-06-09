@@ -71,10 +71,11 @@ struct ActionPlanView: View {
             if let statusText {
                 Text(statusText)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.Palette.textPrimary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(Capsule().fill(.black.opacity(0.8)))
+                    .background(.regularMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Theme.Palette.divider, lineWidth: 0.5))
                     .padding(.bottom, Theme.Spacing.l)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -194,6 +195,7 @@ private struct ActionItemRow: View {
                     .foregroundStyle(item.completed ? Color.green : Theme.Palette.textSecondary)
             }
             .buttonStyle(.plain)
+            .sensoryFeedback(.impact(weight: .light), trigger: item.completed)
             .accessibilityLabel(item.completed ? "Mark as not done" : "Mark as done")
 
             VStack(alignment: .leading, spacing: 4) {

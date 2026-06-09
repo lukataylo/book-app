@@ -95,15 +95,9 @@ struct TransformationStudioView: View {
             runCTA
                 .padding(.horizontal, Theme.Spacing.l)
                 .padding(.vertical, Theme.Spacing.s)
-                .background(
-                    LinearGradient(
-                        colors: [Theme.Palette.appBackground.opacity(0),
-                                 Theme.Palette.appBackground.opacity(0.7),
-                                 Theme.Palette.appBackground],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                // Frosted toolbar — content scrolls under glass, the
+                // native iOS bar treatment.
+                .background(.ultraThinMaterial)
         }
         .alert("Couldn't transform", isPresented: Binding(
             get: { errorText != nil },

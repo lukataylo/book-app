@@ -20,7 +20,7 @@ enum SummaryPackLoader {
     private static let resourceFolder = "SummaryPacks"
     private static let loadedSlugsKey = "SummaryPacks.loadedSlugs-v1"
 
-    static func runIfNeeded(modelContext: ModelContext) {
+    static func runIfNeeded(modelContext: ModelContext) async {
         guard let folderURL = bundledFolderURL() else { return }
         let files: [URL]
         do {
@@ -33,29 +33,42 @@ enum SummaryPackLoader {
         }
 
         var loaded = Set(UserDefaults.standard.stringArray(forKey: loadedSlugsKey) ?? [])
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        // slug == filename for every shipped pack, so the already-loaded
+        // check runs before any decode work.
+        let pending = files.filter { !loaded.contains($0.deletingPathExtension().lastPathComponent) }
+        guard !pending.isEmpty else { return }
 
-        for file in files {
-            // slug == filename for every shipped pack; skip before paying
-            // the decode cost on the main actor.
-            guard !loaded.contains(file.deletingPathExtension().lastPathComponent) else { continue }
-            guard let data = try? Data(contentsOf: file),
-                  let pack = try? decoder.decode(SummaryPack.self, from: data) else {
-                print("[SummaryPacks] failed to decode \(file.lastPathComponent)")
-                continue
+        // The catalog is ~80 packs (~2 MB of JSON) — decode off the main
+        // actor; only the SwiftData inserts happen on it.
+        let packs = await Task.detached(priority: .utility) { () -> [SummaryPack] in
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return pending.compactMap { file in
+                guard let data = try? Data(contentsOf: file),
+                      let pack = try? decoder.decode(SummaryPack.self, from: data) else {
+                    print("[SummaryPacks] failed to decode \(file.lastPathComponent)")
+                    return nil
+                }
+                return pack
             }
+        }.value
+
+        for pack in packs {
             guard !loaded.contains(pack.slug) else { continue }
             guard seed(pack: pack, context: modelContext) else { continue }
             // Persist per pack, not after the loop — a crash mid-seed must
             // not re-seed (and duplicate) the packs that already saved.
             loaded.insert(pack.slug)
             UserDefaults.standard.set(Array(loaded).sorted(), forKey: loadedSlugsKey)
+            // Keep first launch responsive while ~80 packs insert.
+            await Task.yield()
         }
     }
 
     /// Returns true when the pack's records were saved (or already exist).
-    private static func seed(pack: SummaryPack, context: ModelContext) -> Bool {
+    /// Internal (not private) so the idempotency contract is unit-testable.
+    @discardableResult
+    static func seed(pack: SummaryPack, context: ModelContext) -> Bool {
         // Content-based guard on top of the UserDefaults flag: the store is
         // CloudKit-synced, so a second device must not insert its own copy
         // of a summary book that already synced down. Captured-variable
@@ -148,7 +161,7 @@ enum SummaryPackLoader {
 
 // MARK: - <slug>.json schema (decoded with .convertFromSnakeCase)
 
-struct SummaryPack: Decodable {
+struct SummaryPack: Decodable, Sendable {
     let slug: String
     let title: String
     let sourceTitle: String
@@ -163,18 +176,18 @@ struct SummaryPack: Decodable {
     let cards: [PackCard]
     let actions: [PackAction]
 
-    struct PackLearning: Decodable {
+    struct PackLearning: Decodable, Sendable {
         let text: String
         let chapter: String
     }
 
-    struct PackCard: Decodable {
+    struct PackCard: Decodable, Sendable {
         let title: String
         let body: String
         let category: String
     }
 
-    struct PackAction: Decodable {
+    struct PackAction: Decodable, Sendable {
         let title: String
         let detail: String
         let kind: String

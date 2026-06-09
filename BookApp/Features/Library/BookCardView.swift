@@ -63,10 +63,10 @@ struct BookCardView: View {
         Text(book.readMinutesEstimate > 0 ? "\(book.readMinutesEstimate) MIN" : "KEY IDEAS")
             .font(.system(size: 9, weight: .bold))
             .tracking(0.5)
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
             .padding(.horizontal, 7)
             .padding(.vertical, 4)
-            .background(Capsule().fill(.black.opacity(0.65)))
+            .background(.regularMaterial, in: Capsule())
             .padding(6)
     }
 
@@ -94,11 +94,12 @@ struct BookCardView: View {
     private var generatedCover: some View {
         let color = Theme.BookSpine.color(for: book.categoryTags)
         return ZStack(alignment: .bottomLeading) {
-            LinearGradient(
-                colors: [color.opacity(0.95), color.opacity(0.65)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Flat spine color — the catalog's no-gradient design language.
+            color
+                .overlay(
+                    Rectangle()
+                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+                )
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 Text(book.title)
                     .font(.system(size: 15, weight: .semibold, design: .serif))

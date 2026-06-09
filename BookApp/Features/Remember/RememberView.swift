@@ -11,15 +11,24 @@ struct RememberView: View {
     @State private var selectedBook: Book?
     @State private var generatingBookID: UUID?
     @State private var errorText: String?
+    @State private var query = ""
 
     private var decks: [Book] {
-        books.filter { !($0.knowledgeCards ?? []).isEmpty }
+        applyQuery(books.filter { !($0.knowledgeCards ?? []).isEmpty })
     }
 
     private var candidates: [Book] {
-        books.filter {
+        applyQuery(books.filter {
             ($0.knowledgeCards ?? []).isEmpty
             && !($0.originalVariant?.contentText.isEmpty ?? true)
+        })
+    }
+
+    private func applyQuery(_ list: [Book]) -> [Book] {
+        guard !query.isEmpty else { return list }
+        let q = query.lowercased()
+        return list.filter {
+            $0.title.lowercased().contains(q) || $0.author.lowercased().contains(q)
         }
     }
 
@@ -42,6 +51,7 @@ struct RememberView: View {
                 .padding(.top, Theme.Spacing.m)
             }
             .background(Theme.Palette.appBackground.ignoresSafeArea())
+            .searchable(text: $query, prompt: "Search decks")
             .navigationDestination(item: $selectedBook) { book in
                 CardDeckView(book: book)
             }
@@ -84,28 +94,36 @@ struct RememberView: View {
     private func deckTile(_ book: Book) -> some View {
         let cards = book.knowledgeCards ?? []
         let savedCount = cards.filter(\.saved).count
+        let topCategory = cards.first?.category ?? ""
         return VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             ZStack {
-                // Stacked-deck illusion: two offset card backs behind the front.
-                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
-                    .fill(Theme.Palette.divider)
-                    .rotationEffect(.degrees(3))
-                    .offset(x: 4, y: 4)
-                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
-                    .fill(KnowledgeCardStyle.gradient(for: cards.first?.category ?? ""))
+                // Stacked-deck illusion: a quiet card back peeking out
+                // behind the frosted front card.
+                RoundedRectangle(cornerRadius: Theme.Radius.l, style: .continuous)
+                    .fill(Theme.Palette.surface)
+                    .rotationEffect(.degrees(2.5))
+                    .offset(x: 3, y: 4)
                 VStack(alignment: .leading, spacing: 6) {
-                    Image(systemName: "square.stack.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
+                    HStack {
+                        Image(systemName: KnowledgeCardStyle.symbol(for: topCategory))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(KnowledgeCardStyle.tint(for: topCategory))
+                        Spacer()
+                        Text("\(cards.count)")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Theme.Palette.textSecondary)
+                            .monospacedDigit()
+                    }
                     Spacer()
                     Text(cards.first?.title ?? book.title)
                         .font(.system(size: 16, weight: .semibold, design: .serif))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
                 }
                 .padding(Theme.Spacing.m)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .glassCard(cornerRadius: Theme.Radius.l)
             }
             .frame(height: 130)
             VStack(alignment: .leading, spacing: 2) {

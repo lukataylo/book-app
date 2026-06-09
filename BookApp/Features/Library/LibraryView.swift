@@ -194,10 +194,7 @@ struct LibraryView: View {
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
             .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
-                    .fill(Theme.Palette.surface)
-            )
+            .glassCard(cornerRadius: Theme.Radius.m)
         }
         .buttonStyle(.plain)
     }
@@ -268,8 +265,14 @@ struct LibraryView: View {
         }
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, Theme.Spacing.s)
-        .background(Theme.Palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
+        .background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
+                .strokeBorder(Theme.Palette.divider, lineWidth: 0.5)
+        )
         .padding(.horizontal, Theme.Spacing.l)
         .animation(.easeInOut(duration: 0.18), value: searchFocused)
     }

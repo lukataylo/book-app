@@ -1,0 +1,197 @@
+{
+  "slug": "the-lean-startup",
+  "title": "The Big Ideas in The Lean Startup",
+  "source_title": "The Lean Startup",
+  "source_author": "Eric Ries",
+  "source_year": 2011,
+  "categories": [
+    "Business"
+  ],
+  "themes": [
+    "validated learning",
+    "minimum viable products",
+    "actionable metrics",
+    "pivoting with discipline",
+    "small-batch experimentation",
+    "startup management"
+  ],
+  "read_minutes": 15,
+  "attribution": "An original summary of the ideas in The Lean Startup by Eric Ries (2011). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
+  "summary": "Eric Ries spent months of his life polishing software that, on launch day, nobody downloaded. The Lean Startup is the system he built so that no founder has to repeat that experience: a method for discovering what customers actually want before you have spent a fortune building what they don't. Ries' core move is to treat a startup not as a smaller version of a big company but as a machine for running experiments under extreme uncertainty — and to manage it with the same rigor a scientist brings to a lab. The book turned a niche engineering practice into the default vocabulary of modern product work, which is exactly why it pays to understand what Ries actually said rather than the slogan version.\n\n# A startup is a lab, not a small big company\n\nRies defines a startup by its condition, not its size: any human institution creating something new under extreme uncertainty qualifies, including a team buried inside a government agency or a Fortune 500 firm. That definition matters because the standard management toolkit — forecasts, milestones, detailed plans — assumes a stable past you can extrapolate from. A startup has no past. Judging one by whether it shipped on time and on budget is how you get a perfectly executed plan for a product nobody wants, delivered with applause.\n\nHis replacement yardstick is what he calls validated learning: progress measured by how much you have empirically proven about customer behavior, with each proof backed by data from real people, not focus-group politeness. At his own company, IMVU, Ries' team spent six months building instant-messaging integrations they considered obviously essential; users ignored them completely and used the product in ways the founders never anticipated. Everything built on the untested assumption was, in retrospect, waste with excellent engineering quality. The lesson Ries draws is severe: if a month of work teaches you nothing about your riskiest assumption, the work was worth nothing, however beautiful the code.\n\n# Build less than you think you should\n\nThe minimum viable product is the most borrowed and most butchered idea in the book. Ries means something precise: the smallest thing you can put in front of real customers that generates real evidence about your riskiest assumption — not a cheap version one, and not an excuse for shoddiness. The point is to start the experiment, because no business plan survives first contact with users, and every week spent perfecting features ahead of that contact is a week of accumulating unverified beliefs.\n\nThe famous examples are barely products at all. Dropbox tested demand for seamless file syncing with a short screen-capture video; signups for the waiting list exploded overnight, validating the bet before the hard engineering was finished. Zappos began with its founder photographing shoes in local stores and buying them at retail when orders arrived — a test of whether people would buy shoes online at all, run with almost no inventory. Other teams ran what Ries calls a concierge test, manually doing for a handful of customers what software would eventually automate, learning the service's real value before writing it down in code. The shared logic: simulate the product with maximum humility and minimum investment, and let behavior, not opinion, render the verdict.\n\n# Numbers that flatter, numbers that teach\n\nRies reserves his sharpest contempt for vanity metrics — cumulative totals like registered users, downloads, and gross page views that drift upward almost no matter what you do, letting everyone feel successful while the business quietly stalls. A chart that only goes up cannot tell you whether yesterday's product change helped, hurt, or did nothing. It exists to decorate board decks.\n\nThe alternative he proposes, innovation accounting, is a discipline in three steps: use an early experiment to establish a baseline for the behavior you care about — activation, retention, repeat purchase — then attempt to tune the engine from that baseline with successive product changes, and finally face the verdict the numbers deliver. The workhorse tool is cohort analysis: instead of staring at aggregate totals, track each week's batch of new customers separately and watch what percentage of them take the actions that matter. At IMVU, cohort curves stayed stubbornly flat for months despite constant shipping — humiliating, but honest, and the honesty is the point. Ries adds a test for any metric worth using: it should demonstrate clear cause and effect, be understandable to the people acting on it, and be auditable against real customer records, so nobody can argue their way around a bad result.\n\n# The disciplined turn\n\nEvery founder eventually faces the question Ries considers the hardest in entrepreneurship: change course, or stay the course? His contribution is to make that decision a scheduled, structured event rather than a crisis. A pivot, in his vocabulary, is not a panic or a reset; it is a deliberate change in strategy that holds one foot planted in everything you have already learned while the other foot tests a new direction — a new customer segment, a feature promoted into the whole product, a different revenue model.\n\nThe political-organizing platform Votizen went through several such turns, each preserving its hard-won knowledge about voters while changing who paid and for what. Groupon began as a platform for collective social activism that found almost no traction; its one consistently popular use case, group purchasing deals, was promoted into the entire company. Ries urges teams to put pivot-or-persevere meetings on the calendar in advance, because without a forcing function, human nature reliably chooses a third option: limping along in what he calls the land of the living dead, too successful to die and too stuck to grow. The runway that matters, he argues, is not months of cash remaining but the number of course corrections you can still afford to make.\n\n# Lessons from the factory floor\n\nThe lean in the title is inherited honestly: Ries adapted his method from the Toyota Production System, and the transplant carries some counterintuitive cargo. The first piece is the power of small batches. He illustrates it with a homely scenario — folding, stuffing, and stamping a pile of newsletters. Doing each envelope start-to-finish feels slower than processing the whole stack one stage at a time, yet it reliably wins, because problems surface immediately (the envelopes don't seal, the letters don't fit) instead of after you have committed to the entire pile. In product terms: shipping one small change at a time looks inefficient and is actually the fastest way to learn, because each release is its own experiment with its own verdict.\n\nThe second transplant is Toyota's habit of stopping the line the moment a defect appears — counterintuitively, halting everything is what keeps overall speed high, because defects never get buried under later work. The third is the five whys, Taiichi Ohno's technique of asking why repeatedly until a technical failure reveals the human and process failure underneath: a server crashed because a setting was wrong, because an engineer wasn't trained, because the manager doesn't onboard people, because the team believes it is too busy to train. Ries' twist is to make the fix proportional — invest a little at every layer of the chain — turning each outage into a small, compounding investment in resilience.\n\n# Speed has a failure mode\n\nA fair reading of the book includes what happened after it conquered the world, and this section is our commentary rather than Ries' text. The MVP became a fashionable alibi for shipping careless products, which inverts Ries' actual instruction that the experiment must be rigorous even when the artifact is rough. Iteration-friendly consumer software fit the method beautifully; deep tech, biotech, and hardware — where a single experiment can take years and regulatory stakes are real — fit it far less well, and critics reasonably note that some category-defining companies succeeded through stubborn long-horizon conviction that looks nothing like weekly cohort tuning. There is also an ethical seam the book leaves mostly unexamined: smoke-test landing pages and concierge facades sit close to the line of selling things that do not exist. None of this sinks the core claim — that untested belief is the most expensive material in business — but it does mean the method is an instrument, not a religion.\n\n# Who should read the whole thing\n\nRead the full book if you are about to spend serious money or years of your life building anything whose customers do not exist yet — a product, an internal tool, a nonprofit program. It is most valuable to first-time founders who feel the pull to perfect in private, and to managers inside large companies trying to protect a fragile new venture from being judged like a mature business line. The summary gives you the vocabulary; the book gives you the case studies, the failure stories told against the author's own interest, and the operational detail — sandboxes for internal innovation, growth engines, batch-size math — that turns a slogan you have heard into a practice you can run on Monday.",
+  "learnings": [
+    {
+      "text": "Ries defines a startup by condition, not size: any institution creating something new under extreme uncertainty, which is why standard plan-and-milestone management misjudges it.",
+      "chapter": "A startup is a lab, not a small big company"
+    },
+    {
+      "text": "Progress under uncertainty is measured in validated learning — empirically proven facts about customer behavior — so a month of flawless engineering that tests no assumption counts as waste.",
+      "chapter": "A startup is a lab, not a small big company"
+    },
+    {
+      "text": "A minimum viable product is the smallest artifact that generates real evidence about your riskiest assumption; it is a rigorous experiment, not a license for sloppiness.",
+      "chapter": "Build less than you think you should"
+    },
+    {
+      "text": "Dropbox validated demand with a demo video and Zappos with retail-bought shoes, proving you can test a business's core bet before building its machinery.",
+      "chapter": "Build less than you think you should"
+    },
+    {
+      "text": "Cumulative totals like registered users rise almost no matter what you do; only per-cohort behavior can tell you whether last week's change actually worked.",
+      "chapter": "Numbers that flatter, numbers that teach"
+    },
+    {
+      "text": "A metric is trustworthy when it shows clear cause and effect, is understandable to the people acting on it, and can be audited against real customer records.",
+      "chapter": "Numbers that flatter, numbers that teach"
+    },
+    {
+      "text": "A pivot keeps one foot planted in everything already learned while testing a new strategy, and scheduling pivot-or-persevere meetings in advance prevents indefinite limping.",
+      "chapter": "The disciplined turn"
+    },
+    {
+      "text": "Real runway is not months of cash remaining but the number of course corrections you can still afford to make.",
+      "chapter": "The disciplined turn"
+    },
+    {
+      "text": "Small batches beat big ones because problems surface after one unit instead of after total commitment — which is why shipping one change at a time is the fastest way to learn.",
+      "chapter": "Lessons from the factory floor"
+    },
+    {
+      "text": "The lean method fits iterative consumer software far better than long-horizon deep tech, and an MVP used as an alibi for carelessness inverts Ries' actual instruction.",
+      "chapter": "Speed has a failure mode"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Uncertainty Demands Different Management",
+      "body": "Forecasts and milestones assume a stable past to extrapolate from. A new venture has none, so judging it by on-time, on-budget delivery rewards perfectly executing a plan nobody validated. When you are doing something genuinely new, measure proven learning about customers instead of conformance to the original spec.",
+      "category": "Principle"
+    },
+    {
+      "title": "Untested Belief Is Expensive",
+      "body": "Every feature you build on an unverified assumption is inventory of risk, however beautiful the craftsmanship. Before committing weeks of work, write down the assumption it rests on and ask what the cheapest possible test would be. Ries' team lost six months learning this; you can lose an afternoon.",
+      "category": "Warning"
+    },
+    {
+      "title": "Test the Bet, Not the Build",
+      "body": "Dropbox used a video, Zappos used shoes bought at retail, and concierge teams used manual labor disguised as software. Each tested the core bet — will people want this? — before building the machinery. Ask what your venture's equivalent is: the smallest staged experience that makes real customers reveal real behavior.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Charts That Only Rise Lie",
+      "body": "Cumulative signups, total downloads, and gross page views climb almost regardless of what you do, so they can decorate a board deck while the business stalls. Treat any always-up chart as suspect. The honest question is whether this week's new users behave better than last week's did.",
+      "category": "Warning"
+    },
+    {
+      "title": "Read Cohorts, Not Totals",
+      "body": "Track each week's batch of new customers as its own group and watch what fraction activates, returns, and pays. Flat curves across cohorts mean your shipping is not improving the engine, no matter how busy the team feels. Painful flat lines told the truth at IMVU when totals would have flattered.",
+      "category": "Practice"
+    },
+    {
+      "title": "Three Tests for Any Metric",
+      "body": "Before adopting a number, check that it demonstrates cause and effect, that the people expected to act on it actually understand it, and that anyone can trace it back to real customer records. Metrics failing these tests become weapons in internal arguments instead of instruments for learning.",
+      "category": "Principle"
+    },
+    {
+      "title": "Schedule the Pivot Question",
+      "body": "Nobody decides to change strategy in the middle of a normal week, so put pivot-or-persevere meetings on the calendar in advance. Reviewing the evidence on a fixed rhythm turns the hardest call in entrepreneurship into a routine decision, and protects you from drifting indefinitely in the land of the living dead.",
+      "category": "Habit"
+    },
+    {
+      "title": "Pivots Keep One Foot Planted",
+      "body": "A real pivot is not starting over; it changes one strategic element — customer segment, revenue model, or which feature becomes the whole product — while keeping everything you have learned. Groupon grew from one stubbornly popular corner of a failing activism platform. Your dead end probably contains your next direction.",
+      "category": "Insight"
+    },
+    {
+      "title": "Small Batches Feel Slow, Win Anyway",
+      "body": "Processing work one unit at a time exposes problems after the first unit instead of after the thousandth. Stuffing one envelope completely beats folding the whole pile first, and shipping one change at a time beats the big quarterly release, because every small release carries its own verdict.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Stop the Line for Defects",
+      "body": "Toyota lets any worker halt the entire factory when a defect appears, and total speed rises because problems never get buried under later work. Apply the same rule to your projects: when something breaks, fix the cause before adding features, even though stopping feels like the slower path.",
+      "category": "Principle"
+    },
+    {
+      "title": "Ask Why Five Times",
+      "body": "Behind every technical failure sits a human and process failure: the crash traces to a setting, to a training gap, to a manager's habits, to a team norm. Ask why repeatedly until you reach that root, then invest a small proportional fix at every layer. Outages become compounding resilience.",
+      "category": "Practice"
+    },
+    {
+      "title": "Rigor Travels With the Rough Draft",
+      "body": "The MVP is widely abused as permission to ship careless work. Ries meant the opposite: the artifact may be rough, but the experiment around it must be exact — a named assumption, a baseline, a success threshold. If you cannot say what result would change your mind, you are not testing anything.",
+      "category": "Warning"
+    }
+  ],
+  "actions": [
+    {
+      "title": "Write down your riskiest assumption",
+      "detail": "State the one belief that, if false, kills your project — usually about whether customers want the thing, not whether you can build it. Everything in Ries' method starts from naming this assumption explicitly instead of building on it silently.",
+      "kind": "task",
+      "day": 1,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Design the cheapest honest test",
+      "detail": "Brainstorm experiments that would test your riskiest assumption with real customer behavior — a landing page, a demo video, a manual concierge version — and pick the cheapest one that produces real evidence. Write the success threshold before you run it.",
+      "kind": "event",
+      "day": 2,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Delete vanity metrics from your dashboard",
+      "detail": "Remove or demote every cumulative total — registered users, gross downloads, lifetime page views — and replace each with a per-cohort or per-period rate. If a chart can only go up, it cannot tell you whether anything you did worked.",
+      "kind": "task",
+      "day": 4,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Launch your minimum viable test",
+      "detail": "Put your experiment in front of real prospects today, embarrassment included. Ries' rule is that learning starts at first contact with customers, and every week of private polishing is a week of accumulating unverified belief.",
+      "kind": "task",
+      "day": 5,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Build a simple cohort table",
+      "detail": "Group your users or customers by the week they arrived and track what percentage of each group takes the action that matters — activation, return visit, purchase. This baseline is the starting line for innovation accounting.",
+      "kind": "event",
+      "day": 7,
+      "duration_minutes": 45
+    },
+    {
+      "title": "Run a five-whys session on your last failure",
+      "detail": "Take a recent outage, missed deadline, or botched release and ask why five times with everyone involved, then commit a small proportional fix at each layer of the chain. You are converting one failure into permanent process improvement.",
+      "kind": "event",
+      "day": 9,
+      "duration_minutes": 45
+    },
+    {
+      "title": "Cut your batch size in half",
+      "detail": "Take your current release or project cycle and split it: ship half the scope in half the time, then do it again. Each smaller release is its own experiment with its own verdict, which is the fastest route to learning.",
+      "kind": "task",
+      "day": 10,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Review your first experiment's verdict",
+      "detail": "Compare the test results against the success threshold you wrote on day 2, in writing, before discussing interpretations. Deciding what the numbers must show before you see them is what keeps the accounting honest.",
+      "kind": "event",
+      "day": 12,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Hold a pivot-or-persevere meeting",
+      "detail": "With your cohort data and experiment results on the table, explicitly decide whether to stay the course or change one strategic element while keeping what you have learned. Make the decision a calendar event, not a crisis.",
+      "kind": "event",
+      "day": 13,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Schedule the next learning cycle",
+      "detail": "Book your next experiment design session and the next pivot-or-persevere review at a fixed cadence, monthly or quarterly. The method only compounds if the loop keeps turning after the novelty wears off.",
+      "kind": "task",
+      "day": 14,
+      "duration_minutes": 0
+    }
+  ]
+}

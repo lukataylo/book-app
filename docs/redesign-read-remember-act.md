@@ -62,6 +62,18 @@ footer on the detail screen.
   cascade relationships to both new models. All CloudKit-safe (defaults +
   optional inverses), registered in both model containers.
 
+## Design language
+
+Clean, minimal, iOS-native. **No gradients anywhere.** The editorial
+black-and-white palette (`Theme.Palette`) stays primary; elevated content sits
+on **glass** — `Material` surfaces with a hairline stroke and soft shadow
+(`glassCard()` in `Design/Glass.swift`): knowledge cards, deck tiles, saved
+rows, the continue-reading card, the search field, badges, toasts and the
+Transform CTA bar. Category identity is carried by a small tint + SF Symbol
+chip (`CategoryChip`), never by colored backgrounds. Generated book spines are
+flat category color. Haptics (`sensoryFeedback`) confirm saves and check-offs;
+materials degrade automatically with Reduce Transparency.
+
 ## The legally-safe summary model
 
 Implements §3 of the pivot plan; **route through IP counsel before public launch**:

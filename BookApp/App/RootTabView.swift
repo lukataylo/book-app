@@ -43,7 +43,7 @@ struct RootTabView: View {
             await SeedBooksLoader.runIfNeeded(modelContext: modelContext)
             // Summary catalog ("The Big Ideas in …") — per-slug idempotent,
             // so packs added in an update are seeded on next launch.
-            SummaryPackLoader.runIfNeeded(modelContext: modelContext)
+            await SummaryPackLoader.runIfNeeded(modelContext: modelContext)
             // Backfill: mirror existing learnings → annotations so users
             // who installed before v11 see a populated Bookmarks tab on
             // upgrade. Idempotent.

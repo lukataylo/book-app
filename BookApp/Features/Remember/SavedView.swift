@@ -105,41 +105,32 @@ private struct SavedCardsView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 if !card.category.isEmpty {
-                    Text(card.category.uppercased())
-                        .font(.system(size: 10, weight: .bold))
-                        .tracking(1.1)
-                        .foregroundStyle(.white.opacity(0.85))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(.white.opacity(0.18)))
+                    CategoryChip(category: card.category, compact: true)
                 }
                 Spacer()
                 Image(systemName: "bookmark.fill")
                     .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.85))
+                    .foregroundStyle(KnowledgeCardStyle.tint(for: card.category))
             }
             Text(card.title)
                 .font(.system(size: 19, weight: .bold, design: .serif))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.Palette.textPrimary)
                 .multilineTextAlignment(.leading)
             Text(card.body)
                 .font(.system(size: 14))
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(Theme.Palette.textPrimary.opacity(0.8))
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
             if let title = card.book?.title {
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(Theme.Palette.textSecondary)
                     .lineLimit(1)
             }
         }
         .padding(Theme.Spacing.m)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            KnowledgeCardStyle.gradient(for: card.category)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.l, style: .continuous))
-        )
+        .glassCard(cornerRadius: Theme.Radius.l)
     }
 
     private func unsave(_ card: KnowledgeCard) {

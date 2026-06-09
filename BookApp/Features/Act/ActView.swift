@@ -10,15 +10,24 @@ struct ActView: View {
 
     @State private var generatingBookID: UUID?
     @State private var errorText: String?
+    @State private var query = ""
 
     private var plans: [Book] {
-        books.filter { !($0.actionItems ?? []).isEmpty }
+        applyQuery(books.filter { !($0.actionItems ?? []).isEmpty })
     }
 
     private var candidates: [Book] {
-        books.filter {
+        applyQuery(books.filter {
             ($0.actionItems ?? []).isEmpty
             && !($0.originalVariant?.contentText.isEmpty ?? true)
+        })
+    }
+
+    private func applyQuery(_ list: [Book]) -> [Book] {
+        guard !query.isEmpty else { return list }
+        let q = query.lowercased()
+        return list.filter {
+            $0.title.lowercased().contains(q) || $0.author.lowercased().contains(q)
         }
     }
 
@@ -72,6 +81,7 @@ struct ActView: View {
                 }
             }
             .navigationTitle("Act")
+            .searchable(text: $query, prompt: "Search plans")
             .alert("Couldn't build the plan", isPresented: Binding(
                 get: { errorText != nil },
                 set: { if !$0 { errorText = nil } }

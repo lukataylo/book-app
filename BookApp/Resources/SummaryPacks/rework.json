@@ -1,0 +1,190 @@
+{
+  "slug": "rework",
+  "title": "The Big Ideas in Rework",
+  "source_title": "Rework",
+  "source_author": "Jason Fried and David Heinemeier Hansson",
+  "source_year": 2010,
+  "categories": [
+    "Business"
+  ],
+  "themes": [
+    "lean company building",
+    "shipping early",
+    "meeting overload",
+    "bootstrapped growth",
+    "workplace focus",
+    "marketing by teaching"
+  ],
+  "read_minutes": 15,
+  "attribution": "An original summary of the ideas in Rework by Jason Fried and David Heinemeier Hansson (2010). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
+  "summary": "In 2010, Jason Fried and David Heinemeier Hansson — founders of the software company 37signals — published a business book that reads like an argument with the entire genre. Rework has no case studies of Fortune 500 turnarounds, no five-year frameworks, no reverence for hustle. It is a stack of short, blunt essays insisting that most of what passes for serious business practice — exhaustive planning, outside funding, big teams, long meetings — is ritual, not necessity. The authors built a profitable company with a tiny distributed team and no venture capital, and the book is their field report from doing it. This companion gathers its strongest provocations and what they imply for how you actually work.\n\n# Plans are polite fiction\n\nFried and Hansson's most heretical claim is that long-range business plans are works of imagination. You write them with the least information you will ever have — before customers, before feedback, before the market shifts under you — and then you treat the document as a commitment. The authors argue this gets the psychology exactly backwards: a detailed plan doesn't reduce risk, it just makes you feel obligated to a guess. Their alternative is aggressively short horizons. Decide what matters this week. Do it. Look at what actually happened, then decide again. Improvising with your eyes open, they argue, beats marching confidently down a road that was drawn before you knew anything.\n\nThe same skepticism applies to estimates. Humans, the authors note, are terrible at sizing anything beyond a few hours of work, and the bigger the project, the wilder the fiction becomes. Their fix is to break everything into pieces small enough that being wrong barely costs you. A misjudged afternoon is recoverable; a misjudged quarter is a crisis. The discipline of smallness is really a discipline of honesty about how little anyone can foresee.\n\n# Small is a position, not a stage\n\nMost founders treat smallness as an embarrassing larval phase. Fried and Hansson treat it as a strategic weapon worth keeping. A small company can change its mind on a Tuesday, apologize personally to a customer, and run profitably on revenue a big firm would dismiss as a rounding error. Growth, they argue, should be a deliberate choice with a stated reason, not a reflex or a vanity metric. Plenty of excellent businesses — restaurants, agencies, software shops — stay deliberately small for decades and are stronger for it.\n\nThe funding question follows directly. Taking outside money before you need it, the authors warn, means spending someone else's cash with someone else's expectations attached. You give up control, inherit an obligation to exit, and learn to spend rather than to earn. Their counter-model is unglamorous: start on the side, keep your day job, spend almost nothing, and let paying customers — not investors — tell you whether the idea deserves to exist. A business that earns real money from its first weeks never has to ask anyone's permission to survive.\n\n# Ship the core and let the edges go\n\nWhen a project runs long, the standard move is to push the deadline. Fried and Hansson's move is to shrink the project. Every product, they argue, has a core — the one thing it would be useless without — surrounded by features that merely seem mandatory. Cut the edges ruthlessly and ship the core now. A lean product that does one thing well today teaches you more than an ambitious one arriving next year, because reality only starts giving feedback after launch.\n\nThis is also their answer to feature requests. Customers will ask for everything; the authors advise listening politely and letting most requests go unrecorded, trusting that the genuinely important ones will keep coming back without a spreadsheet to remind you. Saying no is the default that keeps a product coherent. Their deeper point is about momentum: shipping something real — even something modest — generates the energy and the information for the next decision, while polishing in private generates nothing but anxiety.\n\n# Build what you wish existed\n\nThe authors' favorite source of product ideas is personal irritation. When you build a tool to fix your own problem, you start with something most founders never have: a genuine user with perfect access to the designer. You know instantly whether the thing works, because you reach for it daily. 37signals built its flagship project-management software because the firm needed it to manage client work; the product grew out of the company's own friction, not a market analysis. Fried and Hansson generalize the lesson: the gap between maker and user is where bad products are born, and the surest way to close it is to be both people at once.\n\nThey pair this with an observation about by-products. Whatever you do all day generates leftover knowledge — processes, opinions, hard-won lessons — and that exhaust can itself be packaged and sold. Rework, they point out, is exactly such an artifact: a book assembled from the residue of running a company. Businesses that notice their by-products often find a second product lying around for free.\n\n# Guard the uninterrupted stretch\n\nFried and Hansson's diagnosis of the modern office is brutal: people go there and fail to work, because the day gets shredded into fifteen-minute fragments by meetings, shoulder taps, and pings. Meaningful work needs long, unbroken stretches — the kind of immersion you cannot reach when interruption is institutionalized. Their prescriptions are concrete. Treat meetings as expensive by default: an hour-long meeting with eight people costs eight hours of labor, so most should never happen, and the ones that do need an agenda, a clock, and a decision at the end. Shift questions to asynchronous channels wherever possible, so colleagues answer when they reach a natural stopping point rather than the instant a request lands.\n\nThey are equally hostile to heroic overwork. Burning nights and weekends, they argue, signals bad judgment rather than commitment — exhausted people make sloppy decisions and then stay even later fixing them. The goal is a calm company that gets more done in fewer, better-protected hours. Carve out even one interruption-free afternoon a week, they claim, and the difference in output is immediate and obvious.\n\n# Teach instead of advertise\n\nBig competitors can outspend you on advertising forever, but they are usually too cautious to teach. Fried and Hansson argue that sharing what you know — how you build, what you've learned, even where you failed — is marketing that money cannot buy. A company that publishes its thinking attracts an audience that returns voluntarily, and an audience compounds in a way that ad impressions never do. 37signals built its reach through a widely read blog years before most firms took publishing seriously.\n\nThe same logic favors openness in general. Letting people see the messy interior of how things get made — drafts, processes, the workshop floor — builds a kind of trust that polished press releases actively destroy. Even bad news is a marketing moment: when something breaks, the company that explains quickly, apologizes like a human being, and tells customers exactly what happened comes out more trusted than it went in. Every email, error message, and invoice, the authors insist, is marketing, because marketing is simply the sum of everything a customer ever sees from you.\n\n# Hire as late as you can stand\n\nFried and Hansson's hiring rule is to suffer first. Do the job yourself until it genuinely hurts, because only then do you understand the work well enough to evaluate someone else doing it. Hiring to relieve a hypothetical future pain produces payroll without purpose. When you do hire, they prefer evidence over credentials: years of experience predict little, degrees less, and cover letters more than résumés, because a letter shows how a person actually thinks on the page. Writing ability, in their view, is a proxy for clear thinking and worth screening for in nearly every role.\n\nThey also caution against bringing in delegators — people who coordinate work rather than do it — too early, and against the fantasy that culture can be installed with posters and offsites. Culture, they argue, is the by-product of consistent behavior accumulating over time. You don't declare it; you accrete it. A small team of doers watching the founders act with trust and candor will build the culture on its own.\n\n# Who should pick up Rework\n\nRework rewards anyone allergic to business theater: side-project builders waiting for permission, freelancers wondering whether they're obligated to scale, managers drowning in meetings, founders being told that a funding round is the only legitimate path. The full book delivers its arguments in dozens of two-page essays with striking illustrations — a form this companion can describe but not reproduce — and the cumulative effect of reading them in one sitting is a genuine recalibration of what counts as necessary. It is also a fast, funny read; you can finish it on a flight and start ignoring bad advice by the time you land. If you've ever suspected that the standard playbook was written for companies nothing like yours, Fried and Hansson supply the confidence — and the specifics — to throw it out.",
+  "learnings": [
+    {
+      "text": "Long-range plans are written at the moment of maximum ignorance, so treating them as commitments locks you into a guess.",
+      "chapter": "Plans are polite fiction"
+    },
+    {
+      "text": "Break work into chunks small enough that a wrong estimate costs an afternoon, not a quarter.",
+      "chapter": "Plans are polite fiction"
+    },
+    {
+      "text": "Growth should be a deliberate choice with a stated reason; staying small preserves speed, intimacy, and control.",
+      "chapter": "Small is a position, not a stage"
+    },
+    {
+      "text": "Outside money buys obligations along with runway: investor expectations, spending habits, and pressure to exit.",
+      "chapter": "Small is a position, not a stage"
+    },
+    {
+      "text": "When a project slips, shrink the scope instead of moving the deadline — ship the core and cut the edges.",
+      "chapter": "Ship the core and let the edges go"
+    },
+    {
+      "text": "Building a product you personally need gives you a permanent in-house user and instant feedback on every decision.",
+      "chapter": "Build what you wish existed"
+    },
+    {
+      "text": "An hour-long meeting with eight people costs eight hours of labor; priced that way, most meetings should never happen.",
+      "chapter": "Guard the uninterrupted stretch"
+    },
+    {
+      "text": "Publishing what you know attracts an audience that compounds, while paid ad impressions evaporate the moment you stop buying them.",
+      "chapter": "Teach instead of advertise"
+    },
+    {
+      "text": "Do a job yourself until it genuinely hurts before hiring for it; otherwise you cannot evaluate the work.",
+      "chapter": "Hire as late as you can stand"
+    },
+    {
+      "text": "When choosing between candidates, favor the better writer — clear writing is a reliable proxy for clear thinking.",
+      "chapter": "Hire as late as you can stand"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Decide at the Last Useful Moment",
+      "body": "You make your worst decisions when you know the least, which is always at the start. Instead of committing to a long-range plan, decide only what the next week requires, act, and let real results inform the next call. You trade the comfort of a roadmap for the accuracy of fresh information.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Shrink the Project, Not the Quality",
+      "body": "When a deadline is in danger, your instinct is to push the date or cut corners. There is a third option: cut scope. Strip the project to the one capability it would be useless without and ship that, polished. Smaller done well beats bigger done late, and launch is when learning starts.",
+      "category": "Principle"
+    },
+    {
+      "title": "Your Irritation Is Market Research",
+      "body": "The problems that annoy you daily are product ideas with a built-in test user: you. When you build for yourself, you feel instantly whether the solution works, with no surveys or focus groups in between. The distance between maker and user is where bad products are born — close it by being both.",
+      "category": "Insight"
+    },
+    {
+      "title": "Price Every Meeting in Person-Hours",
+      "body": "Before booking a meeting, multiply its length by the number of attendees. A one-hour meeting with eight people is an eight-hour purchase of your company's scarcest resource. Pay that price only with an agenda, a hard stop, and a named decision to make. Most meetings fail this test — cancel them.",
+      "category": "Practice"
+    },
+    {
+      "title": "Sell Your By-Products",
+      "body": "Everything you do all day produces exhaust: processes, lessons, opinions, tools you built along the way. Most companies let that knowledge evaporate. Look through yours for something packageable — a guide, a template, a course, a spin-off product. Fried and Hansson's own book was assembled from the residue of running their company.",
+      "category": "Insight"
+    },
+    {
+      "title": "Funding Starts a Countdown Clock",
+      "body": "Outside money feels like oxygen but behaves like a timer. You inherit investors' expectations, learn to spend instead of earn, and trade control for runway. Charging customers from the start is slower and less glamorous, but a business that pays for itself never needs anyone's permission to keep existing.",
+      "category": "Warning"
+    },
+    {
+      "title": "Make No Your Default Answer",
+      "body": "Every feature request, partnership offer, and shiny opportunity arrives with a plausible case. Say no by default and let the truly important asks prove themselves by returning again and again. You can always say yes later; un-saying yes — removing a feature, exiting a commitment — is far more expensive.",
+      "category": "Principle"
+    },
+    {
+      "title": "Protect One Untouchable Block",
+      "body": "Real progress needs long, unbroken stretches, and the modern workday shreds them into fifteen-minute scraps. Claim one block each week — even a single afternoon — where no meetings, messages, or taps on the shoulder are allowed to reach you. Defend it like a client appointment and watch what one quiet stretch produces.",
+      "category": "Habit"
+    },
+    {
+      "title": "Teach What You Know Publicly",
+      "body": "Bigger competitors can outspend you on ads forever, but they rarely dare to teach. Share how you work, what you have learned, and where you failed. An audience that learns from you returns voluntarily and compounds over time — a marketing asset no media budget can replicate or take away.",
+      "category": "Practice"
+    },
+    {
+      "title": "Exhaustion Makes Expensive Mistakes",
+      "body": "All-nighters look like commitment but function like impairment. Tired people make sloppy calls, then stay even later repairing them, mistaking the cycle for dedication. Treat chronic overwork as a signal of bad scoping or bad priorities, not heroism. A calm company doing focused hours outperforms a frantic one doing long ones.",
+      "category": "Warning"
+    },
+    {
+      "title": "Feel the Pain Before You Hire",
+      "body": "Hire only after you have done the job yourself long enough to hurt. That pain teaches you what the work actually involves, what good looks like, and whether the role is real or imagined. Hiring ahead of need produces payroll without purpose and managers with nothing concrete to manage.",
+      "category": "Practice"
+    },
+    {
+      "title": "Culture Is What You Repeat",
+      "body": "You cannot install culture with posters, perks, or offsite retreats. Culture is the residue of consistent behavior: how founders treat customers when something breaks, what gets praised, what gets tolerated. Behave the way you want the company to behave, repeatedly, and the culture accretes on its own — for better or worse.",
+      "category": "Insight"
+    }
+  ],
+  "actions": [
+    {
+      "title": "List your business-theater rituals",
+      "detail": "Write down everything you do mainly because it looks professional — status decks, long-range forecasts, standing meetings. Mark each one keep, shrink, or kill, in the spirit of Fried and Hansson's case that most ritual is not necessity.",
+      "kind": "task",
+      "day": 1,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Run a one-week planning session",
+      "detail": "Replace the quarter-long roadmap with a single question: what matters most in the next seven days? Pick at most three outcomes and write down what you will ignore. Short horizons keep decisions tied to fresh information.",
+      "kind": "event",
+      "day": 2,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Cut your current project's scope in half",
+      "detail": "Identify the one capability your project would be useless without, then move everything else to a someday list. Shipping the core sooner starts the feedback loop that polishing in private never does.",
+      "kind": "task",
+      "day": 3,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Block a weekly no-interruption stretch",
+      "detail": "Put a recurring 90-minute block on your calendar with notifications off and no meetings allowed. Long, unbroken time is where meaningful work happens; treat this block as an appointment you cannot move.",
+      "kind": "event",
+      "day": 5,
+      "duration_minutes": 90
+    },
+    {
+      "title": "Cancel or shrink one standing meeting",
+      "detail": "Price your recurring meetings in person-hours and pick the worst offender. Cancel it outright or cut it to half length with an agenda and a named decision. Reclaimed hours go straight back into real work.",
+      "kind": "task",
+      "day": 6,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Write and publish one thing you know",
+      "detail": "Draft a short post, thread, or email teaching something your work has taught you — a process, a mistake, a fix. Teaching publicly is the marketing channel small players can win, because audiences compound.",
+      "kind": "event",
+      "day": 8,
+      "duration_minutes": 45
+    },
+    {
+      "title": "Identify one sellable by-product",
+      "detail": "Inventory the exhaust of your daily work — templates, checklists, lessons, internal tools — and pick one that someone outside would pay for or learn from. By-products are second products you have already built.",
+      "kind": "task",
+      "day": 10,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Hold a say-no review of your backlog",
+      "detail": "Go through your feature requests, commitments, and ideas list, defaulting every item to no. Keep only what has come back repeatedly on its own. Saying no is how a product — and a calendar — stays coherent.",
+      "kind": "event",
+      "day": 12,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Write your one-sentence growth rationale",
+      "detail": "Finish the sentence: we should grow because. If you cannot name a concrete reason beyond reflex or vanity, commit to staying your current size for the next quarter and bank the speed and control that smallness buys.",
+      "kind": "task",
+      "day": 14,
+      "duration_minutes": 0
+    }
+  ]
+}
