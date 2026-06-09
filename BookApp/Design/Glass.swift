@@ -9,15 +9,18 @@ struct GlassCardModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            )
+            // Shadow lives on the background shape, not the composed view —
+            // a shadow after a translucent material makes every non-opaque
+            // subview (glyphs, symbols) cast its own.
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: .black.opacity(0.06), radius: 16, x: 0, y: 8)
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(Theme.Palette.divider, lineWidth: 0.5)
             )
-            .shadow(color: .black.opacity(0.06), radius: 16, x: 0, y: 8)
     }
 }
 

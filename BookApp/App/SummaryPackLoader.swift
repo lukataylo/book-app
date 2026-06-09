@@ -53,9 +53,15 @@ enum SummaryPackLoader {
             }
         }.value
 
+        // One fetch for the duplicate guard instead of one per pack —
+        // first launch seeds ~80 packs and O(n²) fetches would all land
+        // on the main actor.
+        var existingTitles = Self.existingSummaryTitles(context: modelContext)
+
         for pack in packs {
             guard !loaded.contains(pack.slug) else { continue }
-            guard seed(pack: pack, context: modelContext) else { continue }
+            guard seed(pack: pack, context: modelContext, existingTitles: existingTitles) else { continue }
+            existingTitles.insert(pack.title)
             // Persist per pack, not after the loop — a crash mid-seed must
             // not re-seed (and duplicate) the packs that already saved.
             loaded.insert(pack.slug)
@@ -65,19 +71,25 @@ enum SummaryPackLoader {
         }
     }
 
+    /// Titles of summary editions already in the store. Captured-variable
+    /// #Predicate translation is unreliable (see SeedBooksLoader), so this
+    /// fetches the summary editions and matches in memory — the catalog is
+    /// small by construction.
+    static func existingSummaryTitles(context: ModelContext) -> Set<String> {
+        let descriptor = FetchDescriptor<Book>(predicate: #Predicate { $0.isSummaryEdition })
+        let existing = (try? context.fetch(descriptor)) ?? []
+        return Set(existing.map(\.title))
+    }
+
     /// Returns true when the pack's records were saved (or already exist).
     /// Internal (not private) so the idempotency contract is unit-testable.
     @discardableResult
-    static func seed(pack: SummaryPack, context: ModelContext) -> Bool {
+    static func seed(pack: SummaryPack, context: ModelContext, existingTitles: Set<String>? = nil) -> Bool {
         // Content-based guard on top of the UserDefaults flag: the store is
         // CloudKit-synced, so a second device must not insert its own copy
-        // of a summary book that already synced down. Captured-variable
-        // #Predicate translation is unreliable (see SeedBooksLoader), so
-        // fetch the summary editions and match in memory — the catalog is
-        // small by construction.
-        let descriptor = FetchDescriptor<Book>(predicate: #Predicate { $0.isSummaryEdition })
-        if let existing = try? context.fetch(descriptor),
-           existing.contains(where: { $0.title == pack.title }) {
+        // of a summary book that already synced down.
+        let titles = existingTitles ?? existingSummaryTitles(context: context)
+        if titles.contains(pack.title) {
             return true
         }
 
@@ -143,6 +155,9 @@ enum SummaryPackLoader {
             try context.save()
             return true
         } catch {
+            // Roll the failed pack's pending inserts back so one bad pack
+            // can't poison every subsequent pack's save in this run.
+            context.rollback()
             print("[SummaryPacks] save failed for \(pack.slug): \(error)")
             return false
         }
