@@ -30,8 +30,9 @@ struct SummaryPackTests {
     @Test
     func bundleContainsTheLaunchCatalog() throws {
         let packs = try loadPacks()
-        #expect(packs.count >= 8)
+        #expect(packs.count >= 80, "launch catalog is 80 titles")
         #expect(Set(packs.map(\.slug)).count == packs.count, "slugs must be unique")
+        #expect(Set(packs.map(\.title)).count == packs.count, "titles must be unique")
     }
 
     @Test
