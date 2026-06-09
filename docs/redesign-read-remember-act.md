@@ -31,7 +31,8 @@ reading to doing.
 Five tabs. The first three are the product loop; their names are the pitch:
 
 1. **Read** — the existing library/home, now summary-first. Ships with a catalog of
-   original "The Big Ideas in …" summaries (8 popular non-fiction titles at launch).
+   original "The Big Ideas in …" summaries (**80 popular non-fiction titles** at
+   launch — ~123k words of summaries, 945 knowledge cards, 760 plan steps).
    Search moved from its own tab into the Read toolbar; import is unchanged.
 2. **Remember** — Deepstash-style knowledge cards. Every catalog title ships with a
    curated 10–12 card deck (`KnowledgeCard`); any other book with text can generate
@@ -99,9 +100,17 @@ Implements §3 of the pivot plan; **route through IP counsel before public launc
 for existing users). Each pack: catalog metadata, summary text, 8–10 key
 learnings, a 10–12 card deck, and an 8–10 step 14-day plan.
 
-Launch catalog: Atomic Habits · Deep Work · Mindset · Thinking, Fast and Slow ·
-Sapiens · The Power of Habit · The 7 Habits of Highly Effective People ·
-How to Win Friends and Influence People.
+Launch catalog: **80 titles** spanning habits & productivity (Atomic Habits,
+Deep Work, GTD, Essentialism, Tiny Habits…), psychology & decision-making
+(Thinking Fast and Slow, Influence, Nudge, Flow, Grit, Quiet…), communication
+& negotiation (How to Win Friends, Never Split the Difference, NVC…), business
+& leadership (Good to Great, Lean Startup, Zero to One, High Output
+Management…), money (Psychology of Money, The Intelligent Investor…), health
+(Why We Sleep, Breath, Outlive), science & history (Sapiens, The Selfish Gene,
+Guns Germs and Steel…), and philosophy (Meditations, Letters from a Stoic,
+Man's Search for Meaning…). Every title ships with its summary, a 10–12 card
+deck and an 8–10 step plan. Each pack went through an independent
+editorial/legal review pass by a separate agent from the one that wrote it.
 
 ## Privacy
 
