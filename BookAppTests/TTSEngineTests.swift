@@ -104,31 +104,37 @@ struct TTSEngineTests {
     // MARK: - Pause / resume state
 
     @Test
-    func pauseFlipsPlayingFlagAndRecordsAction() {
+    func pauseFlipsPlayingFlagAndRecordsAction() throws {
         let engine = TTSEngine()
         engine.isPlaying = true
         engine.pause()
         #expect(engine.isPlaying == false)
-        // pause() must record the timestamp so the interruption guard
-        // works on the very next runloop tick.
+        // pause() must record a fresh timestamp so the interruption guard
+        // works on the very next runloop tick. Assert with a `now` derived
+        // from the recorded timestamp — racing the wall clock against the
+        // 0.6s production window was flaky on loaded CI simulators.
+        let recorded = try #require(engine.lastUserActionForTesting)
+        #expect(abs(recorded.timeIntervalSinceNow) < 5)
         #expect(TTSEngine.shouldSuppressInterruption(
-            lastUserAction: engine.lastUserActionForTesting,
-            now: .now,
+            lastUserAction: recorded,
+            now: recorded.addingTimeInterval(0.3),
             window: 0.6
         ))
     }
 
     @Test
-    func resumeFlipsPlayingFlagAndRecordsAction() {
+    func resumeFlipsPlayingFlagAndRecordsAction() throws {
         let engine = TTSEngine()
         engine.isPlaying = false
         engine.resume()
         // resume() optimistically marks isPlaying = true; an immediate
         // spurious `.began` from iOS would otherwise re-pause us.
         #expect(engine.isPlaying == true)
+        let recorded = try #require(engine.lastUserActionForTesting)
+        #expect(abs(recorded.timeIntervalSinceNow) < 5)
         #expect(TTSEngine.shouldSuppressInterruption(
-            lastUserAction: engine.lastUserActionForTesting,
-            now: .now,
+            lastUserAction: recorded,
+            now: recorded.addingTimeInterval(0.3),
             window: 0.6
         ))
     }
