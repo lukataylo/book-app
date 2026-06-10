@@ -25,7 +25,13 @@ enum PlannerError: Error, LocalizedError {
 final class PlannerService {
     static let shared = PlannerService()
 
-    private let store = EKEventStore()
+    /// EKEventStore is documented thread-safe, but its async permission
+    /// requests are nonisolated — under strict concurrency a main-actor-
+    /// isolated store can't be sent into them. Marking it nonisolated is
+    /// safe: the store handles its own synchronization, and the
+    /// EKEvent/EKReminder objects we create stay confined to the main
+    /// actor (they are NOT thread-safe).
+    nonisolated(unsafe) private let store = EKEventStore()
 
     /// Adds a single `.event` item to the calendar on the given date.
     /// Events default to 9:00 local time; `durationMinutes` sets the length.
