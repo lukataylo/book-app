@@ -8,6 +8,11 @@ import XCTest
 /// The test launches with `-uitesting` so onboarding is skipped, opens
 /// the first book on the shelf, switches to Listen mode, and asserts the
 /// play/pause toggle behaves like a normal media player.
+///
+/// @MainActor because Xcode 16.4's XCTest annotates the XCUI APIs as
+/// main-actor-isolated; under strict concurrency a nonisolated test
+/// class no longer compiles against them.
+@MainActor
 final class ReaderListenFlowTests: XCTestCase {
 
     override func setUp() {
