@@ -86,26 +86,10 @@ struct BookCardView: View {
     }
 
     private var generatedCover: some View {
-        let color = Theme.BookSpine.color(for: book.categoryTags)
-        return ZStack(alignment: .bottomLeading) {
-            // Flat spine color — the catalog's no-gradient design language.
-            color
-                .overlay(
-                    Rectangle()
-                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
-                )
-            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(book.title)
-                    .font(.system(.subheadline, design: .serif, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(3)
-                Text(book.author)
-                    .font(.system(.caption2, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .lineLimit(1)
-            }
-            .padding(Theme.Spacing.s)
-        }
+        // Idea Glyphs cover system (Design/CoverArt.swift) — warm paper,
+        // category glyph, color foot bar. Chosen from the three mockups
+        // in research/cover-art (approach B).
+        GeneratedCoverView(book: book)
     }
 
     /// Platform-aware image decoder used by both compact and grid layouts.

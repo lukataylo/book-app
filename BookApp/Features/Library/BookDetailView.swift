@@ -128,16 +128,11 @@ struct BookDetailView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
                 .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
         } else {
-            // Fallback generated spine.
-            RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous)
-                .fill(Theme.BookSpine.color(for: book.categoryTags))
+            // Idea Glyphs generated cover (Design/CoverArt.swift).
+            GeneratedCoverView(book: book)
                 .frame(width: 110, height: 160)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
                 .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
-                .overlay(
-                    Text(book.title.prefix(1))
-                        .font(.system(.largeTitle, design: .serif, weight: .semibold))
-                        .foregroundStyle(.white)
-                )
         }
     }
 
