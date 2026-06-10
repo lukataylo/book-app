@@ -25,14 +25,32 @@ final class ReaderListenFlowTests: XCTestCase {
         app.launchArguments += ["-uitesting"]
         app.launch()
 
-        // Library renders the seeded books once SeedBooksLoader finishes.
-        // First launch on a fresh simulator can take ~3s while seeds copy
-        // into the SwiftData store.
-        let firstBookCard = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "by"))
-            .firstMatch
-        XCTAssert(firstBookCard.waitForExistence(timeout: 8),
-                  "Library failed to render any seeded books")
-        firstBookCard.tap()
+        // Library renders as the seed loaders finish. First launch on a
+        // fresh CI simulator imports 3 EPUBs and starts seeding the
+        // 80-pack summary catalog, so give the first cards a generous
+        // window. Match on the catalog's title convention rather than a
+        // loose substring (the old "by" predicate famously matched
+        // "Algorithms to Live By" sitting off-screen in a carousel),
+        // and only tap a card that is actually hittable on screen.
+        let cards = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "The Big Ideas in")
+        )
+        XCTAssert(cards.firstMatch.waitForExistence(timeout: 15),
+                  "Library failed to render the seeded catalog")
+        guard let card = cards.allElementsBoundByIndex.first(where: { $0.isHittable }) else {
+            XCTFail("No hittable book card on the Library screen")
+            return
+        }
+        card.tap()
+
+        // Library → Book Detail; the reading CTA ("Start reading" /
+        // "Continue reading") pushes the reader.
+        let readingCTA = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "reading")
+        ).firstMatch
+        XCTAssert(readingCTA.waitForExistence(timeout: 6),
+                  "Book detail didn't render its reading CTA")
+        readingCTA.tap()
 
         // Mode pill — labelled "Listen mode" by the a11y pass.
         let listenTab = app.buttons["Listen mode"]
