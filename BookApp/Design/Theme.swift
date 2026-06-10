@@ -40,32 +40,8 @@ enum Theme {
         static let divider       = Color(light: "E5E5E5", dark: "1F1F1F")
     }
 
-    enum BookSpine {
-        /// Per-genre spine colors used as fallbacks when no cover is supplied.
-        static let palette: [String: Color] = [
-            "Self-improvement": Color(hex: "DC2626"),
-            "Philosophy":       Color(hex: "7C3AED"),
-            "Business":         Color(hex: "0891B2"),
-            "Science":          Color(hex: "059669"),
-            "Fiction":          Color(hex: "DB2777"),
-            "History":          Color(hex: "92400E"),
-            "Biography":        Color(hex: "4338CA"),
-            "Default":          Color(hex: "475569")
-        ]
-
-        /// Slate-grey fallback. Hard-coded so this function is total —
-        /// the dictionary literal could in principle be edited to drop
-        /// the "Default" key, and we don't want a missing palette entry
-        /// to crash every cover render.
-        private static let defaultSpine = Color(hex: "475569")
-
-        static func color(for tags: [String]) -> Color {
-            for tag in tags {
-                if let c = palette[tag] { return c }
-            }
-            return palette["Default"] ?? defaultSpine
-        }
-    }
+    // The flat-color BookSpine fallback palette retired in favor of the
+    // Idea Glyphs cover system (Design/CoverArt.swift).
 }
 
 extension Color {
