@@ -4,45 +4,184 @@
   "source_title": "Antifragile",
   "source_author": "Nassim Nicholas Taleb",
   "source_year": 2012,
-  "categories": ["Philosophy", "Business"],
-  "themes": ["gaining from disorder", "via negativa", "optionality and tinkering", "skin in the game", "hormesis and stressors", "hidden fragility of stability"],
+  "categories": [
+    "Philosophy",
+    "Business"
+  ],
+  "themes": [
+    "gaining from disorder",
+    "via negativa",
+    "optionality and tinkering",
+    "skin in the game",
+    "hormesis and stressors",
+    "hidden fragility of stability"
+  ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Antifragile by Nassim Nicholas Taleb (2012). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
   "summary": "Some things break under stress, some withstand it — and a third category gets stronger because of it. Nassim Nicholas Taleb noticed that no language had a word for that third thing, which is strange, because life is built from it: muscles, immune systems, evolution, good ideas. Antifragile is his attempt to name the property, map where it lives, and show why a modern world obsessed with removing every shock is quietly manufacturing catastrophe.\n\n# The word that was missing\n\nAsk people for the opposite of fragile and they will say robust or resilient. Taleb's opening move is to show that this is wrong. The robust merely survives disorder, the way a stone survives being dropped. The true opposite of fragile is something that benefits from being dropped — that needs volatility, error, and stress the way fragile things need protection from them. He coined antifragile for this property and built a triad to sort the world: fragile things that beg for tranquility, robust things that shrug, and antifragile things that quietly feed on chaos.\n\nOnce you have the category, you see it everywhere. A teacup is fragile. A bank vault is robust. Your immune system is antifragile — deprive it of all exposure and it starts attacking harmless pollen. Aviation as a system is antifragile to accidents, because every crash is dissected until the next one becomes less likely, while a financial system that buries its errors grows more dangerous with each calm year. The triad hands Taleb a single question to ask of any diet, policy, company, or career: when disorder arrives, does this thing pay or collect? Most of the book is the patient application of that question to everything modernity holds dear.\n\n# Stress is information\n\nBiology runs on a principle that much of engineering forgot: systems improve by overreacting to stress. Lift a weight near your limit and your body does not repair itself back to the old baseline — it overshoots, building capacity for a heavier day that may never come. Bones densify under impact, vaccines train immunity with a small dose of the enemy, and a muscle never challenged becomes a liability. Taleb generalizes the pattern: within limits, stressors are messages about the environment, and a system shielded from all of them grows weak precisely because nothing ever asked it to stay strong. Deprivation of stress, he argues, is a stress of its own — ask an astronaut's skeleton after months without gravity.\n\nThe dose makes the difference. A stress that informs at small scale destroys at large scale, which is why Taleb is not romanticizing hardship: he is arguing for frequent, small, recoverable shocks over rare, enormous ones. A career of small honest failures teaches; one catastrophic bet ends the lessons permanently. He also points out something uncomfortable: antifragility at the level of a system usually works at the expense of its units. The restaurant industry stays excellent because individual restaurants are allowed to fail. The economy learns through the pain of its parts — which is why Taleb celebrates tinkering entrepreneurs as a class and despises the bailouts that prevent the system from learning anything at all.\n\n# The smoother the ride, the harder the crash\n\nSuppressing volatility does not remove risk; it stores it. Forests where every small fire is extinguished accumulate decades of dry fuel, then burn at a scale no firefighter has seen. Currencies pegged into artificial stillness collapse all at once instead of adjusting in increments. A child protected from every germ, scrape, and disagreement meets adulthood undefended. The pattern Taleb traces is consistent: systems stabilized from the outside lose both the information and the adaptations that small fluctuations provide, becoming towers of hidden fragility that look magnificent right up until they fall over.\n\nHe reserves special contempt for the figure he calls the fragilista: the well-credentialed intervener who mistakes an absence of visible volatility for an absence of risk and prescribes accordingly. Medicine has a word for harm caused by the healer — iatrogenics — and Taleb extends it to economics, education, parenting, and politics, anywhere confident professionals smooth systems they do not fully understand and send the bill to the future. His rule of thumb is asymmetric: intervene boldly where inaction is catastrophic — emergencies, runaway processes — and otherwise let the small fires burn. The price of perpetual smoothing is always paid, and it is paid in a single installment at the worst possible time.\n\n# Subtract before you add\n\nAsked to improve anything, we instinctively add: a feature, a supplement, a policy, a meeting. Taleb argues that the larger and more reliable gains usually come from removal, an approach he names via negativa. The logic rests on an asymmetry of knowledge — we can identify what is harmful with far more confidence than we can identify what is beneficial, so eliminating the bad is sturdier than engineering the good. Dropping a destructive habit does more for a body than most additions a clinic can sell; deleting a toxic commitment improves a week more than any productivity system layered on top of it. Subtraction, unlike addition, rarely carries hidden side effects of its own.\n\nTime itself, in Taleb's telling, runs on subtraction: it removes the fragile and keeps the rest, which makes longevity a form of evidence. This is the Lindy effect — for ideas, books, and technologies, every year of survival raises the expectation of how many more years remain, because endurance demonstrates a fitness that novelty has not yet been asked to prove. The practical heuristic that falls out is humility before the time-tested: when a shiny replacement competes with a boring survivor, the burden of proof belongs to the shiny one. The chair, the walk, the old text, the simple meal have passed audits the new thing has not yet faced.\n\n# Options beat predictions\n\nThe antifragile do not need to know the future; they need the right shape of exposure to it. Taleb's word is optionality: arrangements in which you hold the right but not the obligation to proceed, so that errors cost little while lucky breaks pay enormously. A tinkerer running ten cheap experiments needs no forecast — nine duds and one discovery make the whole portfolio a triumph. Taleb argues this lopsided arithmetic, not theory, drove much of historical invention: practitioners stumbling onto what works, with the explanations arriving later wearing academic robes. When your downside is capped and your upside is open, being wrong often is not just survivable; it is the method.\n\nHis structural recipe is the barbell: extreme caution on one side, hungry experimentation on the other, and nothing in the deceptively reasonable middle. He describes the combination of an utterly safe foundation with a sliver of wild bets as antifragile by construction — the safe side caps what disorder can take, the wild side keeps what disorder can give. The geometry travels beyond finance, where in any case this summary offers no advice: a steady day job funding ferocious night-time projects, a stable clinical practice beside speculative research. What the barbell forbids is the middle path — the moderately risky, fully exposed position that feels prudent and quietly carries ruin.\n\n# No upside without downside\n\nTaleb's ethical test is symmetry: never trust anyone whose advice carries upside for them and downside only for you. He calls the principle skin in the game, and he reads civilization through it. Ancient codes made a builder answer with his own safety for the houses he raised; captains historically shared the fate of their cargo; for most of history, the people who made consequential decisions stood inside the blast radius of their own mistakes.\n\nModernity, he argues, perfected the transfer of fragility: executives harvesting bonuses from risks that detonate after they have moved on, forecasters paid for confidence rather than accuracy, commentators wrong for decades at zero personal cost. The trouble is not only injustice — it is that fragility never disappears when shed; it flows downhill to whoever cannot refuse it: taxpayers, employees, patients. A system stays antifragile only when actors absorb their own downside, because that is what makes errors informative instead of contagious. Taleb's personal filter is bluntly usable: judge people by what they have risked, not by what they have said, and never take advice from someone who pays nothing for being wrong.\n\n# Why the full book is worth the disorder\n\nAntifragile is Taleb's biggest and most personal book, sprawling across medicine, ethics, urban planning, weightlifting, ancient texts, and a number of well-tended grudges. The sprawl is not a flaw; it is the book practicing the tinkering it preaches, and its best ideas — via negativa, the Lindy effect, the barbell, skin in the game — arrive embedded in stories and provocations no summary can carry. Read it if you build anything that must survive a future you cannot see: a company, a body of work, a portfolio of skills, a child's education. It will not make you comfortable, and it does not intend to. It aims to make you harder to break — and, more ambitiously, to leave you positioned so that the very disorder you used to insure against starts paying you instead.\n",
+  "summary_short": "What do you call something that gains from being shaken? Nassim Nicholas Taleb noticed that no language had a word for it, even though muscles, immune systems, and evolution all work this way — so he coined one. Antifragile sorts the world into a triad: fragile things that beg for tranquility, robust things that merely endure disorder, and antifragile things that feed on volatility, error, and stress. Once you have the category, a single question applies to any diet, company, policy, or career: when disorder arrives, does this thing pay or collect?\n\nTaleb's core claims follow from that triad. Stress is information — bodies and systems improve by overreacting to small, recoverable shocks, and anything shielded from all stress grows weak precisely because nothing ever asked it to stay strong. Suppressing volatility does not remove risk; it stores it: forests where every small fire is extinguished eventually burn at unprecedented scale, and systems smoothed by confident interveners — the figure he calls the fragilista — collapse all at once instead of adjusting in increments. Improvement usually comes from subtraction rather than addition, his via negativa, because we can identify what harms with far more confidence than what helps. And time itself runs on subtraction: the Lindy effect holds that for ideas, books, and technologies, every year of survival raises the expectation of years remaining, so the boring survivor deserves more trust than the shiny novelty.\n\nFinally, the antifragile do not predict the future; they position for it. Optionality — capped downside, open upside — makes being wrong cheap and being right enormous, and Taleb's barbell pairs extreme caution on one side with small, hungry experiments on the other while forbidding the deceptively reasonable middle. None of it works without his ethical test: never take advice from someone who pays nothing for being wrong, because fragility shed by the powerful flows downhill to whoever cannot refuse it. The full summary unpacks each of these ideas — the triad, stress as signal, via negativa, Lindy, the barbell, and skin in the game — with the examples and heuristics that make them practical.",
   "learnings": [
-    {"text": "The opposite of fragile is not robust — robustness merely survives shocks, while antifragility gains from them, a category Taleb argues had no name until he coined one.", "chapter": "The word that was missing"},
-    {"text": "Taleb's triad gives you one question to ask of any system, habit, or institution: when disorder arrives, does it pay or collect?", "chapter": "The word that was missing"},
-    {"text": "Within limits, stressors are information: bodies, immune systems, and industries overshoot in response to small shocks, building capacity that comfort never demands.", "chapter": "Stress is information"},
-    {"text": "Antifragile systems often improve at the expense of their parts — restaurants fail so the restaurant industry can learn — which is why Taleb defends failure and despises bailouts.", "chapter": "Stress is information"},
-    {"text": "Suppressing small fluctuations stores risk rather than removing it; the forest with no small fires is the one that eventually burns beyond control.", "chapter": "The smoother the ride, the harder the crash"},
-    {"text": "Iatrogenics — harm caused by the healer — extends beyond medicine to any confident intervention that smooths a system it does not understand and bills the damage to the future.", "chapter": "The smoother the ride, the harder the crash"},
-    {"text": "Via negativa rests on an asymmetry of knowledge: we identify what is harmful far more reliably than what is beneficial, so removal beats addition.", "chapter": "Subtract before you add"},
-    {"text": "The Lindy effect treats survival as evidence — every year an idea or technology endures raises the expectation of how much longer it will last.", "chapter": "Subtract before you add"},
-    {"text": "Optionality replaces prediction: with capped downside and open upside, a tinkerer can be wrong nine times out of ten and still come out far ahead.", "chapter": "Options beat predictions"},
-    {"text": "Skin in the game is Taleb's ethical filter: judge people by what they have risked, and never take advice from someone who pays nothing for being wrong.", "chapter": "No upside without downside"}
+    {
+      "text": "The opposite of fragile is not robust — robustness merely survives shocks, while antifragility gains from them, a category Taleb argues had no name until he coined one.",
+      "chapter": "The word that was missing"
+    },
+    {
+      "text": "Taleb's triad gives you one question to ask of any system, habit, or institution: when disorder arrives, does it pay or collect?",
+      "chapter": "The word that was missing"
+    },
+    {
+      "text": "Within limits, stressors are information: bodies, immune systems, and industries overshoot in response to small shocks, building capacity that comfort never demands.",
+      "chapter": "Stress is information"
+    },
+    {
+      "text": "Antifragile systems often improve at the expense of their parts — restaurants fail so the restaurant industry can learn — which is why Taleb defends failure and despises bailouts.",
+      "chapter": "Stress is information"
+    },
+    {
+      "text": "Suppressing small fluctuations stores risk rather than removing it; the forest with no small fires is the one that eventually burns beyond control.",
+      "chapter": "The smoother the ride, the harder the crash"
+    },
+    {
+      "text": "Iatrogenics — harm caused by the healer — extends beyond medicine to any confident intervention that smooths a system it does not understand and bills the damage to the future.",
+      "chapter": "The smoother the ride, the harder the crash"
+    },
+    {
+      "text": "Via negativa rests on an asymmetry of knowledge: we identify what is harmful far more reliably than what is beneficial, so removal beats addition.",
+      "chapter": "Subtract before you add"
+    },
+    {
+      "text": "The Lindy effect treats survival as evidence — every year an idea or technology endures raises the expectation of how much longer it will last.",
+      "chapter": "Subtract before you add"
+    },
+    {
+      "text": "Optionality replaces prediction: with capped downside and open upside, a tinkerer can be wrong nine times out of ten and still come out far ahead.",
+      "chapter": "Options beat predictions"
+    },
+    {
+      "text": "Skin in the game is Taleb's ethical filter: judge people by what they have risked, and never take advice from someone who pays nothing for being wrong.",
+      "chapter": "No upside without downside"
+    }
   ],
   "cards": [
-    {"title": "Name the Third Category", "body": "Stop sorting the world into things that break and things that hold. There is a third class — things that improve under stress, like muscles, immune systems, and well-run experiments. Once you can name antifragility, you can ask the only question that matters: does this gain or lose when chaos shows up?", "category": "Mental Model"},
-    {"title": "Wish for Small Fires", "body": "Frequent, small, recoverable shocks are not the enemy of stability — they are how systems stay informed and adapted. A week with minor friction, honest pushback, and small failures is training. The schedule with zero disturbances is not safe; it is a forest quietly stacking fuel for the big one.", "category": "Principle"},
-    {"title": "Comfort Is a Slow Poison", "body": "A system never challenged loses the capacity to handle challenge — bones in zero gravity thin, sheltered immune systems attack pollen, untested skills quietly expire. If nothing in your work or body has been stressed lately, you are not being preserved. You are being softened for whatever arrives next.", "category": "Warning"},
-    {"title": "Smoothness Stores the Crash", "body": "When volatility disappears from any system — a market, a career, a relationship — ask where it went, because it rarely vanishes. Suppressed fluctuations accumulate as hidden fragility and get released in one installment. Treat an unnaturally smooth ride as a warning light, not a comfort.", "category": "Warning"},
-    {"title": "Subtract Before You Add", "body": "Your next improvement is more likely hiding in a removal than an addition. You know what harms you with far more certainty than you know what helps, and subtraction carries no side effects. Before buying a fix, deleting nothing, ask: what one habit, commitment, or input should simply go?", "category": "Practice"},
-    {"title": "Trust What Has Survived", "body": "Time is the most honest auditor: it deletes the fragile and keeps the rest. An idea or tool that has lasted centuries has passed tests the new thing has not yet faced, so expect it to keep lasting. When shiny competes with boring-but-old, put the burden of proof on shiny.", "category": "Mental Model"},
-    {"title": "Build a Barbell", "body": "Combine extreme safety in most of your exposure with small, aggressive experiments at the edge — and leave the moderate middle empty. The safe side caps what disorder can take from you; the wild side keeps what disorder can give. The middle path feels prudent and quietly carries ruin.", "category": "Principle"},
-    {"title": "Buy Options, Not Forecasts", "body": "An option is the right to proceed without the obligation to — small cost if wrong, large payoff if right. With enough cheap options, you no longer need to predict anything; nine duds and one discovery make a triumph. Asymmetry of outcomes beats accuracy of foresight in an uncertain world.", "category": "Insight"},
-    {"title": "Check for Skin in the Game", "body": "Before accepting advice, ask one question: what does this person lose if they are wrong? Forecasters, consultants, and commentators who keep the upside while you absorb the downside are transferring fragility to you. Weight every opinion by the risk its holder is carrying, not by the confidence it arrives with.", "category": "Habit"},
-    {"title": "Fail Small, Often, On Purpose", "body": "Tinkering is a strategy, not a lack of one. Run many low-cost trials, expect most to fail, and let the rare hit pay for the rest — that lopsided arithmetic drove much of historical invention. The alternative, one large bet justified by a confident plan, is how fragile things are built.", "category": "Practice"},
-    {"title": "Beware the Confident Intervener", "body": "Healers can harm, and so can regulators, advisers, and optimizers — Taleb extends medicine's word for it, iatrogenics, to every field where professionals smooth systems they barely understand. Demand that any proposed intervention name its side effects. Where inaction is not catastrophic, the strong default is to let the system breathe.", "category": "Warning"}
+    {
+      "title": "Name the Third Category",
+      "body": "Stop sorting the world into things that break and things that hold. There is a third class — things that improve under stress, like muscles, immune systems, and well-run experiments. Once you can name antifragility, you can ask the only question that matters: does this gain or lose when chaos shows up?",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Wish for Small Fires",
+      "body": "Frequent, small, recoverable shocks are not the enemy of stability — they are how systems stay informed and adapted. A week with minor friction, honest pushback, and small failures is training. The schedule with zero disturbances is not safe; it is a forest quietly stacking fuel for the big one.",
+      "category": "Principle"
+    },
+    {
+      "title": "Comfort Is a Slow Poison",
+      "body": "A system never challenged loses the capacity to handle challenge — bones in zero gravity thin, sheltered immune systems attack pollen, untested skills quietly expire. If nothing in your work or body has been stressed lately, you are not being preserved. You are being softened for whatever arrives next.",
+      "category": "Warning"
+    },
+    {
+      "title": "Smoothness Stores the Crash",
+      "body": "When volatility disappears from any system — a market, a career, a relationship — ask where it went, because it rarely vanishes. Suppressed fluctuations accumulate as hidden fragility and get released in one installment. Treat an unnaturally smooth ride as a warning light, not a comfort.",
+      "category": "Warning"
+    },
+    {
+      "title": "Subtract Before You Add",
+      "body": "Your next improvement is more likely hiding in a removal than an addition. You know what harms you with far more certainty than you know what helps, and subtraction carries no side effects. Before buying a fix, deleting nothing, ask: what one habit, commitment, or input should simply go?",
+      "category": "Practice"
+    },
+    {
+      "title": "Trust What Has Survived",
+      "body": "Time is the most honest auditor: it deletes the fragile and keeps the rest. An idea or tool that has lasted centuries has passed tests the new thing has not yet faced, so expect it to keep lasting. When shiny competes with boring-but-old, put the burden of proof on shiny.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Build a Barbell",
+      "body": "Combine extreme safety in most of your exposure with small, aggressive experiments at the edge — and leave the moderate middle empty. The safe side caps what disorder can take from you; the wild side keeps what disorder can give. The middle path feels prudent and quietly carries ruin.",
+      "category": "Principle"
+    },
+    {
+      "title": "Buy Options, Not Forecasts",
+      "body": "An option is the right to proceed without the obligation to — small cost if wrong, large payoff if right. With enough cheap options, you no longer need to predict anything; nine duds and one discovery make a triumph. Asymmetry of outcomes beats accuracy of foresight in an uncertain world.",
+      "category": "Insight"
+    },
+    {
+      "title": "Check for Skin in the Game",
+      "body": "Before accepting advice, ask one question: what does this person lose if they are wrong? Forecasters, consultants, and commentators who keep the upside while you absorb the downside are transferring fragility to you. Weight every opinion by the risk its holder is carrying, not by the confidence it arrives with.",
+      "category": "Habit"
+    },
+    {
+      "title": "Fail Small, Often, On Purpose",
+      "body": "Tinkering is a strategy, not a lack of one. Run many low-cost trials, expect most to fail, and let the rare hit pay for the rest — that lopsided arithmetic drove much of historical invention. The alternative, one large bet justified by a confident plan, is how fragile things are built.",
+      "category": "Practice"
+    },
+    {
+      "title": "Beware the Confident Intervener",
+      "body": "Healers can harm, and so can regulators, advisers, and optimizers — Taleb extends medicine's word for it, iatrogenics, to every field where professionals smooth systems they barely understand. Demand that any proposed intervention name its side effects. Where inaction is not catastrophic, the strong default is to let the system breathe.",
+      "category": "Warning"
+    }
   ],
   "actions": [
-    {"title": "Sort your week into the triad", "detail": "List your main commitments, income sources, routines, and tools, then label each fragile, robust, or antifragile under a sudden shock. The labels matter less than discovering how much of your life sits in the fragile column.", "kind": "task", "day": 1, "duration_minutes": 0},
-    {"title": "Build slack into one commitment", "detail": "Pick your most tightly optimized obligation and add a margin: a buffer day on the deadline, an unscheduled hour around the meeting, a cash cushion on the budget. Optimization is efficient in calm weather and fragile in any other kind.", "kind": "event", "day": 3, "duration_minutes": 45},
-    {"title": "Apply via negativa once", "detail": "Instead of adding a fix today, remove one clearly harmful thing — a commitment, an input, a recurring expense, a doomscroll. Note that the removal needed no forecast to be right.", "kind": "task", "day": 5, "duration_minutes": 0},
-    {"title": "Schedule a voluntary stressor", "detail": "Book one small, recoverable challenge: a workout near your limit, a cold pitch, a conversation you have been avoiding. The point is the overshoot — capacity built by a stress you chose, on a day you chose it.", "kind": "event", "day": 6, "duration_minutes": 30},
-    {"title": "Run a Lindy audit on your tools", "detail": "List the tools, habits, and ideas you rely on, with rough ages. Notice where you abandoned a decades-old survivor for a months-old novelty, and pick one boring survivor to reinstate this week.", "kind": "task", "day": 8, "duration_minutes": 0},
-    {"title": "Design your barbell for one domain", "detail": "Choose one domain — your time, your learning, your career capital — and sketch a barbell: a highly secure core plus a small number of cheap, high-upside experiments, with the exposed middle explicitly emptied. Keep the sketch to one page.", "kind": "event", "day": 10, "duration_minutes": 60},
-    {"title": "Find your hidden middle", "detail": "Identify one position in your life that is moderately risky yet fully exposed — the kind that feels prudent precisely because it is neither safe nor bold. Decide whether it belongs on the safe side or the experimental side of your barbell.", "kind": "task", "day": 11, "duration_minutes": 0},
-    {"title": "Audit your advisers for skin in the game", "detail": "List the people and sources whose advice you act on, and mark which ones share your downside if the advice fails. Resolve to discount the unmarked ones, however confident they sound.", "kind": "event", "day": 12, "duration_minutes": 30},
-    {"title": "Launch a capped-downside experiment", "detail": "Start one tinkering project whose worst case is small and known and whose best case is open-ended — a side project, a public piece of work, a new collaboration. This is antifragility practiced rather than admired.", "kind": "task", "day": 14, "duration_minutes": 0}
+    {
+      "title": "Sort your week into the triad",
+      "detail": "List your main commitments, income sources, routines, and tools, then label each fragile, robust, or antifragile under a sudden shock. The labels matter less than discovering how much of your life sits in the fragile column.",
+      "kind": "task",
+      "day": 1,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Build slack into one commitment",
+      "detail": "Pick your most tightly optimized obligation and add a margin: a buffer day on the deadline, an unscheduled hour around the meeting, a cash cushion on the budget. Optimization is efficient in calm weather and fragile in any other kind.",
+      "kind": "event",
+      "day": 3,
+      "duration_minutes": 45
+    },
+    {
+      "title": "Apply via negativa once",
+      "detail": "Instead of adding a fix today, remove one clearly harmful thing — a commitment, an input, a recurring expense, a doomscroll. Note that the removal needed no forecast to be right.",
+      "kind": "task",
+      "day": 5,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Schedule a voluntary stressor",
+      "detail": "Book one small, recoverable challenge: a workout near your limit, a cold pitch, a conversation you have been avoiding. The point is the overshoot — capacity built by a stress you chose, on a day you chose it.",
+      "kind": "event",
+      "day": 6,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Run a Lindy audit on your tools",
+      "detail": "List the tools, habits, and ideas you rely on, with rough ages. Notice where you abandoned a decades-old survivor for a months-old novelty, and pick one boring survivor to reinstate this week.",
+      "kind": "task",
+      "day": 8,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Design your barbell for one domain",
+      "detail": "Choose one domain — your time, your learning, your career capital — and sketch a barbell: a highly secure core plus a small number of cheap, high-upside experiments, with the exposed middle explicitly emptied. Keep the sketch to one page.",
+      "kind": "event",
+      "day": 10,
+      "duration_minutes": 60
+    },
+    {
+      "title": "Find your hidden middle",
+      "detail": "Identify one position in your life that is moderately risky yet fully exposed — the kind that feels prudent precisely because it is neither safe nor bold. Decide whether it belongs on the safe side or the experimental side of your barbell.",
+      "kind": "task",
+      "day": 11,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Audit your advisers for skin in the game",
+      "detail": "List the people and sources whose advice you act on, and mark which ones share your downside if the advice fails. Resolve to discount the unmarked ones, however confident they sound.",
+      "kind": "event",
+      "day": 12,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Launch a capped-downside experiment",
+      "detail": "Start one tinkering project whose worst case is small and known and whose best case is open-ended — a side project, a public piece of work, a new collaboration. This is antifragility practiced rather than admired.",
+      "kind": "task",
+      "day": 14,
+      "duration_minutes": 0
+    }
   ]
 }

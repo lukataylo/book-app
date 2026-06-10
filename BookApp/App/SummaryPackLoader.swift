@@ -55,13 +55,15 @@ enum SummaryPackLoader {
 
         // One fetch for the duplicate guard instead of one per pack —
         // first launch seeds ~80 packs and O(n²) fetches would all land
-        // on the main actor.
-        var existingTitles = Self.existingSummaryTitles(context: modelContext)
+        // on the main actor. The map needs no refresh inside the loop:
+        // it only guards against books that pre-date this run, and pack
+        // titles are unique (test-enforced), so packs can't collide with
+        // each other.
+        let existing = Self.existingSummaryBooks(context: modelContext)
 
         for pack in packs {
             guard !loaded.contains(pack.slug) else { continue }
-            guard seed(pack: pack, context: modelContext, existingTitles: existingTitles) else { continue }
-            existingTitles.insert(pack.title)
+            guard seed(pack: pack, context: modelContext, existingBooks: existing) else { continue }
             // Persist per pack, not after the loop — a crash mid-seed must
             // not re-seed (and duplicate) the packs that already saved.
             loaded.insert(pack.slug)
@@ -71,25 +73,35 @@ enum SummaryPackLoader {
         }
     }
 
-    /// Titles of summary editions already in the store. Captured-variable
-    /// #Predicate translation is unreliable (see SeedBooksLoader), so this
-    /// fetches the summary editions and matches in memory — the catalog is
-    /// small by construction.
-    static func existingSummaryTitles(context: ModelContext) -> Set<String> {
+    /// Summary-edition books already in the store, keyed by title.
+    /// Captured-variable #Predicate translation is unreliable (see
+    /// SeedBooksLoader), so this fetches the summary editions and matches
+    /// in memory — the catalog is small by construction.
+    static func existingSummaryBooks(context: ModelContext) -> [String: Book] {
         let descriptor = FetchDescriptor<Book>(predicate: #Predicate { $0.isSummaryEdition })
         let existing = (try? context.fetch(descriptor)) ?? []
-        return Set(existing.map(\.title))
+        return Dictionary(existing.map { ($0.title, $0) }, uniquingKeysWith: { a, _ in a })
     }
+
+    /// Label prefix identifying the bundled short-length variant.
+    static let quickTakeLabel = "Quick take · 3 min"
 
     /// Returns true when the pack's records were saved (or already exist).
     /// Internal (not private) so the idempotency contract is unit-testable.
     @discardableResult
-    static func seed(pack: SummaryPack, context: ModelContext, existingTitles: Set<String>? = nil) -> Bool {
+    static func seed(pack: SummaryPack, context: ModelContext, existingBooks: [String: Book]? = nil) -> Bool {
         // Content-based guard on top of the UserDefaults flag: the store is
         // CloudKit-synced, so a second device must not insert its own copy
         // of a summary book that already synced down.
-        let titles = existingTitles ?? existingSummaryTitles(context: context)
-        if titles.contains(pack.title) {
+        let books = existingBooks ?? existingSummaryBooks(context: context)
+        if let existing = books[pack.title] {
+            // Upgrade path: packs gained a short "quick take" variant after
+            // launch — attach it to books seeded before it existed.
+            if let gist = pack.summaryShort,
+               !(existing.variants ?? []).contains(where: { $0.label == quickTakeLabel }) {
+                insertQuickTake(gist, attribution: pack.attribution, book: existing, context: context)
+                try? context.save()
+            }
             return true
         }
 
@@ -111,6 +123,12 @@ enum SummaryPackLoader {
         let variant = BookVariant(book: book, kind: .original, contentText: contentText)
         variant.label = "Summary"
         context.insert(variant)
+
+        // The ~3-minute "quick take" — the catalog's second length tier,
+        // listed alongside the full summary in the book's variants.
+        if let gist = pack.summaryShort {
+            insertQuickTake(gist, attribution: pack.attribution, book: book, context: context)
+        }
 
         // Curated learnings — mirrored as Annotations so the highlights
         // gallery is populated, matching SeedBooksLoader's behaviour.
@@ -163,6 +181,17 @@ enum SummaryPackLoader {
         }
     }
 
+    private static func insertQuickTake(_ gist: String, attribution: String, book: Book, context: ModelContext) {
+        let variant = BookVariant(
+            book: book,
+            kind: .compressed,
+            contentText: attribution + "\n\n" + gist,
+            targetPages: 2
+        )
+        variant.label = quickTakeLabel
+        context.insert(variant)
+    }
+
     private static func bundledFolderURL() -> URL? {
         if let url = Bundle.main.url(forResource: resourceFolder, withExtension: nil) {
             return url
@@ -187,6 +216,9 @@ struct SummaryPack: Decodable, Sendable {
     let readMinutes: Int
     let attribution: String
     let summary: String
+    /// ~3-minute "quick take" gist — the catalog's short length tier.
+    /// Optional so a pack without one still decodes.
+    let summaryShort: String?
     let learnings: [PackLearning]
     let cards: [PackCard]
     let actions: [PackAction]

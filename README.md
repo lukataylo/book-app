@@ -41,7 +41,7 @@ And the original toolkit still applies to all of it:
 - **Elastic length.** Compress a 400-page treatise into a 20-page summary that keeps the author's voice. Or expand a five-page essay into a chapter. The model preserves tone, structure and key arguments.
 - **Listen on-device.** Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken; the page flips itself.
 - **Speed-read three ways.** Paragraph + word highlighting, single-word focus, or Spritz-style RSVP at any pace from 150 to 1,200 wpm.
-- **Re-style.** Make a dense academic chapter sound more like Malcolm Gladwell. Strip references to a theme you don't care about.
+- **Re-style.** Make a dense academic chapter sound more like Joan Didion. Strip references to a theme you don't care about.
 - **Pull key learnings.** 5 to 15 takeaways per book in seconds. Edit, star, export.
 - **Yours.** Books in your iCloud Drive. Anthropic API key in your Keychain. No backend.
 

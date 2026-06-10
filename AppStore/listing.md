@@ -43,7 +43,7 @@ Speed read
 Three modes — paragraph + word highlight, single-word focus, and Spritz-style RSVP — at any pace from 150 to 1,200 words per minute. Pause at punctuation, jump back a sentence, hand it off to TTS when you've found a passage worth hearing.
 
 Re-style
-Make a dense academic chapter sound more like Malcolm Gladwell. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
+Make a dense academic chapter sound more like Joan Didion. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
 
 Key learnings
 Pull 5 to 15 key learnings from any book in seconds. Edit, star, export to Markdown or JSON. Quiz yourself with auto-generated flashcards.

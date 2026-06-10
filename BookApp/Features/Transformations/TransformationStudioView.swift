@@ -54,9 +54,10 @@ struct TransformationStudioView: View {
 
     private let engine = TransformationEngine()
     private let suggestedAuthors = [
-        "Malcolm Gladwell", "Joan Didion", "Hemingway",
+        "Joan Didion", "Hemingway",
         "Susan Sontag", "James Baldwin", "Annie Dillard",
-        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin"
+        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin",
+        "Mary Oliver", "Oliver Sacks"
     ]
 
     var body: some View {
@@ -192,7 +193,7 @@ struct TransformationStudioView: View {
             isOn: $changeStyle
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                TextField("e.g. Malcolm Gladwell", text: $styleReference)
+                TextField("e.g. Joan Didion", text: $styleReference)
                     .focused($styleFieldFocused)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 14)
@@ -206,6 +207,27 @@ struct TransformationStudioView: View {
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
+                        // Roll the dice: a random voice from the pool,
+                        // re-rolling past the current pick so the tap
+                        // always visibly changes something.
+                        Button {
+                            styleReference = suggestedAuthors
+                                .filter { $0 != styleReference }
+                                .randomElement() ?? suggestedAuthors[0]
+                        } label: {
+                            Label("Surprise me", systemImage: "dice")
+                                .font(.system(.caption, weight: .medium))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 7)
+                                .background(Capsule().fill(Theme.Palette.textPrimary.opacity(0.06)))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Theme.Palette.divider, lineWidth: 0.5)
+                                )
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Pick a random style")
                         ForEach(suggestedAuthors, id: \.self) { name in
                             Button {
                                 styleReference = name

@@ -61,9 +61,11 @@ struct BookCardView: View {
         }
     }
 
-    /// "15 MIN" pill marking catalog summary editions on the shelf.
+    /// Length-range pill marking catalog summary editions on the shelf —
+    /// "3–15 MIN" because every catalog title ships a quick take and a
+    /// full summary.
     private var summaryBadge: some View {
-        Text(book.readMinutesEstimate > 0 ? "\(book.readMinutesEstimate) MIN" : "KEY IDEAS")
+        Text(book.readMinutesEstimate > 0 ? "3–\(book.readMinutesEstimate) MIN" : "KEY IDEAS")
             .font(.system(.caption2, weight: .bold))
             .tracking(0.5)
             .foregroundStyle(.primary)

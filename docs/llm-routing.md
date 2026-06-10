@@ -18,7 +18,7 @@ successful result.
 | Compression to <30% length, OR source ≥50K tokens | Sonnet 4.6 → Opus 4.7 | Cloud only — long compression needs the bigger context. |
 | Expansion ≥3× | Opus 4.7 → Sonnet 4.6 | Opus produces noticeably better long-form expansion. |
 | Expansion <3× | Sonnet 4.6 → Opus 4.7 | |
-| Style transfer ("sound like Gladwell") | Opus 4.7 → Sonnet 4.6 | Hardest task. Quality matters most. |
+| Style transfer ("sound like Didion") | Opus 4.7 → Sonnet 4.6 | Hardest task. Quality matters most. |
 | Theme omission | Sonnet 4.6 → Opus 4.7 | |
 | Chat with book | Sonnet 4.6 → Haiku 4.5 | Source text is prompt-cached so follow-ups are cheap. |
 

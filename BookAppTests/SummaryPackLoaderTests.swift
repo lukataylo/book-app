@@ -21,6 +21,7 @@ struct SummaryPackLoaderTests {
             readMinutes: 12,
             attribution: "An original summary of the ideas in Testing by A. Author (2020). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
             summary: "Intro.\n\n# One\n\nBody paragraph.",
+            summaryShort: "A quick gist paragraph.",
             learnings: [.init(text: "A learning.", chapter: "One")],
             cards: [.init(title: "A Card", body: "A body.", category: "Insight")],
             actions: [.init(title: "Do a thing", detail: "How.", kind: "event", day: 2, durationMinutes: 30)]
@@ -44,6 +45,11 @@ struct SummaryPackLoaderTests {
         // feature works on it; attribution leads the text.
         #expect(book.originalVariant?.label == "Summary")
         #expect(book.originalVariant?.contentText.hasPrefix("An original summary") == true)
+        // The quick take ships as a second, compressed length tier.
+        let quickTake = (book.variants ?? []).first { $0.label == SummaryPackLoader.quickTakeLabel }
+        #expect(quickTake != nil)
+        #expect(quickTake?.kind == .compressed)
+        #expect(quickTake?.contentText.contains("A quick gist paragraph.") == true)
         #expect(book.keyLearnings?.count == 1)
         #expect(book.knowledgeCards?.count == 1)
         #expect(book.actionItems?.count == 1)
@@ -66,5 +72,36 @@ struct SummaryPackLoaderTests {
         let books = try context.fetch(FetchDescriptor<Book>())
         #expect(books.count == 1)
         #expect(books.first?.knowledgeCards?.count == 1)
+        // The duplicate pass must not double the quick-take variant either.
+        let quickTakes = (books.first?.variants ?? []).filter { $0.label == SummaryPackLoader.quickTakeLabel }
+        #expect(quickTakes.count == 1)
+    }
+
+    @Test
+    func quickTakeBackfillsBooksSeededBeforeItExisted() throws {
+        let container = try ModelContainer.bookAppPreview()
+        let context = container.mainContext
+
+        // Seed a pack from before the quick-take tier shipped…
+        var pack = makePack()
+        pack = SummaryPack(
+            slug: pack.slug, title: pack.title, sourceTitle: pack.sourceTitle,
+            sourceAuthor: pack.sourceAuthor, sourceYear: pack.sourceYear,
+            categories: pack.categories, themes: pack.themes,
+            readMinutes: pack.readMinutes, attribution: pack.attribution,
+            summary: pack.summary, summaryShort: nil,
+            learnings: pack.learnings, cards: pack.cards, actions: pack.actions
+        )
+        #expect(SummaryPackLoader.seed(pack: pack, context: context))
+        var books = try context.fetch(FetchDescriptor<Book>())
+        #expect((books.first?.variants ?? []).allSatisfy { $0.label != SummaryPackLoader.quickTakeLabel })
+
+        // …then re-seed with the updated pack: the gist attaches to the
+        // existing book instead of duplicating it.
+        #expect(SummaryPackLoader.seed(pack: makePack(), context: context))
+        books = try context.fetch(FetchDescriptor<Book>())
+        #expect(books.count == 1)
+        let quickTakes = (books.first?.variants ?? []).filter { $0.label == SummaryPackLoader.quickTakeLabel }
+        #expect(quickTakes.count == 1)
     }
 }
