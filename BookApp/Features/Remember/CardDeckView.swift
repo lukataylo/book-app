@@ -38,13 +38,9 @@ struct CategoryChip: View {
 
     var body: some View {
         let tint = KnowledgeCardStyle.tint(for: category)
-        HStack(spacing: 5) {
-            Image(systemName: KnowledgeCardStyle.symbol(for: category))
-                .font(.system(.caption2, weight: .semibold))
-            Text(category.uppercased())
-                .font(.system(compact ? .caption2 : .caption, weight: .bold))
-                .tracking(1.1)
-        }
+        Text(category.uppercased())
+            .font(.system(compact ? .caption2 : .caption, weight: .bold))
+            .tracking(1.1)
         .foregroundStyle(tint)
         .padding(.horizontal, compact ? 8 : 10)
         .padding(.vertical, compact ? 4 : 5)

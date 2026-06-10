@@ -210,19 +210,12 @@ private struct ActionItemRow: View {
                         .font(.system(.footnote))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
-                HStack(spacing: 6) {
-                    Label(
-                        item.kind == .event ? eventBadge : "To-do",
-                        systemImage: item.kind == .event ? "calendar" : "checkmark.square"
-                    )
+                // Quiet caption text — Books-style restraint, no glyphs.
+                Text(item.exportedToSystem
+                     ? "\(item.kind == .event ? eventBadge : "To-do") · Scheduled"
+                     : (item.kind == .event ? eventBadge : "To-do"))
                     .font(.system(.caption2, weight: .medium))
                     .foregroundStyle(Theme.Palette.textSecondary)
-                    if item.exportedToSystem {
-                        Label("Scheduled", systemImage: "checkmark.seal.fill")
-                            .font(.system(.caption2, weight: .medium))
-                            .foregroundStyle(.green)
-                    }
-                }
             }
             Spacer()
         }

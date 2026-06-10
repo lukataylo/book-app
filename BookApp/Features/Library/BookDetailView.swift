@@ -180,8 +180,9 @@ struct BookDetailView: View {
                         }
                     }
                     Spacer()
-                    Image(systemName: "arrow.right")
-                        .font(.system(.subheadline, weight: .semibold))
+                    Image(systemName: "chevron.right")
+                        .font(.system(.caption, weight: .semibold))
+                        .opacity(0.6)
                 }
                 // Inverted ink — accent flips with the color scheme, so the
                 // button stays visible on the pure-black dark background.
@@ -199,19 +200,9 @@ struct BookDetailView: View {
 
     private var variantsSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-            HStack {
-                Text("Variants")
-                    .font(.system(.title3, design: .serif, weight: .semibold))
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                Spacer()
-                Button {
-                    if let original = book.originalVariant { route = .transform(original.id) }
-                } label: {
-                    Label("Generate", systemImage: "wand.and.stars")
-                        .font(.system(.footnote, weight: .medium))
-                }
+            Text("Variants")
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-            }
             VStack(spacing: 0) {
                 ForEach(allVariants, id: \.id) { variant in
                     Button { route = .reader(variant.id) } label: {
@@ -235,12 +226,9 @@ struct BookDetailView: View {
         return originals + generated
     }
 
+    // Books-style rows: text + chevron only — no leading glyph parade.
     private func variantRow(_ v: BookVariant) -> some View {
         HStack(spacing: Theme.Spacing.m) {
-            Image(systemName: iconName(for: v.kind))
-                .font(.system(.subheadline, weight: .medium))
-                .foregroundStyle(Theme.Palette.textSecondary)
-                .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(v.label.isEmpty ? v.kind.displayName : v.label)
                     .font(.system(.subheadline, weight: .medium))
@@ -259,16 +247,6 @@ struct BookDetailView: View {
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
-    }
-
-    private func iconName(for kind: VariantKind) -> String {
-        switch kind {
-        case .original:     return "book.closed"
-        case .compressed:   return "arrow.down.right.and.arrow.up.left"
-        case .expanded:     return "arrow.up.left.and.arrow.down.right"
-        case .styled:       return "paintpalette"
-        case .themeOmitted: return "scissors"
-        }
     }
 
     private func metadataLine(for v: BookVariant) -> String {
@@ -293,7 +271,7 @@ struct BookDetailView: View {
                 Button {
                     route = .cards
                 } label: {
-                    actionRow(systemImage: "square.stack.fill", title: "Remember",
+                    actionRow(title: "Remember",
                               subtitle: "\(book.knowledgeCards?.count ?? 0) knowledge cards")
                 }
                 .buttonStyle(.plain)
@@ -303,7 +281,7 @@ struct BookDetailView: View {
                 Button {
                     route = .plan
                 } label: {
-                    actionRow(systemImage: "checklist", title: "Act",
+                    actionRow(title: "Act",
                               subtitle: "14-day plan · \(book.actionItems?.filter(\.completed).count ?? 0)/\(book.actionItems?.count ?? 0) done")
                 }
                 .buttonStyle(.plain)
@@ -312,7 +290,7 @@ struct BookDetailView: View {
             Button {
                 showLearnings = true
             } label: {
-                actionRow(systemImage: "lightbulb.fill", title: "Key learnings",
+                actionRow(title: "Key learnings",
                           subtitle: book.keyLearnings?.isEmpty == false
                             ? "\(book.keyLearnings?.count ?? 0) saved" : "Auto-extract key takeaways")
             }
@@ -321,7 +299,7 @@ struct BookDetailView: View {
             Button {
                 if let original = book.originalVariant { route = .transform(original.id) }
             } label: {
-                actionRow(systemImage: "wand.and.stars", title: "Transform",
+                actionRow(title: "Transform",
                           subtitle: "Compress, expand, restyle, or omit themes")
             }
             .buttonStyle(.plain)
@@ -330,12 +308,8 @@ struct BookDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
     }
 
-    private func actionRow(systemImage: String, title: String, subtitle: String) -> some View {
+    private func actionRow(title: String, subtitle: String) -> some View {
         HStack(spacing: Theme.Spacing.m) {
-            Image(systemName: systemImage)
-                .font(.system(.subheadline, weight: .medium))
-                .frame(width: 22)
-                .foregroundStyle(Theme.Palette.textSecondary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(.subheadline, weight: .medium))

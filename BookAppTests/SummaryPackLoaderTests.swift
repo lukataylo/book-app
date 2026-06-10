@@ -42,9 +42,11 @@ struct SummaryPackLoaderTests {
         #expect(book.readMinutesEstimate == 12)
         #expect(book.sourceAttribution.contains("Not affiliated"))
         // The summary is stored as the .original variant so every reading
-        // feature works on it; attribution leads the text.
+        // feature works on it; attribution closes the text (leading with
+        // it would make Listen narrate boilerplate first).
         #expect(book.originalVariant?.label == "Summary")
-        #expect(book.originalVariant?.contentText.hasPrefix("An original summary") == true)
+        #expect(book.originalVariant?.contentText.hasPrefix("Intro.") == true)
+        #expect(book.originalVariant?.contentText.hasSuffix("buy the full book.") == true)
         // The quick take ships as a second, compressed length tier.
         let quickTake = (book.variants ?? []).first { $0.label == SummaryPackLoader.quickTakeLabel }
         #expect(quickTake != nil)

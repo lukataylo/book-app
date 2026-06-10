@@ -115,7 +115,7 @@ struct ActView: View {
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .monospacedDigit()
                 if exported > 0 {
-                    Label("\(exported) scheduled", systemImage: "calendar")
+                    Text("\(exported) scheduled")
                         .font(.system(.caption, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }

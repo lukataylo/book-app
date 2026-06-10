@@ -112,9 +112,10 @@ enum SummaryPackLoader {
         book.categoryTags = pack.categories
         book.detectedThemes = pack.themes
 
-        // The reader renders the attribution as the summary's first
-        // paragraph so the legal framing travels with the text itself.
-        let contentText = pack.attribution + "\n\n" + pack.summary
+        // The attribution travels with the text itself, but as the closing
+        // paragraph — leading with it made Listen mode narrate legal
+        // boilerplate before the first idea.
+        let contentText = pack.summary + "\n\n" + pack.attribution
         let words = contentText.split(whereSeparator: { $0.isWhitespace }).count
         book.totalWordsEstimate = words
         book.totalPagesEstimate = max(words / 250, 1)
@@ -185,7 +186,7 @@ enum SummaryPackLoader {
         let variant = BookVariant(
             book: book,
             kind: .compressed,
-            contentText: attribution + "\n\n" + gist,
+            contentText: gist + "\n\n" + attribution,
             targetPages: 2
         )
         variant.label = quickTakeLabel

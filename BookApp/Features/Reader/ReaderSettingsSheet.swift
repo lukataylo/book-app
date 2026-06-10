@@ -82,8 +82,6 @@ struct ReaderSettingsSheet: View {
                             .monospacedDigit()
                     }
 
-                    Toggle("Hyphenation", isOn: $settings.hyphenation)
-                        .onChange(of: settings.hyphenation) { _, _ in persist() }
 
                     Toggle("Drop caps at chapter starts", isOn: $settings.dropCaps)
                         .onChange(of: settings.dropCaps) { _, _ in persist() }

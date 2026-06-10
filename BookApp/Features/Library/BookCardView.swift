@@ -23,10 +23,6 @@ struct BookCardView: View {
                 cover
                     .frame(width: width, height: width * 1.5)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
-                if book.isSummaryEdition {
-                    summaryBadge
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                }
                 if progress > 0.01 {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -55,24 +51,17 @@ struct BookCardView: View {
                         .font(Typography.secondary)
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .lineLimit(1)
+                    // Length tiers, quietly: every catalog title ships a
+                    // 3-min quick take and the full summary.
+                    if book.isSummaryEdition, book.readMinutesEstimate > 0 {
+                        Text("3–\(book.readMinutesEstimate) min")
+                            .font(Typography.micro)
+                            .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
+                    }
                 }
                 .frame(width: width, alignment: .leading)
             }
         }
-    }
-
-    /// Length-range pill marking catalog summary editions on the shelf —
-    /// "3–15 MIN" because every catalog title ships a quick take and a
-    /// full summary.
-    private var summaryBadge: some View {
-        Text(book.readMinutesEstimate > 0 ? "3–\(book.readMinutesEstimate) MIN" : "KEY IDEAS")
-            .font(.system(.caption2, weight: .bold))
-            .tracking(0.5)
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 4)
-            .background(.regularMaterial, in: Capsule())
-            .padding(6)
     }
 
     @ViewBuilder

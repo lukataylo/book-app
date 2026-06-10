@@ -95,7 +95,7 @@ Implements §3 of the pivot plan; **route through IP counsel before public launc
 - **Attribution as fact** on every title: "An original summary of the ideas in
   <Title> by <Author> (<year>). Not affiliated with or endorsed by the author or
   publisher. If these ideas resonate, buy the full book." The line is rendered as
-  the summary's first paragraph and on the detail screen.
+  the summary's closing paragraph and on the detail screen.
 - **Not a market substitute**: ~1,500-word idea-level companions (≈15 min) that
   end by pointing readers at the full book.
 - `SummaryPackTests` enforces the framing mechanically: naming convention,
