@@ -25,23 +25,24 @@ final class ReaderListenFlowTests: XCTestCase {
         app.launchArguments += ["-uitesting"]
         app.launch()
 
-        // Library renders as the seed loaders finish. First launch on a
-        // fresh CI simulator imports 3 EPUBs and starts seeding the
-        // 80-pack summary catalog, so give the first cards a generous
-        // window. Match on the catalog's title convention rather than a
-        // loose substring (the old "by" predicate famously matched
-        // "Algorithms to Live By" sitting off-screen in a carousel),
-        // and only tap a card that is actually hittable on screen.
-        let cards = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS[c] %@", "The Big Ideas in")
-        )
-        XCTAssert(cards.firstMatch.waitForExistence(timeout: 15),
-                  "Library failed to render the seeded catalog")
-        guard let card = cards.allElementsBoundByIndex.first(where: { $0.isHittable }) else {
-            XCTFail("No hittable book card on the Library screen")
-            return
-        }
-        card.tap()
+        // Shelf carousels can hold matched cards far off-screen, where
+        // even querying hittability throws ("activation point invalid").
+        // Deterministic route instead: type into the Library's search
+        // field and tap the full-width result card it surfaces. The
+        // catalog seeds asynchronously on first launch, so the result
+        // gets a generous window to appear once its pack inserts.
+        let searchField = app.textFields.firstMatch
+        XCTAssert(searchField.waitForExistence(timeout: 15),
+                  "Library search field didn't render")
+        searchField.tap()
+        searchField.typeText("Atomic Habits")
+
+        let resultCard = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "The Big Ideas in Atomic Habits")
+        ).firstMatch
+        XCTAssert(resultCard.waitForExistence(timeout: 20),
+                  "Search didn't surface the seeded catalog title")
+        resultCard.tap()
 
         // Library → Book Detail; the reading CTA ("Start reading" /
         // "Continue reading") pushes the reader.
