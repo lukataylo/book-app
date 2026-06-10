@@ -11,8 +11,8 @@ struct LibraryView: View {
 
     @State private var searchText = ""
     @State private var presentingPicker = false
-    @State private var presentingSearch = false
     @State private var selectedBook: Book?
+    @State private var resumeBook: Book?
     @State private var importErrorMessage: String?
     @State private var deleteCandidate: Book?
     @State private var editingBook: Book?
@@ -33,7 +33,9 @@ struct LibraryView: View {
 
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Spacing.l) {
+                // Books-style section rhythm: more air between sections
+                // (xl) than inside them.
+                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     header
                     searchBar
                     if books.isEmpty {
@@ -45,7 +47,7 @@ struct LibraryView: View {
                             continueCard(book: resume.book, percent: resume.percent)
                                 .padding(.horizontal, Theme.Spacing.l)
                         }
-                        topSelectionsShelf(progress: progress)
+                        recentShelf(progress: progress)
                         ForEach(groups, id: \.0) { (category, list) in
                             ShelfView(
                                 title: category,
@@ -73,18 +75,8 @@ struct LibraryView: View {
             )
             .background(Theme.Palette.appBackground.ignoresSafeArea())
             .toolbar {
-                // Search lived in its own tab before the Read/Remember/Act
-                // redesign; it's the same SearchView, now one tap away here.
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        presentingSearch = true
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(.title3, weight: .medium))
-                            .foregroundStyle(Theme.Palette.accent)
-                    }
-                    .accessibilityLabel("Search")
-                }
+                // One search affordance only (the inline field below the
+                // hero); the toolbar keeps just the import action.
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         presentingPicker = true
@@ -96,9 +88,6 @@ struct LibraryView: View {
                     .accessibilityLabel("Import a book")
                 }
             }
-            .sheet(isPresented: $presentingSearch) {
-                SearchView()
-            }
             .sheet(isPresented: $presentingPicker) {
                 DocumentPickerView { urls in
                     Task { await importPicked(urls) }
@@ -106,6 +95,18 @@ struct LibraryView: View {
             }
             .navigationDestination(item: $selectedBook) { book in
                 BookDetailView(book: book)
+            }
+            // Books-style one-tap resume: the continue card opens the
+            // reader directly instead of detouring through the detail
+            // screen. PDFs keep their PDFKit reader.
+            .navigationDestination(item: $resumeBook) { book in
+                if let original = book.originalVariant {
+                    if book.format == .pdf {
+                        PDFReaderView(book: book, variant: original)
+                    } else {
+                        ReaderView(book: book, variant: original)
+                    }
+                }
             }
             .alert("Couldn't import", isPresented: Binding(
                 get: { importErrorMessage != nil },
@@ -174,9 +175,9 @@ struct LibraryView: View {
     @ViewBuilder
     private func continueCard(book: Book, percent: Double) -> some View {
         Button {
-            selectedBook = book
+            resumeBook = book
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: Theme.Spacing.m) {
                 BookCardView(book: book, width: 56, showsTitle: false, progress: percent)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Continue reading")
@@ -193,11 +194,11 @@ struct LibraryView: View {
                         .lineLimit(1)
                 }
                 Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Theme.Palette.textSecondary)
+                Image(systemName: "chevron.right")
+                    .font(.system(.caption, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
             }
-            .padding(12)
+            .padding(Theme.Spacing.s)
             .glassCard(cornerRadius: Theme.Radius.m)
         }
         .buttonStyle(.plain)
@@ -233,12 +234,10 @@ struct LibraryView: View {
             Text(greetingName.isEmpty ? "Welcome." : "Hi \(greetingName),")
                 .font(.system(.body, weight: .regular))
                 .foregroundStyle(Theme.Palette.textSecondary)
-            Text("Sharpen your\nmind with\ngreat books.")
+            Text("Sharpen your mind with great books.")
                 .font(.system(.largeTitle, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-                .lineLimit(3)
                 .multilineTextAlignment(.leading)
-                .lineSpacing(-2)
         }
         .padding(.horizontal, Theme.Spacing.l)
         .padding(.top, Theme.Spacing.xs)
@@ -355,11 +354,11 @@ struct LibraryView: View {
         .padding(.vertical, Theme.Spacing.xxl)
     }
 
-    private func topSelectionsShelf(progress: [UUID: Double]) -> some View {
+    private func recentShelf(progress: [UUID: Double]) -> some View {
         let recent = Array(books.prefix(8))
         return ShelfView(
-            title: "Top selections for you",
-            subtitle: "Based on what you're reading",
+            title: "Recent",
+            subtitle: nil,
             books: recent,
             progressMap: progress,
             onSelect: { book in selectedBook = book },
