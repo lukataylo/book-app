@@ -13,6 +13,8 @@ struct BookAppApp: App {
     @State private var onboardingDone: Bool = UserDefaults.standard
         .bool(forKey: OnboardingView.completedKey)
         || CommandLine.arguments.contains("-uitesting")
+    /// App-wide navigation, so widget/notification deep links can select a tab.
+    @State private var router = AppRouter()
 
     init() {
         // Try CloudKit-backed container first; fall back to in-memory if
@@ -44,6 +46,7 @@ struct BookAppApp: App {
                         .tint(Theme.Palette.accent)
                         .background(Theme.Palette.appBackground.ignoresSafeArea())
                         .modelContainer(container)
+                        .environment(router)
 
                     if !onboardingDone {
                         OnboardingView(onFinish: { withAnimation(.smooth) { onboardingDone = true } })
@@ -52,6 +55,7 @@ struct BookAppApp: App {
                     }
                 }
                 .task { refreshMemories() }
+                .onOpenURL { router.handle(url: $0) }
             } else {
                 ContainerErrorView(message: containerError ?? "Unknown error.")
             }

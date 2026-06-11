@@ -8,6 +8,7 @@ struct TodaysMemoryWidget: Widget {
         StaticConfiguration(kind: kind, provider: TodaysMemoryProvider()) { entry in
             TodaysMemoryWidgetView(entry: entry)
                 .containerBackground(.background, for: .widget)
+                .widgetURL(URL(string: "bookapp://memories"))
         }
         .configurationDisplayName("Today's memory")
         .description("A calm nudge to review what you've learned.")

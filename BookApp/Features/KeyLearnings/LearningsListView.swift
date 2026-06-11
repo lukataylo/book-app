@@ -170,6 +170,9 @@ struct BookLearningsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var isExtracting = false
     @State private var errorText: String?
+    @State private var showingMicroLesson = false
+
+    private var hasLearnings: Bool { !(book.keyLearnings ?? []).isEmpty }
 
     var body: some View {
         NavigationStack {
@@ -181,6 +184,20 @@ struct BookLearningsView: View {
                         Label("Extract key learnings", systemImage: "sparkles")
                     }
                     .disabled(isExtracting)
+
+                    Button {
+                        MemoryStore(context: modelContext).addWholeBook(book)
+                    } label: {
+                        Label("Add all to Memories", systemImage: "brain.head.profile")
+                    }
+                    .disabled(!hasLearnings)
+
+                    Button {
+                        showingMicroLesson = true
+                    } label: {
+                        Label("Micro-lesson", systemImage: "rectangle.portrait.on.rectangle.portrait")
+                    }
+                    .disabled(!hasLearnings)
                 }
                 Section("Learnings") {
                     if let learnings = book.keyLearnings, !learnings.isEmpty {
@@ -200,6 +217,9 @@ struct BookLearningsView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(errorText ?? "")
+            }
+            .fullScreenCover(isPresented: $showingMicroLesson) {
+                MicroLessonView(book: book)
             }
         }
     }

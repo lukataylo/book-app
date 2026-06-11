@@ -3,12 +3,13 @@ import SwiftData
 
 struct RootTabView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var selection: Tab = .library
+    @Environment(AppRouter.self) private var router
 
     enum Tab: Hashable { case library, memories, learn, search, bookmarks, settings }
 
     var body: some View {
-        TabView(selection: $selection) {
+        @Bindable var router = router
+        TabView(selection: $router.selectedTab) {
             LibraryView()
                 .tabItem { Label("Library", systemImage: "books.vertical.fill") }
                 .tag(Tab.library)
@@ -57,7 +58,9 @@ struct RootTabView: View {
 
 #Preview {
     if let container = try? ModelContainer.bookAppPreview() {
-        RootTabView().modelContainer(container)
+        RootTabView()
+            .modelContainer(container)
+            .environment(AppRouter())
     } else {
         Text("Preview container failed to load.")
     }
