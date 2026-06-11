@@ -60,7 +60,11 @@ struct SettingsView: View {
                             displayedComponents: .hourAndMinute
                         )
                         .onChange(of: reminderTime) { _, newValue in
-                            streak?.reminderMinuteOfDay = SettingsView.minuteOfDay(from: newValue)
+                            // Loading saved state into the picker fires this;
+                            // skip when nothing actually changed.
+                            let minute = SettingsView.minuteOfDay(from: newValue)
+                            guard let streak, streak.reminderMinuteOfDay != minute else { return }
+                            streak.reminderMinuteOfDay = minute
                             persistAndRefresh()
                         }
                     }
@@ -74,7 +78,8 @@ struct SettingsView: View {
                         }
                     }
                     .onChange(of: dailyLimit) { _, newValue in
-                        streak?.dailyLimit = newValue
+                        guard let streak, streak.dailyLimit != newValue else { return }
+                        streak.dailyLimit = newValue
                         persistAndRefresh()
                     }
                     Text("One gentle nudge a day, off until you turn it on. We never count days or push you to keep a streak.")
@@ -194,6 +199,7 @@ struct SettingsView: View {
         dailyLimit = state.dailyLimit
     }
 
+    @MainActor
     private func handleRemindersToggle(_ enabled: Bool) {
         guard let streak else { return }
         // Loading the saved state into the toggle can fire this onChange; skip
@@ -211,6 +217,7 @@ struct SettingsView: View {
     }
 
     /// Save the StreakState edits and reschedule the reminder + widget.
+    @MainActor
     private func persistAndRefresh() {
         guard let streak else { return }
         try? modelContext.save()
