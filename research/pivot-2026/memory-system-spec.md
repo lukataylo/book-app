@@ -6,6 +6,19 @@ This spec covers the **Memories + spaced-repetition** learning system: the card 
 scheduler, the data-model extension of the real `KeyLearning` type, and the retrieval flow from
 summary to daily review. It is the build-out of `PLAN.md` §4.2.
 
+> **Implementation status (2026-06-11): Phase 1 landed.** The model extension, scheduler, queue,
+> store, and a review screen are in the app:
+> - `BookApp/Models/KeyLearning.swift` (SRS fields + `CardKind`/`ReviewGrade`/`SuspendReason`)
+> - `BookApp/Models/MemoryModels.swift` (`ReviewSession`, `ReviewLog`, `StreakState`)
+> - `BookApp/Features/Memories/FSRSScheduler.swift` (pure scheduler, no-late-penalty rule)
+> - `BookApp/Features/Memories/ReviewQueue.swift` (capped load, staggered seeding, catch-up metering)
+> - `BookApp/Features/Memories/MemoryStore.swift` (SwiftData bridge: save / add-book / grade)
+> - `BookApp/Features/Memories/MemoriesView.swift` (the daily review loop) + a "Memories" tab
+> - Tests: `FSRSSchedulerTests`, `ReviewQueueTests`, `MemoryModelsTests`, and a teach-back prompt test.
+>
+> Insight and cloze/Q&A card kinds review today; teach-back grading (§2c, the prompt contract is in
+> `PromptTemplates.teachBackGrading`) and illustrated micro-lessons (§2d) remain Phase 2–3.
+
 ---
 
 ## 1. Goal & the pain it solves

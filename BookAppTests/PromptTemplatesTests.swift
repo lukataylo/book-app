@@ -103,4 +103,20 @@ struct PromptTemplatesTests {
         #expect(system.contains("\"right\""))
         #expect(system.contains("JSON only"))
     }
+
+    /// Teach-back grading must score the idea, not the writing — penalising
+    /// phrasing would defeat the whole point of the Feynman/teach-back card.
+    @Test
+    func teachBackGradingScoresIdeaNotStyle() {
+        let (system, user) = PromptTemplates.teachBackGrading(
+            idea: "Cruelty in one decisive stroke is forgiven faster than cruelty drawn out.",
+            explanation: "Get the harsh stuff over with quickly so people move on."
+        )
+        #expect(system.contains("\"score\""))
+        #expect(system.contains("\"missedPoints\""))
+        #expect(system.contains("Never penalise"))
+        #expect(system.contains("JSON only"))
+        #expect(user.contains("Cruelty in one decisive stroke"))
+        #expect(user.contains("Get the harsh stuff over with quickly"))
+    }
 }

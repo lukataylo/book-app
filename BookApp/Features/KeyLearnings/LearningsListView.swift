@@ -31,6 +31,14 @@ struct LearningsListView: View {
                                 Label(learning.starred ? "Unstar" : "Star", systemImage: "star.fill")
                             }
                             .tint(.yellow)
+                            if !learning.isScheduled {
+                                Button {
+                                    MemoryStore(context: modelContext).saveAsMemory(learning)
+                                } label: {
+                                    Label("Remember", systemImage: "brain.head.profile")
+                                }
+                                .tint(.indigo)
+                            }
                         }
                 }
             }
@@ -117,6 +125,11 @@ private struct LearningRow: View {
                 if learning.starred {
                     Image(systemName: "star.fill")
                         .foregroundStyle(.yellow)
+                        .font(.caption)
+                }
+                if learning.isScheduled {
+                    Image(systemName: "brain.head.profile")
+                        .foregroundStyle(.indigo)
                         .font(.caption)
                 }
             }

@@ -240,4 +240,39 @@ enum PromptTemplates {
         """
         return (system, "Question: \(question)")
     }
+
+    /// Grade a teach-back attempt: the user explains a saved idea in their own
+    /// words and the model scores whether the *idea* is present and correct.
+    /// This is the contract for the spaced-repetition teach-back card kind
+    /// (`research/pivot-2026/memory-system-spec.md` §2c). The grading rule is
+    /// deliberately forgiving of phrasing — teaching, not transcription, is the
+    /// retention booster, so style is never penalised.
+    static func teachBackGrading(idea: String, explanation: String) -> (system: String, user: String) {
+        let system = """
+        You grade whether a learner's explanation captures a target idea.
+
+        Output strictly valid JSON:
+        {"score": 0-100, "missedPoints": ["..."], "feedback": "..."}
+
+        Rules:
+        - Score only whether the *idea* is present and correct. Never penalise \
+        writing style, grammar, brevity, or word choice. A correct idea in plain \
+        words scores high.
+        - "missedPoints": parts of the idea the explanation left out or got \
+        wrong. Empty array if the explanation is complete.
+        - "feedback": one or two sentences naming what was missed, not what was \
+        wrong about the writing. Encouraging, specific, no preamble.
+        - Score bands: <40 the idea is mostly absent; 40-69 partial; 70-89 \
+        solid with a gap; 90+ complete and correct.
+        - No commentary, no markdown code fences. JSON only.
+        """
+        let user = """
+        Target idea:
+        \(idea)
+
+        Learner's explanation:
+        \(explanation)
+        """
+        return (system, user)
+    }
 }

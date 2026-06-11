@@ -5,13 +5,17 @@ struct RootTabView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selection: Tab = .library
 
-    enum Tab: Hashable { case library, search, bookmarks, settings }
+    enum Tab: Hashable { case library, memories, search, bookmarks, settings }
 
     var body: some View {
         TabView(selection: $selection) {
             LibraryView()
                 .tabItem { Label("Library", systemImage: "books.vertical.fill") }
                 .tag(Tab.library)
+
+            MemoriesView()
+                .tabItem { Label("Memories", systemImage: "brain.head.profile") }
+                .tag(Tab.memories)
 
             SearchView()
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
