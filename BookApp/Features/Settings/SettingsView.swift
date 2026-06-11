@@ -11,6 +11,13 @@ struct SettingsView: View {
     @State private var testingOnDevice: Bool = false
     @StateObject private var stats = ReadingStats.shared
 
+    // Memory reminders (spec §3d). Backed by the single StreakState record,
+    // which we lazily create on first appearance if one doesn't exist.
+    @State private var streak: StreakState?
+    @State private var remindersEnabled: Bool = false
+    @State private var reminderTime: Date = SettingsView.midnight
+    @State private var dailyLimit: Int = 20
+
     var body: some View {
         NavigationStack {
             Form {
@@ -39,6 +46,40 @@ struct SettingsView: View {
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
+                }
+
+                Section("Memories") {
+                    Toggle("Daily reminder", isOn: $remindersEnabled)
+                        .onChange(of: remindersEnabled) { _, enabled in
+                            handleRemindersToggle(enabled)
+                        }
+                    if remindersEnabled {
+                        DatePicker(
+                            "Time",
+                            selection: $reminderTime,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .onChange(of: reminderTime) { _, newValue in
+                            streak?.reminderMinuteOfDay = SettingsView.minuteOfDay(from: newValue)
+                            persistAndRefresh()
+                        }
+                    }
+                    Stepper(value: $dailyLimit, in: 5...50, step: 1) {
+                        HStack {
+                            Text("Cards per day")
+                            Spacer()
+                            Text("\(dailyLimit)")
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .onChange(of: dailyLimit) { _, newValue in
+                        streak?.dailyLimit = newValue
+                        persistAndRefresh()
+                    }
+                    Text("One gentle nudge a day, off until you turn it on. We never count days or push you to keep a streak.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("AI") {
@@ -121,11 +162,76 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .onAppear { recomputeSpend() }
+            .onAppear {
+                recomputeSpend()
+                loadStreakState()
+            }
             .task {
                 onDeviceStatus = await LocalProvider().availabilityReport()
             }
         }
+    }
+
+    // MARK: - Memory reminders
+
+    /// Fetch the single StreakState record (insert if none) and mirror it into
+    /// the local @State the controls bind to.
+    @MainActor
+    private func loadStreakState() {
+        let descriptor = FetchDescriptor<StreakState>()
+        let existing = (try? modelContext.fetch(descriptor))?.first
+        let state: StreakState
+        if let existing {
+            state = existing
+        } else {
+            state = StreakState()
+            modelContext.insert(state)
+            try? modelContext.save()
+        }
+        streak = state
+        remindersEnabled = state.remindersEnabled
+        reminderTime = SettingsView.date(fromMinuteOfDay: state.reminderMinuteOfDay)
+        dailyLimit = state.dailyLimit
+    }
+
+    private func handleRemindersToggle(_ enabled: Bool) {
+        guard let streak else { return }
+        // Loading the saved state into the toggle can fire this onChange; skip
+        // when nothing actually changed so we don't re-request auth on open.
+        guard streak.remindersEnabled != enabled else { return }
+        streak.remindersEnabled = enabled
+        if enabled {
+            Task {
+                await MemoryReminders.requestAuthorization()
+                persistAndRefresh()
+            }
+        } else {
+            persistAndRefresh()
+        }
+    }
+
+    /// Save the StreakState edits and reschedule the reminder + widget.
+    private func persistAndRefresh() {
+        guard let streak else { return }
+        try? modelContext.save()
+        MemoryReminders.refresh(context: modelContext, streak: streak)
+    }
+
+    private static let midnight = Calendar.current.startOfDay(for: .now)
+
+    private static func minuteOfDay(from date: Date) -> Int {
+        let c = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return (c.hour ?? 0) * 60 + (c.minute ?? 0)
+    }
+
+    private static func date(fromMinuteOfDay minute: Int) -> Date {
+        let clamped = max(0, min(minute, 24 * 60 - 1))
+        return Calendar.current.date(
+            bySettingHour: clamped / 60,
+            minute: clamped % 60,
+            second: 0,
+            of: .now
+        ) ?? midnight
     }
 
     private func runOnDeviceTest() async {

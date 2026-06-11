@@ -5,5 +5,6 @@ import SwiftUI
 struct BookAppWidgetBundle: WidgetBundle {
     var body: some Widget {
         ContinueReadingWidget()
+        TodaysMemoryWidget()
     }
 }

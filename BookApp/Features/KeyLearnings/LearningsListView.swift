@@ -39,6 +39,14 @@ struct LearningsListView: View {
                                 }
                                 .tint(.indigo)
                             }
+                            if learning.isScheduled && learning.cardKind == .insight {
+                                Button {
+                                    makeQuiz(learning)
+                                } label: {
+                                    Label("Make quiz", systemImage: "questionmark.circle")
+                                }
+                                .tint(.teal)
+                            }
                         }
                 }
             }
@@ -53,6 +61,24 @@ struct LearningsListView: View {
                         Image(systemName: "square.and.arrow.up")
                     }
                 }
+            }
+        }
+    }
+
+    /// Turn a scheduled insight into a cloze quiz: ask the LLM for a blanked
+    /// prompt, write it back onto the card, and flip its kind to `.cloze`.
+    private func makeQuiz(_ learning: KeyLearning) {
+        let idea = learning.text
+        Task {
+            do {
+                let cloze = try await CardGenerator().makeCloze(idea: idea)
+                learning.front = cloze.front
+                learning.back = cloze.back
+                learning.clozeMask = cloze.clozeMask
+                learning.cardKind = .cloze
+                try? modelContext.save()
+            } catch {
+                // Leave the card as an insight on failure; the user can retry.
             }
         }
     }

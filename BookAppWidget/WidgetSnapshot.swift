@@ -56,3 +56,38 @@ struct WidgetSnapshot: Codable, Sendable {
         }
     }
 }
+
+/// Shared payload for the "Today's Memory" widget. Written by the main app
+/// (see `MemorySnapshotWriter`) and read by the widget extension. Lives in
+/// the same App Group container as `WidgetSnapshot`, in its own JSON file so
+/// the two widgets never contend for one snapshot.
+struct MemorySnapshot: Codable, Sendable {
+    /// Number of cards due today, after the daily-cap rule (spec §3a).
+    var dueCount: Int
+    /// Prompt text of the first due card, or empty when nothing is due.
+    var topCardText: String
+    var updatedAt: Date
+
+    static let snapshotFilename = "todays-memory.json"
+
+    static func snapshotURL() -> URL? {
+        WidgetSnapshot.containerURL()?.appendingPathComponent(snapshotFilename)
+    }
+
+    static func read() -> MemorySnapshot? {
+        guard let url = snapshotURL(),
+              let data = try? Data(contentsOf: url) else { return nil }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try? decoder.decode(MemorySnapshot.self, from: data)
+    }
+
+    func write() {
+        guard let url = MemorySnapshot.snapshotURL() else { return }
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        if let data = try? encoder.encode(self) {
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+}

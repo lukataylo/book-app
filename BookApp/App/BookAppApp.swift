@@ -3,6 +3,7 @@ import SwiftData
 
 @main
 struct BookAppApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     let container: ModelContainer?
     let containerError: String?
     /// XCUITests pass `-uitesting` so the app skips onboarding and lands
@@ -50,9 +51,29 @@ struct BookAppApp: App {
                             .zIndex(1)
                     }
                 }
+                .task { refreshMemories() }
             } else {
                 ContainerErrorView(message: containerError ?? "Unknown error.")
             }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { refreshMemories() }
+        }
+    }
+
+    /// Keep the "Today's Memory" widget and the daily reminder in step with the
+    /// deck on launch and whenever the app returns to the foreground. Best
+    /// effort: no StreakState means reminders are off and we just refresh the
+    /// snapshot at the default cap.
+    @MainActor
+    private func refreshMemories() {
+        guard let container else { return }
+        let context = container.mainContext
+        let descriptor = FetchDescriptor<StreakState>()
+        if let streak = (try? context.fetch(descriptor))?.first {
+            MemoryReminders.refresh(context: context, streak: streak)
+        } else {
+            MemorySnapshotWriter.refresh(context: context)
         }
     }
 }

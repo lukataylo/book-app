@@ -275,4 +275,63 @@ enum PromptTemplates {
         """
         return (system, user)
     }
+
+    /// Turn a single saved insight into one cloze (or short Q&A) card.
+    /// See `research/pivot-2026/memory-system-spec.md` §2b. A cloze blanks one
+    /// load-bearing span of `front`; `clozeMask` must be the exact substring of
+    /// `front` that is hidden so the review UI can locate the gap. When a clean
+    /// blank isn't possible the model returns an explicit question/answer with
+    /// `clozeMask` left as the empty string.
+    static func clozeFromIdea(_ idea: String) -> (system: String, user: String) {
+        let system = """
+        Turn one saved idea into a single recall card.
+
+        Output strictly valid JSON:
+        {"front": "...", "back": "...", "clozeMask": "..."}
+
+        Prefer a cloze: rewrite the idea as one sentence in "front" and blank the \
+        single most load-bearing word or phrase. "clozeMask" must be the EXACT \
+        substring of "front" that is hidden, and "back" is that same hidden span.
+        - Blank the term that carries the idea, not a filler word. One blank only.
+        - If the idea has no clean span to blank, instead write a short question \
+        in "front", its answer in "back", and set "clozeMask" to "".
+        - Probe the idea, not its phrasing. Keep it to one sentence or question.
+        - No commentary, no markdown code fences. JSON only.
+        """
+        let user = "Idea:\n\(idea)"
+        return (system, user)
+    }
+
+    /// Rewrite a leech (a card that keeps failing) into a clearer, shorter card,
+    /// using the learner's failed attempts as a hint for where the confusion is.
+    /// See spec §3c. Same JSON shape as `clozeFromIdea` so the result drops into
+    /// the same card payload.
+    static func reformulateCard(idea: String, failedAttempts: [String]) -> (system: String, user: String) {
+        let system = """
+        A learner keeps failing a recall card. Rewrite it into a clearer, \
+        shorter card that targets the same idea.
+
+        Output strictly valid JSON:
+        {"front": "...", "back": "...", "clozeMask": "..."}
+
+        - Make the card simpler and more concrete than the original. Cut to the \
+        single core point the learner kept missing.
+        - Prefer a cloze: blank one load-bearing span and set "clozeMask" to the \
+        EXACT hidden substring of "front", with "back" the same span. If no clean \
+        blank fits, write a short question/answer and set "clozeMask" to "".
+        - Use the failed attempts only to find what is confusing; do not grade them.
+        - No commentary, no markdown code fences. JSON only.
+        """
+        let attempts = failedAttempts.isEmpty
+            ? "(none recorded)"
+            : failedAttempts.enumerated().map { "\($0 + 1). \($1)" }.joined(separator: "\n")
+        let user = """
+        Idea:
+        \(idea)
+
+        Failed attempts:
+        \(attempts)
+        """
+        return (system, user)
+    }
 }
