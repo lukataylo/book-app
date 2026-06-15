@@ -4,12 +4,17 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var apiKey: String = ""
-    @State private var keySaved: Bool = false
+    @State private var hasKey: Bool = false
     @State private var monthlySpend: Double = 0
     @State private var onDeviceStatus: String = "Checking…"
     @State private var onDeviceTestResult: String?
     @State private var testingOnDevice: Bool = false
     @StateObject private var stats = ReadingStats.shared
+
+    // Daily Review preferences live on the single StreakState record.
+    @State private var streak: StreakState?
+    @State private var confirmReset = false
+    @State private var resetDone = false
 
     var body: some View {
         NavigationStack {
@@ -41,6 +46,47 @@ struct SettingsView: View {
                     }
                 }
 
+                if let streak {
+                    @Bindable var streak = streak
+                    Section("Daily Review") {
+                        Stepper(value: $streak.dailyLimit, in: 5...50, step: 5) {
+                            HStack {
+                                Text("Cards per day")
+                                Spacer()
+                                Text("\(streak.dailyLimit)").foregroundStyle(.secondary).monospacedDigit()
+                            }
+                        }
+                        .onChange(of: streak.dailyLimit) { save() }
+
+                        Toggle("Daily reminder", isOn: Binding(
+                            get: { streak.remindersEnabled },
+                            set: { on in
+                                streak.remindersEnabled = on
+                                save()
+                                Task { await applyReminder(enabled: on, minute: streak.reminderMinuteOfDay) }
+                            }
+                        ))
+
+                        if streak.remindersEnabled {
+                            DatePicker(
+                                "Time",
+                                selection: Binding(
+                                    get: { dateFromMinute(streak.reminderMinuteOfDay) },
+                                    set: { newDate in
+                                        streak.reminderMinuteOfDay = minuteFromDate(newDate)
+                                        save()
+                                        NotificationScheduler.scheduleDailyReview(minuteOfDay: streak.reminderMinuteOfDay)
+                                    }
+                                ),
+                                displayedComponents: .hourAndMinute
+                            )
+                        }
+                        Text("One gentle nudge a day when cards are due. No account, no server — scheduled on this device.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("AI") {
                     SecureField("Anthropic API key", text: $apiKey)
                         .textContentType(.password)
@@ -49,14 +95,21 @@ struct SettingsView: View {
                     HStack {
                         Button("Save key") {
                             KeychainStore.shared.write(.anthropicAPIKey, value: apiKey)
-                            keySaved = true
                             apiKey = ""
+                            hasKey = true
                         }
+                        .disabled(apiKey.trimmingCharacters(in: .whitespaces).isEmpty)
                         Spacer()
-                        if let _ = KeychainStore.shared.read(.anthropicAPIKey) {
+                        if hasKey {
                             Label("Stored in Keychain", systemImage: "checkmark.seal.fill")
                                 .foregroundStyle(.green)
                                 .font(.caption)
+                        }
+                    }
+                    if hasKey {
+                        Button("Remove key", role: .destructive) {
+                            KeychainStore.shared.delete(.anthropicAPIKey)
+                            hasKey = false
                         }
                     }
                     Text("Your key stays on this device in the iOS Keychain. It is sent only to api.anthropic.com when you run a Cloud transformation.")
@@ -116,16 +169,102 @@ struct SettingsView: View {
                     DiagnosticsRow()
                 }
 
+                Section("Data") {
+                    Button("Reset all content", role: .destructive) {
+                        confirmReset = true
+                    }
+                    Text("Deletes every book, card, highlight, and review from this device. The starter library reloads next launch.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("About") {
-                    HStack { Text("Version"); Spacer(); Text("1.0").foregroundStyle(.secondary) }
+                    NavigationLink {
+                        AcknowledgementsView()
+                    } label: {
+                        Text("Acknowledgements & licenses")
+                    }
+                    Link("Privacy Policy", destination: URL(string: "https://github.com/lukataylo/book-app/blob/main/AppStore/privacy.md")!)
+                    Link("Contact support", destination: URL(string: "mailto:luka.dadiani@me.com")!)
+                    HStack { Text("Version"); Spacer(); Text(appVersion).foregroundStyle(.secondary) }
                 }
             }
             .navigationTitle("Settings")
-            .onAppear { recomputeSpend() }
+            .onAppear {
+                recomputeSpend()
+                hasKey = KeychainStore.shared.read(.anthropicAPIKey) != nil
+                streak = MemoryStore(context: modelContext).streakState()
+            }
             .task {
                 onDeviceStatus = await LocalProvider().availabilityReport()
             }
+            .alert("Reset all content?", isPresented: $confirmReset) {
+                Button("Reset", role: .destructive) { resetAllContent() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This permanently deletes your books, saved cards, highlights, and review history on this device.")
+            }
+            .alert("Content reset", isPresented: $resetDone) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Relaunch the app to reload the starter library.")
+            }
         }
+    }
+
+    private var appVersion: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(v) (\(b))"
+    }
+
+    private func save() { try? modelContext.save() }
+
+    private func dateFromMinute(_ minute: Int) -> Date {
+        Calendar.current.date(bySettingHour: minute / 60, minute: minute % 60, second: 0, of: .now) ?? .now
+    }
+
+    private func minuteFromDate(_ date: Date) -> Int {
+        let c = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return (c.hour ?? 9) * 60 + (c.minute ?? 0)
+    }
+
+    private func applyReminder(enabled: Bool, minute: Int) async {
+        if enabled {
+            let granted = await NotificationScheduler.requestAuthorization()
+            if granted {
+                NotificationScheduler.scheduleDailyReview(minuteOfDay: minute)
+            } else if let streak {
+                // Permission denied — reflect reality in the toggle.
+                streak.remindersEnabled = false
+                save()
+            }
+        } else {
+            NotificationScheduler.cancelDailyReview()
+        }
+    }
+
+    /// Delete all user + catalog content and clear the seed flags so the
+    /// starter library re-seeds on the next launch.
+    private func resetAllContent() {
+        try? modelContext.delete(model: Book.self)
+        try? modelContext.delete(model: KnowledgeCard.self)
+        try? modelContext.delete(model: KeyLearning.self)
+        try? modelContext.delete(model: ActionItem.self)
+        try? modelContext.delete(model: Annotation.self)
+        try? modelContext.delete(model: Bookmark.self)
+        try? modelContext.delete(model: ReadingProgress.self)
+        try? modelContext.delete(model: BookVariant.self)
+        try? modelContext.delete(model: ReviewSession.self)
+        try? modelContext.delete(model: ReviewLog.self)
+        try? modelContext.delete(model: StreakState.self)
+        try? modelContext.save()
+        for key in ["SummaryPacks.loadedSlugs-v2", "SeedBooks.completed-v1",
+                    "Annotations.backfill-v1", "CoverArt.seedBackfill-v1"] {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        NotificationScheduler.cancelDailyReview()
+        resetDone = true
     }
 
     private func runOnDeviceTest() async {
