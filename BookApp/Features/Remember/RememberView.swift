@@ -37,6 +37,7 @@ struct RememberView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
                     header
+                    reviewBanner
                     if decks.isEmpty && candidates.isEmpty {
                         if query.isEmpty {
                             emptyState
@@ -79,6 +80,57 @@ struct RememberView: View {
                 .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
+    }
+
+    /// Entry point to the spaced-repetition loop (branch 2's FSRS engine).
+    /// Review lives inside Remember rather than in a tab of its own: the day's
+    /// due cards sit right above the decks they came from.
+    private var reviewBanner: some View {
+        let store = MemoryStore(context: modelContext)
+        let dueCount = store.dueToday(dailyLimit: 20).count
+        let waiting = store.waitingCount(dailyLimit: 20)
+        let subtitle: String
+        if dueCount > 0 {
+            subtitle = waiting > 0
+                ? "\(dueCount) due now · \(waiting) waiting"
+                : "\(dueCount) due now"
+        } else {
+            subtitle = "Add saved ideas to start a review"
+        }
+        return NavigationLink {
+            ReviewSessionView()
+        } label: {
+            HStack(spacing: Theme.Spacing.m) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(.title3, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                    .frame(width: 30)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Daily Review")
+                        .font(.system(.headline))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                    Text(subtitle)
+                        .font(.system(.caption))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
+                Spacer()
+                if dueCount > 0 {
+                    Text("\(dueCount)")
+                        .font(.system(.headline, weight: .bold))
+                        .foregroundStyle(.white)
+                        .monospacedDigit()
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Color.red))
+                }
+                Image(systemName: "chevron.right")
+                    .font(.system(.footnote, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+            }
+            .padding(Theme.Spacing.m)
+            .glassCard(cornerRadius: Theme.Radius.m)
+        }
+        .buttonStyle(.plain)
     }
 
     private func deckGrid(_ decks: [Book]) -> some View {

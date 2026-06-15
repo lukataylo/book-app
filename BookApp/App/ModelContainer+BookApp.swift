@@ -17,7 +17,10 @@ extension ModelContainer {
             Bookmark.self,
             ReaderSettings.self,
             TTSSettings.self,
-            SpeedReaderSettings.self
+            SpeedReaderSettings.self,
+            ReviewSession.self,
+            ReviewLog.self,
+            StreakState.self
         ])
         // CloudKit + simulator without code signing → instant SIGTRAP in
         // `[PFCloudKitContainerProvider containerWithIdentifier:options:]`
@@ -49,7 +52,8 @@ extension ModelContainer {
             Book.self, BookVariant.self, KeyLearning.self,
             KnowledgeCard.self, ActionItem.self,
             Annotation.self, ReadingProgress.self, Bookmark.self,
-            ReaderSettings.self, TTSSettings.self, SpeedReaderSettings.self
+            ReaderSettings.self, TTSSettings.self, SpeedReaderSettings.self,
+            ReviewSession.self, ReviewLog.self, StreakState.self
         ])
         // CloudKit explicitly off for in-memory: avoids the unique-constraint
         // validation path that otherwise rejects this configuration.
