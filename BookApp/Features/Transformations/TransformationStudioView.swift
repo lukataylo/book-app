@@ -54,9 +54,10 @@ struct TransformationStudioView: View {
 
     private let engine = TransformationEngine()
     private let suggestedAuthors = [
-        "Malcolm Gladwell", "Joan Didion", "Hemingway",
+        "Joan Didion", "Hemingway",
         "Susan Sontag", "James Baldwin", "Annie Dillard",
-        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin"
+        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin",
+        "Mary Oliver", "Oliver Sacks"
     ]
 
     var body: some View {
@@ -71,7 +72,7 @@ struct TransformationStudioView: View {
                     HStack(spacing: 8) {
                         ProgressView().scaleEffect(0.8)
                         Text("Calculating cost…")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(.footnote, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
                     .padding(.vertical, 4)
@@ -95,15 +96,9 @@ struct TransformationStudioView: View {
             runCTA
                 .padding(.horizontal, Theme.Spacing.l)
                 .padding(.vertical, Theme.Spacing.s)
-                .background(
-                    LinearGradient(
-                        colors: [Theme.Palette.appBackground.opacity(0),
-                                 Theme.Palette.appBackground.opacity(0.7),
-                                 Theme.Palette.appBackground],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                // Frosted toolbar — content scrolls under glass, the
+                // native iOS bar treatment.
+                .background(.ultraThinMaterial)
         }
         .alert("Couldn't transform", isPresented: Binding(
             get: { errorText != nil },
@@ -139,11 +134,11 @@ struct TransformationStudioView: View {
     private var hero: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(book.title)
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .lineLimit(2)
             Text("\(book.totalPagesEstimate) pages · ~\(formatTokens(estimateInputTokens())) tokens")
-                .font(.system(size: 12))
+                .font(.system(.caption))
                 .foregroundStyle(Theme.Palette.textSecondary)
         }
     }
@@ -159,18 +154,18 @@ struct TransformationStudioView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("\(Int(targetPages)) pages")
-                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .font(.system(.title3, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                     Spacer()
                     Text(directionLabel())
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(.caption, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
                 Slider(value: $targetPages,
                        in: 10...max(20, Double(book.totalPagesEstimate) * 4),
                        step: 5)
                 Text("Original is ~\(book.totalPagesEstimate) pages.")
-                    .font(.system(size: 11))
+                    .font(.system(.caption2))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
         }
@@ -198,7 +193,7 @@ struct TransformationStudioView: View {
             isOn: $changeStyle
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                TextField("e.g. Malcolm Gladwell", text: $styleReference)
+                TextField("e.g. Joan Didion", text: $styleReference)
                     .focused($styleFieldFocused)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 14)
@@ -212,12 +207,33 @@ struct TransformationStudioView: View {
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
+                        // Roll the dice: a random voice from the pool,
+                        // re-rolling past the current pick so the tap
+                        // always visibly changes something.
+                        Button {
+                            styleReference = suggestedAuthors
+                                .filter { $0 != styleReference }
+                                .randomElement() ?? suggestedAuthors[0]
+                        } label: {
+                            Label("Surprise me", systemImage: "dice")
+                                .font(.system(.caption, weight: .medium))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 7)
+                                .background(Capsule().fill(Theme.Palette.textPrimary.opacity(0.06)))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Theme.Palette.divider, lineWidth: 0.5)
+                                )
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Pick a random style")
                         ForEach(suggestedAuthors, id: \.self) { name in
                             Button {
                                 styleReference = name
                             } label: {
                                 Text(name)
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.system(.caption, weight: .medium))
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 7)
                                     .background(
@@ -239,7 +255,7 @@ struct TransformationStudioView: View {
                 }
 
                 Text("The rewrite preserves every key idea while matching the chosen voice.")
-                    .font(.system(size: 11))
+                    .font(.system(.caption2))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
         }
@@ -288,26 +304,26 @@ struct TransformationStudioView: View {
             else  { omittedThemes.append(theme) }
         } label: {
             HStack(spacing: 4) {
-                if on { Image(systemName: "xmark").font(.system(size: 10, weight: .bold)) }
-                Text(theme).font(.system(size: 12, weight: .medium))
+                if on { Image(systemName: "xmark").font(.system(.caption2, weight: .bold)) }
+                Text(theme).font(.system(.caption, weight: .medium))
                 if isCustom {
                     // Pencil hint distinguishes user-typed chips from
                     // auto-detected ones — clarifies that deleting one
                     // from `omittedThemes` makes it disappear entirely.
                     Image(systemName: "pencil")
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.system(.caption2, weight: .semibold))
                         .opacity(0.6)
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .foregroundStyle(on ? .white : Theme.Palette.textPrimary)
+            .foregroundStyle(on ? Theme.Palette.appBackground : Theme.Palette.textPrimary)
             .background(
-                Capsule().fill(on ? Color.black : Color.clear)
+                Capsule().fill(on ? Theme.Palette.accent : Color.clear)
             )
             .overlay(
                 Capsule().stroke(
-                    on ? Color.black : Theme.Palette.divider,
+                    on ? Theme.Palette.accent : Theme.Palette.divider,
                     lineWidth: 0.5
                 )
             )
@@ -319,7 +335,7 @@ struct TransformationStudioView: View {
     private var customThemeField: some View {
         HStack(spacing: 8) {
             Image(systemName: "plus")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary)
             TextField("Add a theme", text: $customThemeDraft)
                 .textInputAutocapitalization(.never)
@@ -327,10 +343,10 @@ struct TransformationStudioView: View {
                 .focused($customThemeFieldFocused)
                 .submitLabel(.done)
                 .onSubmit(addCustomTheme)
-                .font(.system(size: 13))
+                .font(.system(.footnote))
             if !customThemeDraft.isEmpty {
                 Button("Add", action: addCustomTheme)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(.caption, weight: .semibold))
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.Palette.textPrimary)
             }
@@ -365,7 +381,7 @@ struct TransformationStudioView: View {
     private var modelSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Model")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             HStack {
                 Text("Use")
@@ -395,7 +411,7 @@ struct TransformationStudioView: View {
         let estimatedSecs = isLocal ? Double(e.chunkCount) * 8.0 : Double(e.chunkCount) * 1.5
         return VStack(alignment: .leading, spacing: 8) {
             Text("Estimate")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             VStack(spacing: 0) {
                 row("Chunks", "\(e.chunkCount)")
@@ -434,29 +450,29 @@ struct TransformationStudioView: View {
         let modelIsLocal = (estimate?.model.providerID ?? .anthropic) != .anthropic
         return VStack(alignment: .leading, spacing: 10) {
             Text("Running…")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             ProgressView(value: Double(p.chunkIndex), total: Double(max(1, p.chunkCount)))
-                .tint(.black)
+                .tint(Theme.Palette.accent)
             HStack {
                 Text("chunk \(p.chunkIndex)/\(p.chunkCount)")
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(Theme.Palette.textSecondary)
                 Spacer()
                 if p.estimatedSecondsRemaining > 0 {
                     Text("~\(formatDuration(p.estimatedSecondsRemaining)) left")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(.caption, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
             }
             HStack {
                 if modelIsLocal {
                     Text("Free · on-device")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(.caption, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                 } else {
                     Text(String(format: "$%.3f spent", p.costUSD))
-                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .font(.system(.caption, design: .monospaced, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                 }
                 Spacer()
@@ -464,7 +480,7 @@ struct TransformationStudioView: View {
                     cancelRun()
                 } label: {
                     Text("Cancel")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(.caption, weight: .semibold))
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.red)
@@ -485,7 +501,7 @@ struct TransformationStudioView: View {
                 .fontWeight(emphasize ? .semibold : .regular)
                 .foregroundStyle(Theme.Palette.textPrimary)
         }
-        .font(.system(size: 14))
+        .font(.system(.subheadline))
         .padding(.vertical, 11)
     }
 
@@ -497,16 +513,18 @@ struct TransformationStudioView: View {
         } label: {
             HStack {
                 if isRunning {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Theme.Palette.appBackground)
                 } else {
                     Text(canRun ? generateLabel() : "Enable at least one option")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(.callout, weight: .semibold))
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(canRun ? Color.black : Color.black.opacity(0.4))
-            .foregroundStyle(.white)
+            // Inverted ink — visible in dark mode, with a clearly-dimmed
+            // disabled state in both schemes.
+            .background(Theme.Palette.accent.opacity(canRun ? 1 : 0.35))
+            .foregroundStyle(Theme.Palette.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -674,17 +692,17 @@ private struct SectionCard<Content: View>: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .font(.system(.title3, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                     Text(subtitle)
-                        .font(.system(size: 12))
+                        .font(.system(.caption))
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .lineLimit(1)
                 }
                 Spacer()
                 Toggle("", isOn: $isOn)
                     .labelsHidden()
-                    .tint(.black)
+                    .tint(Theme.Palette.accent)
                     .disabled(disabled)
             }
             if isOn && !disabled {

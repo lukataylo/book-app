@@ -1,0 +1,192 @@
+{
+  "slug": "algorithms-to-live-by",
+  "title": "The Big Ideas in Algorithms to Live By",
+  "source_title": "Algorithms to Live By",
+  "source_author": "Brian Christian and Tom Griffiths",
+  "source_year": 2016,
+  "categories": [
+    "Science",
+    "Self-improvement"
+  ],
+  "themes": [
+    "optimal stopping in everyday choices",
+    "explore versus exploit tradeoffs",
+    "scheduling and prioritization",
+    "bayesian prediction from small data",
+    "overfitting and the value of simplicity",
+    "computational kindness"
+  ],
+  "read_minutes": 15,
+  "attribution": "An original summary of the ideas in Algorithms to Live By by Brian Christian and Tom Griffiths (2016). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
+  "summary": "You probably don't think of apartment hunting as a math problem. Brian Christian and Tom Griffiths do — and they can prove there's a best way to do it. In Algorithms to Live By, a science writer and a cognitive scientist take the formal tools computer scientists use to manage time, memory, and uncertainty, and aim them at human dilemmas: when to stop searching, when to try something new, what to leave unsorted, how to plan a day. The result is oddly liberating. Many situations that make us feel scattered or indecisive turn out to be provably hard problems, and the optimal strategies are often simpler — and far more forgiving — than the standards we hold ourselves to.\n\n# Knowing when to stop looking\n\nEvery search has the same hidden structure: the longer you look, the better your sense of what's out there, but the more good options slip past while you deliberate. Mathematicians call this optimal stopping, and for the classic version — options arriving one at a time, no going back — the answer is exact. Spend the first 37 percent of your search window purely calibrating, committing to nothing. After that, take the first option that beats everything you've seen. Play this way and you land the single best choice about 37 percent of the time, which sounds modest until you learn that no strategy in existence does better.\n\nChristian and Griffiths show how the threshold bends with circumstances. If an offer might turn you down, start leaping earlier. If you can return to something you passed over, you've earned the right to browse longer. If waiting itself costs money — selling a house while paying the mortgage, circling for parking while burning fuel — the math produces a precise walk-away point that ignores sunk costs completely. The deeper gift here is psychological. Even perfect play fails most of the time, so if you searched sensibly and then committed, second-guessing the result isn't wisdom. It's a misreading of the odds.\n\n# The tension between new and familiar\n\nOrder the dish you love, or gamble on the new place? Computer scientists call this the explore/exploit tradeoff, and the governing insight is that the right answer depends almost entirely on time. Exploring is how you gather information; exploiting is how you cash it in. Information is worth more the longer you'll be around to use it. So in your first month in a city you should try nearly everything, and on your last night there you should book the sure thing without guilt.\n\nThe authors walk through decades of work on this dilemma, framed as a gambler facing a wall of slot machines with unknown payouts. One elegant solution, the upper confidence bound algorithm, says to judge each option not by its average so far but by the best it could plausibly be — optimism as formal policy, since only trying things shrinks uncertainty. The frame recasts whole life stages. A toddler flitting between toys and a grandmother keeping a small, deep circle of friends aren't displaying flightiness and rigidity; both are playing the correct strategy for their position on the clock.\n\n# In defense of the unsorted pile\n\nSorting feels virtuous, but it's frequently a net loss. The mathematics of sorting says the effort grows steeply as collections get bigger, and that effort only pays off if it saves enough future searching. For a bookshelf or an inbox you rarely scan from scratch, the authors' verdict is to err toward mess: rifling through a smallish unsorted pile is cheap, while alphabetizing things you'll never look up is pure waste dressed as productivity.\n\nWhen your real constraint is fast access, computer science offers caching. A processor keeps a small pool of recently used data close at hand, and the most battle-tested rule for deciding what stays is Least Recently Used: evict whatever you've touched longest ago, because recent use is the best available predictor of future use. That makes the teetering stack of papers on your desk, where each consulted document lands back on top, a self-organizing data structure with provably good properties. The same logic reframes forgetting. A mind that keeps recent, frequent things on the tip of the tongue and lets the rest recede isn't decaying — it's behaving like a well-tuned cache facing more memories than any system could keep instantly available.\n\n# A theory of the overloaded day\n\nScheduling theory's first lesson is humbling: you cannot optimize a to-do list until you decide what you're optimizing for, and different goals demand contradictory orders. To shrink the number of obligations hanging over you fastest, do the quickest tasks first; when tasks differ in importance, divide importance by duration and work down the list. To minimize the worst lateness, ignore size entirely and march through deadlines in order. Most of our daily paralysis, the authors suggest, comes from never choosing the metric.\n\nThe field's pathologies are eerily familiar too. Computers suffer thrashing — a state where a machine spends every cycle swapping tasks in and out and accomplishes none of them — which is a precise portrait of a person with forty open browser tabs answering none of their email. One escape is interrupt coalescing: instead of letting every ping seize the processor, batch the interruptions and handle them on a schedule. For humans, that means checking messages at set times and protecting unbroken blocks, because every context switch levies a tax the schedule never shows.\n\n# Predicting from almost nothing\n\nHow long will a friendship, a company, or a construction project last? Bayes's rule lets you predict from a single observation, provided you bring the right prior expectations. The authors distill the machinery into three rules of thumb. For quantities that follow power laws, like box-office grosses and fortunes, expect proportionally more of whatever you've seen so far — the longer something has run, the longer it's likely to keep running. For bell-curve quantities like human lifespans, predict the average until the evidence passes it. And for genuinely memoryless waits, expect a constant amount more no matter how long you've already waited.\n\nPeople turn out to be impressively good intuitive forecasters in domains where they've absorbed honest data. Which carries a quiet warning: your predictions are only as good as your priors, and your priors are built from whatever you feed your attention. A news diet weighted toward catastrophe doesn't just sour your mood — it corrupts the statistical machinery you predict the world with.\n\n# Thinking less, on purpose\n\nIn machine learning, a model with too much flexibility starts fitting the noise instead of the signal, and its predictions get worse as it gets more sophisticated. Christian and Griffiths argue this failure, called overfitting, afflicts human deliberation too. Agonizing over every conceivable factor can produce worse decisions than weighing one or two big ones, because the extra detail mostly captures noise. Seen this way, gut heuristics and simple rules aren't lazy shortcuts; they're a guard against mistaking idiosyncrasy for insight.\n\nThe book's later chapters form a toolkit for hard problems. When a problem is computationally intractable, relax it — solve a simplified version and let that answer guide you. When reasoning stalls, add randomness: sampling, random restarts, and the occasional wild jump outperform exhaustive analysis on rugged terrain, which is a mathematical case for shaking up routines. When efforts keep failing, use exponential backoff — retry with exponentially lengthening pauses rather than choosing between pestering and permanent exile. And in dealings with people, practice what the authors call computational kindness. Saying any restaurant works for me feels polite but hands your companion an open-ended search problem; naming a preference, or offering two concrete times instead of asking when works, is a genuine gift of computation.\n\n# The book behind the cheat sheet\n\nThe quiet thesis of Algorithms to Live By is that computer science is a branch of practical wisdom. The best algorithms for hard problems aren't exhaustive or perfectionist — they tolerate error, embrace approximation, and stop on time, which is a defensible description of a life well run. The full book goes well past this summary, into game theory and why unregulated competition burns value, network protocols as a model for trust and conversation, and the strange comfort of knowing some problems are hard for any intelligence. Read it if you're a knowledge worker drowning in priorities, a chronic second-guesser, or anyone who suspects their indecision is a character flaw. Often it isn't a flaw at all — it's a hard problem, and there's a better algorithm.",
+  "summary_short": "What if your chronic indecision isn't a character flaw but a provably hard problem? Brian Christian and Tom Griffiths take the algorithms computer scientists use to manage time, memory, and uncertainty and aim them at ordinary life — and the optimal strategies turn out to be simpler and more forgiving than the standards we hold ourselves to. Searching for an apartment or a hire is an optimal stopping problem: spend roughly the first third of your window calibrating without committing, then take the first option that beats everything so far. No strategy does better, and even perfect play fails most of the time — so second-guessing a sensible search isn't wisdom, it's a misreading of the odds.\n\nWhether to try something new or stick with a favorite depends almost entirely on how much time remains: explore early, exploit late, which is why a toddler flitting between toys and a grandmother keeping a small, deep circle are both playing correctly for their position on the clock. Sorting is frequently wasted effort — rifling through a smallish unsorted pile is cheap, while alphabetizing things you'll never look up is waste dressed as productivity — and the teetering stack of papers on your desk behaves like a well-designed cache, keeping recently used items closest to hand. Scheduling theory's first lesson is humbling: you cannot optimize a to-do list until you choose what you're optimizing for, and the state of frantically switching among forty tasks while finishing none has a precise computing name, thrashing. Batching interruptions and protecting unbroken blocks is the escape.\n\nThe authors close with prediction and restraint. Bayes's rule lets you forecast from tiny samples if your priors are honest — which makes a catastrophe-heavy news diet a quiet corruption of your forecasting machinery — and overthinking is a genuine failure mode, because piling on factors fits noise rather than signal, a case for gut heuristics and simple rules. Even politeness gets an upgrade: naming a preference spares your companion an open-ended search problem, a gift the authors call computational kindness. The full summary develops each algorithm in detail, from optimism-driven exploration to exponential backoff, with the reasoning that makes them usable.",
+  "learnings": [
+    {
+      "text": "In a sequential search with no going back, calibrate on the first 37 percent of options, then commit to the first one that beats everything seen — no strategy beats it.",
+      "chapter": "Knowing when to stop looking"
+    },
+    {
+      "text": "Even optimal stopping fails most of the time, so a good search process followed by commitment deserves no regret over the outcome.",
+      "chapter": "Knowing when to stop looking"
+    },
+    {
+      "text": "Exploration is worth more early and exploitation worth more late, because information's value depends on how long you'll be around to use it.",
+      "chapter": "The tension between new and familiar"
+    },
+    {
+      "text": "The upper confidence bound algorithm formalizes optimism: judge options by their plausible best, since only trying things shrinks uncertainty.",
+      "chapter": "The tension between new and familiar"
+    },
+    {
+      "text": "Sorting only pays when it saves enough future searching, so collections you rarely scan are rationally left messy.",
+      "chapter": "In defense of the unsorted pile"
+    },
+    {
+      "text": "A pile where used items return to the top mimics the Least Recently Used caching rule, making recent use your best predictor of future need.",
+      "chapter": "In defense of the unsorted pile"
+    },
+    {
+      "text": "You can't optimize a schedule until you pick a metric; quickest-first shrinks your backlog fastest, while deadline order minimizes worst lateness.",
+      "chapter": "A theory of the overloaded day"
+    },
+    {
+      "text": "Batching interruptions on a schedule — the human version of interrupt coalescing — avoids the hidden tax of constant context switching.",
+      "chapter": "A theory of the overloaded day"
+    },
+    {
+      "text": "Good single-observation predictions follow the shape of the prior: expect proportionally more of power-law quantities, but the average for bell-curve ones.",
+      "chapter": "Predicting from almost nothing"
+    },
+    {
+      "text": "Deliberating over every factor can overfit noise, so simple heuristics often beat exhaustive analysis.",
+      "chapter": "Thinking less, on purpose"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Calibrate, Then Commit",
+      "body": "When options arrive one at a time and won't wait, spend the first 37 percent of your search just learning the range. After that, seize the first option better than everything you've seen. It's the provably best strategy — and it still fails often, which is why a sound process deserves more loyalty than any single outcome.",
+      "category": "Principle"
+    },
+    {
+      "title": "Your Remaining Time Sets the Strategy",
+      "body": "Try new things when you have a long horizon ahead; lean on proven favorites when the window is closing. Neither restlessness nor routine is a personality flaw — each is the mathematically correct move at a different point on the clock. Ask how long you'll harvest the information before deciding whether to gather it.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Optimism Is an Algorithm",
+      "body": "Rate unfamiliar options by the best they could plausibly be, not their thin track record. Acting on the upper bound systematically pushes you to test the uncertain option, and testing is the only thing that resolves uncertainty. Disappointment teaches you something; never trying teaches you nothing.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Mess Can Be Rational",
+      "body": "Sorting is an investment that only pays if future searches redeem it. For shelves, folders, and inboxes you rarely scan end to end, searching a small unsorted pile is cheaper than maintaining perfect order. Stop treating tidiness as a moral state and start treating it as a transaction that must earn its cost.",
+      "category": "Insight"
+    },
+    {
+      "title": "Let Used Things Float Up",
+      "body": "The most recently used item is the one most likely needed next, so any system where touched things land on top — a paper stack, a recent-files list — is close to optimal. Keep what you reach for within reach and let the rest sink without guilt.",
+      "category": "Habit"
+    },
+    {
+      "title": "Pick a Metric Before You Prioritize",
+      "body": "Quickest-task-first shrinks the number of things hanging over you. Importance divided by duration handles unequal stakes. Deadline order minimizes the worst lateness. These orders contradict each other, so no list can satisfy all three. Most scheduling paralysis is really an unmade decision about what you're optimizing for.",
+      "category": "Principle"
+    },
+    {
+      "title": "Batch Your Interruptions",
+      "body": "A machine that switches tasks constantly ends up doing nothing but switching — and so do you. Coalesce the pings: check messages at fixed times, hold office hours, protect unbroken blocks for real work. Every context switch charges a tax that never appears on your calendar but always comes out of your output.",
+      "category": "Practice"
+    },
+    {
+      "title": "Predict by the Shape of the Past",
+      "body": "For power-law things like fame and fortunes, the longer something has lasted, the longer it will likely continue. For bell-curve things like lifespans, bet on the average until evidence passes it. One observation plus the right prior beats elaborate guessing — so know which distribution you're standing in.",
+      "category": "Mental Model"
+    },
+    {
+      "title": "Guard the Data Behind Your Hunches",
+      "body": "Your gut predictions are only as good as the experience they're trained on. A feed weighted toward outrage and catastrophe quietly retunes your expectations of how common those things are. Curating your inputs isn't self-care; it's maintenance on the statistical machinery you use to judge everything.",
+      "category": "Warning"
+    },
+    {
+      "title": "More Analysis Can Mean Worse Decisions",
+      "body": "Past a point, extra factors in your deliberation fit noise instead of signal — the human version of overfitting. When data is thin and the future uncertain, weighing one or two fundamentals beats a twelve-column spreadsheet. Complexity must earn its keep; by default, prefer the simpler model of the situation.",
+      "category": "Warning"
+    },
+    {
+      "title": "Back Off, Don't Cut Off",
+      "body": "When attempts keep failing — a flaky friend, a stalled habit, an unanswered pitch — you don't have to choose between pestering and exile. Retry with exponentially lengthening pauses. The strategy keeps the door open forever while capping what the failures cost you, which is exactly why networks use it.",
+      "category": "Practice"
+    },
+    {
+      "title": "Be Kind With Computation",
+      "body": "Vague flexibility exports work: saying anything is fine hands the other person an open-ended search problem. Naming a preference, shortlisting two restaurants, or offering concrete times shrinks their decision space at no real cost to you. Some of the cheapest generosity available is reducing what others must compute.",
+      "category": "Habit"
+    }
+  ],
+  "actions": [
+    {
+      "title": "Define your current search",
+      "detail": "Pick one open-ended search in your life — a job, a flat, a hire — and write down its real deadline and how many options you can realistically see. Optimal stopping only works once the window is explicit.",
+      "kind": "task",
+      "day": 1,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Set your 37 percent line",
+      "detail": "For that search, mark the calendar date or option count where calibration ends. Decide now that after the line, you'll commit to the first option that beats everything before it.",
+      "kind": "task",
+      "day": 2,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Triage your task list by a chosen metric",
+      "detail": "Sit down with your full to-do list, pick one scheduling goal — fewest things hanging over you, or no missed deadlines — and reorder everything by that single metric as Christian and Griffiths advise.",
+      "kind": "event",
+      "day": 3,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Schedule two message-checking windows",
+      "detail": "Apply interrupt coalescing: choose two fixed times tomorrow to handle email and chat, and silence notifications outside them to stop paying the context-switch tax.",
+      "kind": "task",
+      "day": 5,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Run a deliberate explore night",
+      "detail": "Book dinner somewhere untried, or block an evening for an unfamiliar author, cuisine, or route. You're early in many clocks; pay the exploration cost while the information still has years to compound.",
+      "kind": "event",
+      "day": 7,
+      "duration_minutes": 90
+    },
+    {
+      "title": "Build one Least Recently Used zone",
+      "detail": "Choose a shelf, drawer, or desktop folder and switch it to self-organizing: whatever you use goes back on top or in front. Let unused items sink instead of sorting them.",
+      "kind": "task",
+      "day": 9,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Simplify one looming decision",
+      "detail": "Take a decision you've been overanalyzing and rewrite it as a comparison on the two factors that matter most, discarding the rest of the spreadsheet as probable noise.",
+      "kind": "event",
+      "day": 11,
+      "duration_minutes": 30
+    },
+    {
+      "title": "Apply exponential backoff to a stalled thread",
+      "detail": "Pick one unanswered application, invitation, or repair attempt. Schedule the next try, and decide that each further attempt will wait twice as long — persistent, but capped.",
+      "kind": "task",
+      "day": 12,
+      "duration_minutes": 0
+    },
+    {
+      "title": "Practice computational kindness for a week",
+      "detail": "Review your outgoing messages and replace every vague whenever works with two concrete options. Note how much faster plans converge when you shrink other people's search space.",
+      "kind": "event",
+      "day": 14,
+      "duration_minutes": 15
+    }
+  ]
+}

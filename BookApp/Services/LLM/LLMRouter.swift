@@ -26,6 +26,10 @@ final actor LLMRouter {
         switch task {
         case .categoryTagging, .keyLearningsExtraction, .quizGeneration, .shortSummary:
             return [.appleFoundation, .mlxLocal, .claudeHaiku4_5]
+        case .knowledgeCards, .actionPlan:
+            // Structured-JSON output benefits from a stronger cloud fallback
+            // than Haiku, but the local-first policy still applies.
+            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeHaiku4_5]
         case .compression:
             return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
         case .expansion(let ratio):

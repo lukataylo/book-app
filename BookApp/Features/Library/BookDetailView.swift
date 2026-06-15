@@ -20,6 +20,8 @@ struct BookDetailView: View {
     private enum Destination: Hashable {
         case reader(UUID)         // variant id
         case transform(UUID)      // source variant id
+        case cards                // knowledge-card deck (Remember)
+        case plan                 // action plan (Act)
     }
     @State private var route: Destination?
     @State private var showLearnings = false
@@ -37,6 +39,9 @@ struct BookDetailView: View {
                 actionsSection
                 if let learnings = book.keyLearnings, !learnings.isEmpty {
                     learningsPreview(learnings)
+                }
+                if book.isSummaryEdition, !book.sourceAttribution.isEmpty {
+                    attributionFooter
                 }
                 Spacer(minLength: Theme.Spacing.xxl)
             }
@@ -66,6 +71,10 @@ struct BookDetailView: View {
                 if let v = (book.variants ?? []).first(where: { $0.id == id }) {
                     TransformationStudioView(book: book, sourceVariant: v)
                 }
+            case .cards:
+                CardDeckView(book: book)
+            case .plan:
+                ActionPlanView(book: book)
             }
         }
         .sheet(isPresented: $showLearnings) {
@@ -90,15 +99,15 @@ struct BookDetailView: View {
                 cover
                 VStack(alignment: .leading, spacing: 6) {
                     Text(book.title)
-                        .font(.system(size: 24, weight: .semibold, design: .serif))
+                        .font(.system(.title2, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(4)
                     Text(book.author)
-                        .font(.system(size: 15))
+                        .font(.system(.subheadline))
                         .foregroundStyle(Theme.Palette.textSecondary)
                     if book.totalPagesEstimate > 0 {
                         Text("\(book.totalPagesEstimate) pages · \(formatWords(book.totalWordsEstimate))")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(.caption, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
                             .padding(.top, 4)
                     }
@@ -119,16 +128,11 @@ struct BookDetailView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
                 .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
         } else {
-            // Fallback generated spine.
-            RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous)
-                .fill(Theme.BookSpine.color(for: book.categoryTags))
+            // Idea Glyphs generated cover (Design/CoverArt.swift).
+            GeneratedCoverView(book: book)
                 .frame(width: 110, height: 160)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
                 .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
-                .overlay(
-                    Text(book.title.prefix(1))
-                        .font(.system(size: 36, weight: .semibold, design: .serif))
-                        .foregroundStyle(.white)
-                )
         }
     }
 
@@ -139,7 +143,7 @@ struct BookDetailView: View {
             HStack(spacing: 6) {
                 ForEach(categoryRow, id: \.self) { tag in
                     Text(tag)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(.caption2, weight: .medium))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
@@ -163,21 +167,24 @@ struct BookDetailView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(progress > 0 ? "Continue reading" : "Start reading")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(.callout, weight: .semibold))
                         if progress > 0 {
                             Text("\(Int(progress * 100))% complete")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.white.opacity(0.7))
+                                .font(.system(.caption))
+                                .foregroundStyle(Theme.Palette.appBackground.opacity(0.7))
                         }
                     }
                     Spacer()
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
+                    Image(systemName: "chevron.right")
+                        .font(.system(.caption, weight: .semibold))
+                        .opacity(0.6)
                 }
-                .foregroundStyle(.white)
+                // Inverted ink — accent flips with the color scheme, so the
+                // button stays visible on the pure-black dark background.
+                .foregroundStyle(Theme.Palette.appBackground)
                 .padding(.horizontal, Theme.Spacing.m)
                 .padding(.vertical, 14)
-                .background(Color.black)
+                .background(Theme.Palette.accent)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -188,19 +195,9 @@ struct BookDetailView: View {
 
     private var variantsSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-            HStack {
-                Text("Variants")
-                    .font(.system(size: 18, weight: .semibold, design: .serif))
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                Spacer()
-                Button {
-                    if let original = book.originalVariant { route = .transform(original.id) }
-                } label: {
-                    Label("Generate", systemImage: "wand.and.stars")
-                        .font(.system(size: 13, weight: .medium))
-                }
+            Text("Variants")
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-            }
             VStack(spacing: 0) {
                 ForEach(allVariants, id: \.id) { variant in
                     Button { route = .reader(variant.id) } label: {
@@ -224,40 +221,27 @@ struct BookDetailView: View {
         return originals + generated
     }
 
+    // Books-style rows: text + chevron only — no leading glyph parade.
     private func variantRow(_ v: BookVariant) -> some View {
         HStack(spacing: Theme.Spacing.m) {
-            Image(systemName: iconName(for: v.kind))
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Theme.Palette.textSecondary)
-                .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(v.label.isEmpty ? v.kind.displayName : v.label)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 if v.kind != .original {
                     Text(metadataLine(for: v))
-                        .font(.system(size: 11))
+                        .font(.system(.caption2))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
         }
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
-    }
-
-    private func iconName(for kind: VariantKind) -> String {
-        switch kind {
-        case .original:     return "book.closed"
-        case .compressed:   return "arrow.down.right.and.arrow.up.left"
-        case .expanded:     return "arrow.up.left.and.arrow.down.right"
-        case .styled:       return "paintpalette"
-        case .themeOmitted: return "scissors"
-        }
     }
 
     private func metadataLine(for v: BookVariant) -> String {
@@ -278,10 +262,30 @@ struct BookDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 0) {
+            if !(book.knowledgeCards ?? []).isEmpty {
+                Button {
+                    route = .cards
+                } label: {
+                    actionRow(title: "Remember",
+                              subtitle: "\(book.knowledgeCards?.count ?? 0) knowledge cards")
+                }
+                .buttonStyle(.plain)
+                Divider().background(Theme.Palette.divider)
+            }
+            if !(book.actionItems ?? []).isEmpty {
+                Button {
+                    route = .plan
+                } label: {
+                    actionRow(title: "Act",
+                              subtitle: "14-day plan · \(book.actionItems?.filter(\.completed).count ?? 0)/\(book.actionItems?.count ?? 0) done")
+                }
+                .buttonStyle(.plain)
+                Divider().background(Theme.Palette.divider)
+            }
             Button {
                 showLearnings = true
             } label: {
-                actionRow(systemImage: "lightbulb.fill", title: "Key learnings",
+                actionRow(title: "Key learnings",
                           subtitle: book.keyLearnings?.isEmpty == false
                             ? "\(book.keyLearnings?.count ?? 0) saved" : "Auto-extract key takeaways")
             }
@@ -290,7 +294,7 @@ struct BookDetailView: View {
             Button {
                 if let original = book.originalVariant { route = .transform(original.id) }
             } label: {
-                actionRow(systemImage: "wand.and.stars", title: "Transform",
+                actionRow(title: "Transform",
                           subtitle: "Compress, expand, restyle, or omit themes")
             }
             .buttonStyle(.plain)
@@ -299,28 +303,38 @@ struct BookDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
     }
 
-    private func actionRow(systemImage: String, title: String, subtitle: String) -> some View {
+    private func actionRow(title: String, subtitle: String) -> some View {
         HStack(spacing: Theme.Spacing.m) {
-            Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .medium))
-                .frame(width: 22)
-                .foregroundStyle(Theme.Palette.textSecondary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text(subtitle)
-                    .font(.system(size: 11))
+                    .font(.system(.caption2))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
         }
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
+    }
+
+    // MARK: - Attribution (summary editions)
+
+    private var attributionFooter: some View {
+        Text(book.sourceAttribution)
+            .font(.system(.caption2))
+            .foregroundStyle(Theme.Palette.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Theme.Spacing.m)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous)
+                    .stroke(Theme.Palette.divider, lineWidth: 0.5)
+            )
     }
 
     // MARK: - Learnings preview
@@ -329,7 +343,7 @@ struct BookDetailView: View {
     private func learningsPreview(_ learnings: [KeyLearning]) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             Text("Recent learnings")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             VStack(alignment: .leading, spacing: Theme.Spacing.s) {
                 ForEach(Array(learnings.prefix(3))) { l in
@@ -339,7 +353,7 @@ struct BookDetailView: View {
                             .frame(width: 5, height: 5)
                             .padding(.top, 8)
                         Text(l.text)
-                            .font(.system(size: 14))
+                            .font(.system(.subheadline))
                             .foregroundStyle(Theme.Palette.textPrimary)
                             .lineLimit(3)
                     }

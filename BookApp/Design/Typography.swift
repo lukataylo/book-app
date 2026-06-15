@@ -7,22 +7,26 @@ import SwiftUI
 /// system fonts at every size so dynamic-type scaling, optical sizing and
 /// localisation come for free.
 enum Typography {
+    // Every token is anchored to a Dynamic Type text style — fixed point
+    // sizes don't scale with the user's accessibility setting, so they're
+    // banned outside the reader (which has its own size system).
+
     /// Hero greeting on the library home — biggest text in the app.
-    static let hero          = Font.system(size: 38, weight: .bold,     design: .serif)
+    static let hero          = Font.system(.largeTitle, design: .serif, weight: .bold)
     /// Sheet titles, screen titles.
-    static let largeTitle    = Font.system(size: 28, weight: .semibold, design: .serif)
+    static let largeTitle    = Font.system(.title, design: .serif, weight: .semibold)
     /// "Top selections", "Your shelves", category headings.
-    static let sectionTitle  = Font.system(size: 22, weight: .semibold, design: .serif)
+    static let sectionTitle  = Font.system(.title2, design: .serif, weight: .semibold)
     /// Smaller serif heading inside cards.
-    static let cardTitle     = Font.system(size: 15, weight: .semibold, design: .serif)
+    static let cardTitle     = Font.system(.subheadline, design: .serif, weight: .semibold)
     /// Body copy in lists, forms.
-    static let body          = Font.system(size: 16, weight: .regular)
+    static let body          = Font.system(.callout)
     /// Secondary metadata — authors under a title, helper text.
-    static let secondary     = Font.system(size: 13, weight: .regular)
+    static let secondary     = Font.system(.footnote)
     /// Inline captions — page X of Y, timestamps.
-    static let caption       = Font.system(size: 12, weight: .regular)
+    static let caption       = Font.system(.caption)
     /// Tiny meta — chip text, version strings.
-    static let micro         = Font.system(size: 11, weight: .medium)
+    static let micro         = Font.system(.caption2, weight: .medium)
 
     /// Maps a `ReaderFont` setting to a SwiftUI `Font` at a given point size.
     static func reader(_ readerFont: ReaderFont, size: CGFloat) -> Font {

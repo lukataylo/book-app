@@ -8,6 +8,11 @@ import XCTest
 /// The test launches with `-uitesting` so onboarding is skipped, opens
 /// the first book on the shelf, switches to Listen mode, and asserts the
 /// play/pause toggle behaves like a normal media player.
+///
+/// @MainActor because Xcode 16.4's XCTest annotates the XCUI APIs as
+/// main-actor-isolated; under strict concurrency a nonisolated test
+/// class no longer compiles against them.
+@MainActor
 final class ReaderListenFlowTests: XCTestCase {
 
     override func setUp() {
@@ -20,14 +25,33 @@ final class ReaderListenFlowTests: XCTestCase {
         app.launchArguments += ["-uitesting"]
         app.launch()
 
-        // Library renders the seeded books once SeedBooksLoader finishes.
-        // First launch on a fresh simulator can take ~3s while seeds copy
-        // into the SwiftData store.
-        let firstBookCard = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "by"))
-            .firstMatch
-        XCTAssert(firstBookCard.waitForExistence(timeout: 8),
-                  "Library failed to render any seeded books")
-        firstBookCard.tap()
+        // Shelf carousels can hold matched cards far off-screen, where
+        // even querying hittability throws ("activation point invalid").
+        // Deterministic route instead: type into the Library's search
+        // field and tap the full-width result card it surfaces. The
+        // catalog seeds asynchronously on first launch, so the result
+        // gets a generous window to appear once its pack inserts.
+        let searchField = app.textFields.firstMatch
+        XCTAssert(searchField.waitForExistence(timeout: 15),
+                  "Library search field didn't render")
+        searchField.tap()
+        searchField.typeText("Atomic Habits")
+
+        let resultCard = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "The Big Ideas in Atomic Habits")
+        ).firstMatch
+        XCTAssert(resultCard.waitForExistence(timeout: 20),
+                  "Search didn't surface the seeded catalog title")
+        resultCard.tap()
+
+        // Library → Book Detail; the reading CTA ("Start reading" /
+        // "Continue reading") pushes the reader.
+        let readingCTA = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "reading")
+        ).firstMatch
+        XCTAssert(readingCTA.waitForExistence(timeout: 6),
+                  "Book detail didn't render its reading CTA")
+        readingCTA.tap()
 
         // Mode pill — labelled "Listen mode" by the a11y pass.
         let listenTab = app.buttons["Listen mode"]

@@ -3,6 +3,8 @@ import Foundation
 enum LLMTask: Sendable {
     case categoryTagging
     case keyLearningsExtraction
+    case knowledgeCards
+    case actionPlan
     case quizGeneration
     case shortSummary
     case compression(targetRatio: Double)

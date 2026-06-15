@@ -41,6 +41,15 @@ transformation requires explicit confirmation, and the on-device features
 (reader, TTS, speed reading, key-learnings extraction on Apple Intelligence
 devices) work entirely offline.
 
+## Calendar and Reminders
+
+The Act tab can export a book's action plan to your device. Calendar access
+is **write-only**: BookApp can add the practice sessions you ask for but can
+never read your existing events. Reminders access is requested only when you
+export plan to-dos. Both are optional — the in-app checklist works without
+either permission — and nothing about your calendar or reminders ever leaves
+your device or reaches us.
+
 ## Audiobook playback (TTS)
 
 Text-to-speech uses Apple's `AVSpeechSynthesizer`. Voices run on-device.

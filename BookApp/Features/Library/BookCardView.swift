@@ -26,9 +26,12 @@ struct BookCardView: View {
                 if progress > 0.01 {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            Capsule().fill(Color.black.opacity(0.18))
-                            Capsule().fill(Color.white)
+                            // Track + soft shadow on the fill keep the bar
+                            // visible over light covers too.
+                            Capsule().fill(.black.opacity(0.25))
+                            Capsule().fill(.white)
                                 .frame(width: geo.size.width * min(1, max(0, progress)))
+                                .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 0)
                         }
                     }
                     .frame(height: 3)
@@ -48,6 +51,13 @@ struct BookCardView: View {
                         .font(Typography.secondary)
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .lineLimit(1)
+                    // Length tiers, quietly: every catalog title ships a
+                    // 3-min quick take and the full summary.
+                    if book.isSummaryEdition, book.readMinutesEstimate > 0 {
+                        Text("3–\(book.readMinutesEstimate) min")
+                            .font(Typography.micro)
+                            .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
+                    }
                 }
                 .frame(width: width, alignment: .leading)
             }
@@ -76,25 +86,10 @@ struct BookCardView: View {
     }
 
     private var generatedCover: some View {
-        let color = Theme.BookSpine.color(for: book.categoryTags)
-        return ZStack(alignment: .bottomLeading) {
-            LinearGradient(
-                colors: [color.opacity(0.95), color.opacity(0.65)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(book.title)
-                    .font(.system(size: 15, weight: .semibold, design: .serif))
-                    .foregroundStyle(.white)
-                    .lineLimit(3)
-                Text(book.author)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .lineLimit(1)
-            }
-            .padding(Theme.Spacing.s)
-        }
+        // Idea Glyphs cover system (Design/CoverArt.swift) — warm paper,
+        // category glyph, color foot bar. Chosen from the three mockups
+        // in research/cover-art (approach B).
+        GeneratedCoverView(book: book)
     }
 
     /// Platform-aware image decoder used by both compact and grid layouts.

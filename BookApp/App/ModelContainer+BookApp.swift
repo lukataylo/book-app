@@ -10,6 +10,8 @@ extension ModelContainer {
             Book.self,
             BookVariant.self,
             KeyLearning.self,
+            KnowledgeCard.self,
+            ActionItem.self,
             Annotation.self,
             ReadingProgress.self,
             Bookmark.self,
@@ -45,6 +47,7 @@ extension ModelContainer {
     static func bookAppPreview() throws -> ModelContainer {
         let schema = Schema([
             Book.self, BookVariant.self, KeyLearning.self,
+            KnowledgeCard.self, ActionItem.self,
             Annotation.self, ReadingProgress.self, Bookmark.self,
             ReaderSettings.self, TTSSettings.self, SpeedReaderSettings.self
         ])

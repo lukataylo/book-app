@@ -61,7 +61,7 @@ generated on demand.
 | kind | enum | original / compressed / expanded / styled / themeOmitted |
 | contentText | String | full body (also persisted as a sibling .txt under the book folder) |
 | targetPages | Int | what the user asked for |
-| styleReference | String | "Malcolm Gladwell" if styled |
+| styleReference | String | "Joan Didion" if styled |
 | omittedThemes | [String] | for theme-omission |
 | modelUsed | String | Claude / Apple FM |
 | inputTokens, outputTokens, cachedInputTokens, costUSD | Int / Double | recorded from the API response so monthly spend in Settings is exact, not estimated |

@@ -1,0 +1,159 @@
+import SwiftUI
+import SwiftData
+
+/// Saved tab — everything the user chose to keep, in one place under one
+/// navigation identity: saved knowledge cards (new), plus the pre-redesign
+/// Learnings list and Bookmarks gallery as segments. One NavigationStack
+/// owns the bar; the segmented control lives pinned beneath the title so
+/// switching segments never tears down navigation or search state oddly.
+struct SavedView: View {
+    private enum Segment: String, CaseIterable, Identifiable {
+        case cards      = "Cards"
+        case learnings  = "Learnings"
+        case highlights = "Highlights"
+        var id: String { rawValue }
+    }
+
+    @State private var segment: Segment = .cards
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                switch segment {
+                case .cards:
+                    SavedCardsView()
+                case .learnings:
+                    LearningsListView()
+                case .highlights:
+                    BookmarksGalleryView()
+                }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Picker("Saved content", selection: $segment) {
+                    ForEach(Segment.allCases) { s in
+                        Text(s.rawValue).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, Theme.Spacing.l)
+                .padding(.vertical, Theme.Spacing.s)
+                .background(Theme.Palette.appBackground)
+            }
+            .navigationTitle("Saved")
+            .background(Theme.Palette.appBackground.ignoresSafeArea())
+        }
+    }
+}
+
+/// Saved knowledge cards across every book.
+private struct SavedCardsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(
+        filter: #Predicate<KnowledgeCard> { $0.saved },
+        sort: \KnowledgeCard.savedAt,
+        order: .reverse
+    ) private var cards: [KnowledgeCard]
+
+    @State private var expandedCard: KnowledgeCard?
+
+    var body: some View {
+        Group {
+            if cards.isEmpty {
+                ContentUnavailableView(
+                    "Nothing saved yet",
+                    systemImage: "bookmark",
+                    description: Text("Tap the bookmark on any knowledge card in the Remember tab and it will live here.")
+                )
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: Theme.Spacing.m) {
+                        ForEach(cards, id: \.id) { card in
+                            Button { expandedCard = card } label: {
+                                savedRow(card)
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    unsave(card)
+                                } label: {
+                                    Label("Remove from Saved", systemImage: "bookmark.slash")
+                                }
+                                ShareLink(item: shareText(for: card)) {
+                                    Label("Share", systemImage: "square.and.arrow.up")
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, Theme.Spacing.l)
+                    .padding(.vertical, Theme.Spacing.m)
+                }
+            }
+        }
+        .background(Theme.Palette.appBackground.ignoresSafeArea())
+        .sheet(item: $expandedCard) { card in
+            KnowledgeCardFace(card: card) {
+                card.saved.toggle()
+                card.savedAt = card.saved ? .now : nil
+                try? modelContext.save()
+            }
+            .padding(Theme.Spacing.l)
+            .presentationDetents([.large])
+            .presentationBackground(Theme.Palette.appBackground)
+        }
+    }
+
+    private func savedRow(_ card: KnowledgeCard) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                if !card.category.isEmpty {
+                    CategoryChip(category: card.category, compact: true)
+                }
+                Spacer()
+                Image(systemName: "bookmark.fill")
+                    .font(.system(.footnote))
+                    .foregroundStyle(KnowledgeCardStyle.tint(for: card.category))
+            }
+            Text(card.title)
+                .font(.system(.title3, design: .serif, weight: .bold))
+                .foregroundStyle(Theme.Palette.textPrimary)
+                .multilineTextAlignment(.leading)
+            Text(card.body)
+                .font(.system(.subheadline))
+                .foregroundStyle(Theme.Palette.textPrimary.opacity(0.8))
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
+            if let title = card.book?.title {
+                Text(title)
+                    .font(.system(.caption, weight: .medium))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(Theme.Spacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard(cornerRadius: Theme.Radius.l)
+    }
+
+    private func unsave(_ card: KnowledgeCard) {
+        card.saved = false
+        card.savedAt = nil
+        try? modelContext.save()
+    }
+
+    private func shareText(for card: KnowledgeCard) -> String {
+        var lines = [card.title, "", card.body]
+        if let title = card.book?.title {
+            lines.append("")
+            lines.append("— from \(title)")
+        }
+        return lines.joined(separator: "\n")
+    }
+}
+
+#Preview {
+    if let container = try? ModelContainer.bookAppPreview() {
+        SavedView().modelContainer(container)
+    } else {
+        Text("Preview container failed to load.")
+    }
+}
