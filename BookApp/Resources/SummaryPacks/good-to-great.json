@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "humble leadership",
-    "disciplined hiring",
-    "confronting hard truths",
-    "strategic focus",
-    "compounding momentum",
-    "evidence-based management"
+    "Leadership",
+    "Management",
+    "Strategy",
+    "Discipline"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Good to Great by Jim Collins (2001). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -41,15 +39,15 @@
       "chapter": "People decisions come first"
     },
     {
-      "text": "Stockdale survived imprisonment by pairing certainty that he would prevail eventually with unflinching acceptance of present reality — the prisoners who relied on deadline-based optimism broke.",
+      "text": "Prisoners of war who endured long captivity paired certainty that they would prevail eventually with unflinching acceptance of present reality — the ones who pinned hope to a release date broke when the date passed.",
       "chapter": "Optimism that can survive the facts"
     },
     {
-      "text": "Kroger and A&P read the same market data about superstores; the company that accepted the verdict rebuilt itself, and the company that argued with its own research disappeared.",
+      "text": "Two rival grocery chains read the same market data about the rise of superstores; the one that accepted the verdict rebuilt itself from scratch, and the one that argued with its own research disappeared.",
       "chapter": "Optimism that can survive the facts"
     },
     {
-      "text": "Walgreens changed its trajectory by swapping one denominator — from profit per store to profit per customer visit — showing how the right economic measure reorganizes every downstream decision.",
+      "text": "One drugstore chain changed its trajectory by swapping a single denominator — from profit per store to profit per customer visit — showing how the right economic measure reorganizes every downstream decision.",
       "chapter": "One question, answered honestly"
     },
     {
@@ -99,7 +97,7 @@
     },
     {
       "title": "Check the Denominator",
-      "body": "Walgreens transformed its economics by measuring profit per customer visit instead of profit per store. Ask what single ratio, if improved relentlessly, would most change your trajectory — revenue per employee, margin per order, output per hour of focus. The denominator you choose quietly dictates every decision downstream.",
+      "body": "One retail chain transformed its economics by measuring profit per customer visit instead of profit per store. Ask what single ratio, if improved relentlessly, would most change your trajectory — revenue per employee, margin per order, output per hour of focus. The denominator you choose quietly dictates every decision downstream.",
       "category": "Insight"
     },
     {

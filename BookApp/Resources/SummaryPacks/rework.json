@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "lean company building",
-    "shipping early",
-    "meeting overload",
-    "bootstrapped growth",
-    "workplace focus",
-    "marketing by teaching"
+    "Productivity",
+    "Focus",
+    "Strategy",
+    "Management"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Rework by Jason Fried and David Heinemeier Hansson (2010). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -84,7 +82,7 @@
     },
     {
       "title": "Sell Your By-Products",
-      "body": "Everything you do all day produces exhaust: processes, lessons, opinions, tools you built along the way. Most companies let that knowledge evaporate. Look through yours for something packageable — a guide, a template, a course, a spin-off product. Fried and Hansson's own book was assembled from the residue of running their company.",
+      "body": "Everything you do all day produces exhaust: processes, lessons, opinions, tools you built along the way. Most companies let that knowledge evaporate. Look through yours for something packageable — a guide, a template, a course, a spin-off product. A design studio that wrote up its internal style rules later found clients would pay for that document on its own.",
       "category": "Insight"
     },
     {

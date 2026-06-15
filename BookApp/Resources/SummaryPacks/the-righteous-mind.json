@@ -9,12 +9,10 @@
     "Politics"
   ],
   "themes": [
-    "moral intuition before reasoning",
-    "moral foundations theory",
-    "political polarization",
-    "group cohesion and tribalism",
-    "religion as social glue",
-    "persuasion across moral divides"
+    "Psychology",
+    "Persuasion",
+    "Philosophy",
+    "Communication"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Righteous Mind by Jonathan Haidt (2012). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -26,7 +24,7 @@
       "chapter": "Feelings first, reasons on retainer"
     },
     {
-      "text": "In harmless-taboo studies, people whose every justification was eliminated kept their moral verdict anyway — evidence that reasons follow conclusions.",
+      "text": "When every reason a person gives for a gut moral verdict is knocked down, they typically keep the verdict and hunt for new reasons — evidence that reasons follow conclusions, not the reverse.",
       "chapter": "Feelings first, reasons on retainer"
     },
     {
@@ -95,7 +93,7 @@
     },
     {
       "title": "Steelman the Other Tribe's Foundations",
-      "body": "In Haidt's data, committed partisans misjudged opponents' actual moral views — imagining callousness that wasn't there. Test yourself: state your rival's position so accurately they'd endorse the summary, naming the loyalty, sanctity, or proportionality they're defending. Until you can pass that test, your contempt is aimed at a caricature.",
+      "body": "Committed partisans routinely misjudge their opponents' actual moral views — imagining a callousness that isn't there. Test yourself: state your rival's position so accurately they'd endorse the summary, naming the loyalty, sanctity, or proportionality they're defending. Until you can pass that test, your contempt is aimed at a caricature.",
       "category": "Practice"
     },
     {

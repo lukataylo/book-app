@@ -9,12 +9,11 @@
     "Self-improvement"
   ],
   "themes": [
-    "money as life energy",
-    "real hourly wage",
-    "defining enough",
-    "financial independence",
-    "conscious spending",
-    "the crossover point"
+    "Money",
+    "Wealth",
+    "Investing",
+    "Purpose",
+    "Happiness"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Your Money or Your Life by Vicki Robin and Joe Dominguez (1992). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -65,7 +64,7 @@
   "cards": [
     {
       "title": "Every Price Tag Is a Clock",
-      "body": "You do not buy things with money; you buy them with hours of your finite life. Convert any purchase into time at your real hourly wage — that jacket might cost ten hours — and notice how the decision changes. The conversion is the book's entire philosophy compressed into one reflex.",
+      "body": "You do not buy things with money; you buy them with hours of your finite life. Convert any purchase into time at your real hourly wage — a 200-dollar pair of running shoes might cost twenty hours of your life — and notice how the decision changes. The conversion is the book's entire philosophy compressed into one reflex.",
       "category": "Mental Model"
     },
     {
@@ -155,7 +154,7 @@
     },
     {
       "title": "Convert each category into hours of life",
-      "detail": "Divide every category total by your real hourly wage and write the result next to it. Seeing that restaurants cost nineteen hours last month lands differently than seeing a dollar figure.",
+      "detail": "Divide every category total by your real hourly wage and write the result next to it. Seeing that takeout coffee cost twelve hours last month lands differently than seeing a dollar figure.",
       "kind": "task",
       "day": 7,
       "duration_minutes": 0

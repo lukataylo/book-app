@@ -9,12 +9,10 @@
     "Psychology"
   ],
   "themes": [
-    "behavior design",
-    "starting small",
-    "anchoring new routines",
-    "celebration and emotion",
-    "motivation troubleshooting",
-    "untangling bad habits"
+    "Habits",
+    "Motivation",
+    "Psychology",
+    "Discipline"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Tiny Habits by BJ Fogg (2019). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -90,7 +88,7 @@
     },
     {
       "title": "Shrink Until Failure Feels Impossible",
-      "body": "Cut a desired behavior down to a version so small it survives your worst day: one tooth flossed, two push-ups, one sentence written. Tiny needs no motivation, dodges procrastination, and keeps the habit alive while it grows roots. Doing more is always allowed as a bonus — never required, never the standard.",
+      "body": "Cut a desired behavior down to a version so small it survives your worst day: one squat beside the bed, one line of a book read, a single dirty dish washed. Tiny needs no motivation, dodges procrastination, and keeps the habit alive while it grows roots. Doing more is always allowed as a bonus — never required, never the standard.",
       "category": "Principle"
     },
     {
@@ -105,7 +103,7 @@
     },
     {
       "title": "Celebrate Inside the Moment",
-      "body": "Fire off genuine positive emotion immediately after the tiny behavior — a fist pump, a grin, a quiet word of approval — within seconds, not at the end of the week. Fogg argues the feeling, not the repetition, is what tells your brain to keep the behavior. Delayed rewards build spreadsheets; instant ones build habits.",
+      "body": "Fire off genuine positive emotion immediately after the tiny behavior — a small grin, a quiet “yes”, a satisfied nod — within seconds, not at the end of the week. Fogg argues the feeling, not the repetition, is what tells your brain to keep the behavior. Delayed rewards build spreadsheets; instant ones build habits.",
       "category": "Habit"
     },
     {
@@ -155,7 +153,7 @@
     },
     {
       "title": "Find a celebration that actually works",
-      "detail": "Test several quick celebrations — fist pump, smile, a word of self-approval — until one produces a genuine flicker of good feeling. Without real emotion, the wiring step does nothing.",
+      "detail": "Test several quick celebrations — a smile, a quiet “yes”, a satisfied nod — until one produces a genuine flicker of good feeling. Without real emotion, the wiring step does nothing.",
       "kind": "event",
       "day": 6,
       "duration_minutes": 15

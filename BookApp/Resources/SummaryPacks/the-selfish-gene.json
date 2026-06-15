@@ -8,11 +8,10 @@
     "Science"
   ],
   "themes": [
-    "gene-centered evolution",
-    "kin selection and altruism",
-    "evolutionarily stable strategies",
-    "replicators and memes",
-    "cooperation from self-interest"
+    "Science",
+    "Psychology",
+    "Strategy",
+    "Philosophy"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Selfish Gene by Richard Dawkins (1976). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -36,7 +35,7 @@
       "chapter": "Selfishness that looks like love"
     },
     {
-      "text": "Kin selection math explains alarm calls and self-sacrifice: a gene that saves two siblings or eight cousins comes out ahead of one that saves only its single carrier.",
+      "text": "Kin selection math reframes self-sacrifice: a gene that drives one animal to die saving several close relatives can spread better than one that only ever saves its single carrier, because the rescued kin hold extra copies of it.",
       "chapter": "Selfishness that looks like love"
     },
     {
@@ -77,13 +76,13 @@
       "category": "Principle"
     },
     {
-      "title": "Haldane's Grim Arithmetic",
-      "body": "The biologist who joked he would die for two brothers or eight cousins was teaching the math of kin selection. Two siblings carry, on average, a full copy of your genes; eight cousins do too. Self-sacrifice that saves more copies than it destroys can be favored by evolution, which reframes heroism as bookkeeping.",
+      "title": "The Arithmetic Of Self-Sacrifice",
+      "body": "Kin selection turns heroism into bookkeeping. Picture a trait that makes one animal risk death to shield a cluster of close relatives. Because those kin carry copies of the same trait, the gene can end up with more copies in the survivors than it lost in the one that died. Run the ledger before calling any rescue noble: evolution rewards whatever nets more copies forward.",
       "category": "Mental Model"
     },
     {
       "title": "Stability Beats Niceness",
-      "body": "Nature rarely settles on pure peace or pure war. An all-aggressor population gets invaded by cautious players; an all-pacifist one gets invaded by a single bully. What persists is a stable mix. When you see restraint between rivals, do not assume morality. Assume a balance that no alternative strategy can overturn.",
+      "body": "Nature rarely settles on pure peace or pure war, and neither do populations of strategies. Picture drivers merging in traffic: if everyone always yields, a pushy driver gains ground; if everyone is pushy, the pileups make caution pay. The stable outcome is a mix no single style can overrun. When you see restraint between rivals, suspect a balance, not morality.",
       "category": "Mental Model"
     },
     {
@@ -174,7 +173,7 @@
     },
     {
       "title": "Write where you override your programming",
-      "detail": "Journal three times you act against narrow gene self-interest, such as donating to strangers or choosing not to have children. Reflect on Dawkins's claim that we can rebel against our genes.",
+      "detail": "Journal three times you act against narrow gene self-interest, such as donating to strangers or adopting an unrelated child. Reflect on Dawkins's claim that we can rebel against our genes.",
       "kind": "task",
       "day": 12,
       "duration_minutes": 0

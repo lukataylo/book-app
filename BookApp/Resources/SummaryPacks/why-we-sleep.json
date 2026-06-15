@@ -9,12 +9,10 @@
     "Self-improvement"
   ],
   "themes": [
-    "circadian rhythm and chronotypes",
-    "caffeine and sleep pressure",
-    "memory consolidation",
-    "rem sleep and emotion",
-    "costs of sleep deprivation",
-    "sleep hygiene"
+    "Sleep",
+    "Health",
+    "Science",
+    "Productivity"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Why We Sleep by Matthew Walker (2017). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -46,7 +44,7 @@
       "chapter": "The bill for burning the candle"
     },
     {
-      "text": "After ten nights of six-hour sleep, people in the studies Walker cites perform as if they had pulled an all-nighter, yet rate themselves only mildly tired — the deficit conceals itself.",
+      "text": "Controlled sleep-restriction studies find that stretches of modestly shortened nights can degrade performance about as much as a full night with no sleep at all, while people rate themselves only mildly tired — the deficit conceals itself.",
       "chapter": "The bill for burning the candle"
     },
     {

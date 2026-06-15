@@ -9,12 +9,10 @@
     "Psychology"
   ],
   "themes": [
-    "vulnerability in leadership",
-    "psychological safety",
-    "hard conversations",
-    "values-based decisions",
-    "shame resilience",
-    "trust building"
+    "Leadership",
+    "Teams",
+    "Communication",
+    "Resilience"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Dare to Lead by Brené Brown (2018). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -99,7 +97,7 @@
       "category": "Practice"
     },
     {
-      "title": "Trust Fills Marble by Marble",
+      "title": "Trust Fills Drop by Drop",
       "body": "Trust is not built in dramatic gestures but in small, forgettable moments: the minor promise kept, the detail remembered, the confidence guarded. It drains the same way. Assume you are making deposits and withdrawals constantly, mostly while thinking about something else, and start treating small reliability as a leadership behavior.",
       "category": "Mental Model"
     },
@@ -162,7 +160,7 @@
     },
     {
       "title": "Audit a week of trust deposits",
-      "detail": "Review the past week for small promises kept or broken, confidences guarded or leaked, and details remembered or forgotten with each key colleague. Trust moves marble by marble, so the audit shows you where the jar is draining.",
+      "detail": "Review the past week for small promises kept or broken, confidences guarded or leaked, and details remembered or forgotten with each key colleague. Trust moves one small moment at a time, so the audit shows you where it is draining.",
       "kind": "event",
       "day": 9,
       "duration_minutes": 30

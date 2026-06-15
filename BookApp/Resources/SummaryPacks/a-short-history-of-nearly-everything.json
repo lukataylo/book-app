@@ -9,11 +9,9 @@
     "History"
   ],
   "themes": [
-    "the scale of the universe",
-    "deep time and the age of Earth",
-    "how science actually progresses",
-    "a hazardous and unstable planet",
-    "the improbability of life"
+    "Science",
+    "History",
+    "Learning"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in A Short History of Nearly Everything by Bill Bryson (2003). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -94,7 +92,7 @@
     },
     {
       "title": "How Do We Know That?",
-      "body": "Bryson's driving habit was to ask not just what science claims but how anyone could possibly know it. Adopt the question. When you read that the Earth is billions of years old or the universe is a certain size, pause and ask what measurement or evidence pins the number down. Understanding the how turns trivia into real comprehension.",
+      "body": "Bryson keeps returning to one question: not just what science claims but how anyone could possibly know it. Adopt the question. When you read that the Earth is billions of years old or the universe is a certain size, pause and ask what measurement or evidence pins the number down. Understanding the how turns trivia into real comprehension.",
       "category": "Habit"
     },
     {

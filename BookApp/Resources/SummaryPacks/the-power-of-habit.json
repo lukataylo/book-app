@@ -9,12 +9,10 @@
     "Business"
   ],
   "themes": [
-    "habit loop and cravings",
-    "behavior change",
-    "keystone habits",
-    "willpower and self-discipline",
-    "organizational routines",
-    "cue routine reward"
+    "Habits",
+    "Psychology",
+    "Discipline",
+    "Motivation"
   ],
   "read_minutes": 14,
   "attribution": "An original summary of the ideas in The Power of Habit by Charles Duhigg (2012). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -46,7 +44,7 @@
       "chapter": "Belief makes change survive stress"
     },
     {
-      "text": "Keystone habits like exercise, food journaling, or Alcoa's safety focus trigger chain reactions that reorganize surrounding behaviors.",
+      "text": "Keystone habits like exercise, food journaling, or a single company-wide safety focus trigger chain reactions that reorganize surrounding behaviors.",
       "chapter": "Keystone habits start chain reactions"
     },
     {
@@ -169,7 +167,7 @@
     },
     {
       "title": "Script your willpower inflection points",
-      "detail": "List the three moments your discipline most often breaks and write exactly what you will do when each arrives, the way Starbucks trains employees for stressful encounters. Pre-deciding preserves willpower for genuine surprises.",
+      "detail": "List the three moments your discipline most often breaks and write exactly what you will do when each arrives, the way well-run service teams drill staff to handle stressful encounters. Pre-deciding preserves willpower for genuine surprises.",
       "kind": "task",
       "day": 10,
       "duration_minutes": 0

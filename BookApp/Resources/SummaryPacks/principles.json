@@ -9,12 +9,10 @@
     "Philosophy"
   ],
   "themes": [
-    "learning from failure",
-    "decision-making systems",
-    "radical transparency",
-    "idea meritocracy",
-    "ego and blind spots",
-    "weighting opinions by track record"
+    "Decisions",
+    "Mindset",
+    "Discipline",
+    "Success"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Principles: Life and Work by Ray Dalio (2017). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -22,7 +20,7 @@
   "summary_short": "Ray Dalio thinks you can run a life the way an engineer runs a system: write down your rules, test them against reality, and revise. It sounds cold. Coming from the founder of one of the world's largest hedge funds, it is worth hearing. The method was born from catastrophe. Early in his career he staked his name on a confident, carefully reasoned forecast — announced in public, the way an expert plants a flag — and reality did the exact opposite, nearly wiping him out. He wasn't just wrong; he was wrong loudly. The lesson he drew was not to get smarter but to stop trusting his own certainty, to swap \"I'm right\" for \"how do I know I'm right?\" and to write his decision rules down so they could be examined rather than carried around as moods.\n\nThe rest follows from that reframe. Dalio treats reality as a machine: most trouble is a recurring kind of trouble, so the move is to rise above your own life, look down at your habits and environment as a design you own, and re-engineer whatever keeps missing your goals. Pain becomes data. Each sting marks a weakness that has surfaced and can finally be fixed, and each fix becomes a written principle. His five-step loop turns this into method: set clear goals, find the problems blocking them, diagnose each to its root, design a fix, then execute and start again. Since almost nobody is wired for all five steps, knowing your weaknesses and partnering to cover them beats pretending you have none. Be warned that the framework demands an appetite for written self-examination that plenty of people find intolerable.\n\nThat is also Bridgewater's bet at institutional scale. Because the ego guards opinions like territory and every brain has blind spots, Dalio prescribes radical open-mindedness: hunt for the smartest person who disagrees with you, weight views by track record rather than rank or volume, and keep problems compounding in daylight instead of the dark. He concedes the culture is jarring: many new hires hit real discomfort, and some never adapt. His defense is a trade: a workplace scrubbed of politics and spin is worth the early bruising. What he ultimately wants from a reader is not to adopt his principles but to write their own.",
   "learnings": [
     {
-      "text": "Dalio's 1982 collapse taught him that the danger was not insufficient intelligence but unearned certainty; the rebuilding question became how to know whether he was right.",
+      "text": "Certainty, not lack of intelligence, is what wrecks good decisions; after an early misjudgment cost him dearly, Dalio's rebuilding question became how to know whether he was right.",
       "chapter": "The bet that broke him"
     },
     {

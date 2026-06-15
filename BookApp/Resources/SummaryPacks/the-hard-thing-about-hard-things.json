@@ -9,12 +9,10 @@
     "Memoir"
   ],
   "themes": [
-    "crisis leadership",
-    "ceo psychology",
-    "layoffs and hard conversations",
-    "hiring executives",
-    "wartime decision making",
-    "company culture under pressure"
+    "Leadership",
+    "Management",
+    "Decisions",
+    "Resilience"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Hard Thing About Hard Things by Ben Horowitz (2014). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -22,7 +20,7 @@
   "summary_short": "The defining moments of running a company are the ones no playbook covers. That is Ben Horowitz's starting claim in The Hard Thing About Hard Things, and he earned the right to make it. He ran a company straight into the dot-com crash, took it public when private money vanished, survived several near-deaths, and ultimately steered it to a hard-won sale. In those moments, he writes, nearly every founder feels uniquely, privately lost. That feeling lies. His prescriptions are practical, not inspirational. Share problems widely instead of carrying them alone. Look at the road, not the wall, the way race drivers are trained to. In business, you are almost never truly out of moves.\n\nFrom there the book argues for honesty as an operating system. Companies rot from secrecy, because employees handle bad news better than executives assume; what breaks trust is learning that leadership knew and stayed silent. Nowhere matters more than layoffs: move fast, own the failure as the company's, and have managers tell their own people personally, since the real audience is everyone who stays. Horowitz also separates peacetime leadership, which widens exploration, from wartime leadership, which narrows the company to a single survival plan. He concedes most management writing is peacetime writing, of little use to a CEO whose company is actually dying. Beneath it all sits a priority order the book keeps returning to: people first, then products, then profits.\n\nThe lens is sharpest for founders in genuine crisis; adopt its wartime bluntness inside a stable, regulated, or slow-moving organization and you can mistake harshness for leadership. Still, the book's nerve is its honesty. The gap between a dead company and a billion-dollar exit, in Horowitz's telling, was a chain of ugly close-call decisions made by someone who stayed in the seat. The book is permission to keep sitting there.",
   "learnings": [
     {
-      "text": "Loudcloud's near-death years are the book's credential: the gap between bankruptcy and a $1.6 billion exit was a chain of ugly, close-call decisions made with no good options.",
+      "text": "Horowitz's own near-death years running a company are the book's credential: the gap between near-bankruptcy and a successful exit was a chain of ugly, close-call decisions made with no good options.",
       "chapter": "A company that kept almost dying"
     },
     {

@@ -9,12 +9,10 @@
     "Self-improvement"
   ],
   "themes": [
-    "growth mindset",
-    "fixed mindset",
-    "praise and motivation",
-    "learning from failure",
-    "talent development",
-    "self-beliefs"
+    "Mindset",
+    "Learning",
+    "Motivation",
+    "Psychology"
   ],
   "read_minutes": 14,
   "attribution": "An original summary of the ideas in Mindset: The New Psychology of Success by Carol S. Dweck (2006). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -38,7 +36,7 @@
       "chapter": "What each mindset does with effort and failure"
     },
     {
-      "text": "Praising children for intelligence made them avoid challenge and misreport scores, while praising their process made them seek harder problems.",
+      "text": "Praising children for being smart pushes them to protect the label and avoid challenge, while praising their process and strategy makes them seek out harder problems.",
       "chapter": "Where mindsets come from"
     },
     {

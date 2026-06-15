@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "value investing",
-    "investor psychology",
-    "margin of safety",
-    "market volatility",
-    "defensive investing",
-    "price versus value"
+    "Investing",
+    "Money",
+    "Discipline",
+    "Psychology"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Intelligent Investor by Benjamin Graham (1949). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -114,7 +112,7 @@
     },
     {
       "title": "The Crowd's Mood Is Contagious",
-      "body": "Graham watched skilled analysts get destroyed in 1929 not by bad numbers but by absorbed emotion — the crowd's euphoria became their euphoria. Treat market sentiment like weather: real, powerful, and irrelevant to what a business is worth. Your defense is a written estimate of value made before the storm arrives.",
+      "body": "Skilled analysts get destroyed in crashes not by bad numbers but by absorbed emotion — the crowd's euphoria becomes their euphoria, then its terror becomes their terror. Treat market sentiment like weather: real, powerful, and irrelevant to what a business is worth. Your defense is a written estimate of value made before the storm arrives.",
       "category": "Warning"
     },
     {

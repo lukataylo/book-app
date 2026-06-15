@@ -9,12 +9,10 @@
     "Science"
   ],
   "themes": [
-    "shared myths and imagined orders",
-    "cognitive revolution",
-    "history of money and empire",
-    "agricultural revolution trade-offs",
-    "scientific revolution",
-    "human happiness across history"
+    "History",
+    "Science",
+    "Philosophy",
+    "Psychology"
   ],
   "read_minutes": 16,
   "attribution": "An original summary of the ideas in Sapiens: A Brief History of Humankind by Yuval Noah Harari (2014). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -80,7 +78,7 @@
     },
     {
       "title": "Two Ledgers of Success",
-      "body": "Evolutionary success and individual wellbeing are different scorecards: wheat conquered the world while early farmers' lives got harder. The same gap appears in careers and companies — growth metrics can soar while the humans inside suffer. Always ask which ledger a success story is written in.",
+      "body": "Evolutionary success and individual wellbeing are different scorecards: a species can multiply into the billions while each of its individual members lives a shorter, grimmer life. The same gap appears in careers and companies — growth metrics can soar while the humans inside suffer. Always ask which ledger a success story is written in.",
       "category": "Mental Model"
     },
     {
@@ -120,7 +118,7 @@
     },
     {
       "title": "Audit What Owns You",
-      "body": "Harari argues the Agricultural Revolution cut both ways: people adopted wheat for comfort and security, then ended up organizing their lives around its needs. List the tools and obligations you acquired to save time, then mark which ones now command your schedule. Renegotiate or drop one.",
+      "body": "Harari argues the shift to farming cut both ways: people took up settled agriculture for comfort and security, then found their days organized entirely around its demands. List the tools and obligations you acquired to save time, then mark which ones now command your schedule. Renegotiate or drop one.",
       "category": "Practice"
     }
   ],

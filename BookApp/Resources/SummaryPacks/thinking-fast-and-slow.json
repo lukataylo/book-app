@@ -9,12 +9,10 @@
     "Science"
   ],
   "themes": [
-    "cognitive biases",
-    "decision making under uncertainty",
-    "behavioral economics",
-    "intuition vs deliberate reasoning",
-    "loss aversion",
-    "overconfidence"
+    "Decisions",
+    "Psychology",
+    "Science",
+    "Mindset"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Thinking, Fast and Slow by Daniel Kahneman (2011). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -110,7 +108,7 @@
     },
     {
       "title": "The Fourfold Pattern of Risk",
-      "body": "People gamble to avoid sure losses and play it safe to lock in sure gains, while overweighting tiny probabilities — buying both lottery tickets and insurance. Knowing which quadrant a choice sits in tells you which mistake you are predisposed to make there.",
+      "body": "People gamble to avoid sure losses and play it safe to lock in sure gains, while overweighting tiny probabilities — chasing a longshot prize draw yet paying extra for a warranty on a cheap gadget. Knowing which quadrant a choice sits in tells you which mistake you are predisposed to make there.",
       "category": "Mental Model"
     },
     {

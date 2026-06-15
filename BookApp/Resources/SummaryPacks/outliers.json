@@ -9,12 +9,9 @@
     "Business"
   ],
   "themes": [
-    "hidden advantage",
-    "cumulative advantage",
-    "practice and opportunity",
-    "practical intelligence",
-    "cultural legacy",
-    "meaningful work"
+    "Success",
+    "Psychology",
+    "Learning"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Outliers: The Story of Success by Malcolm Gladwell (2008). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -46,7 +43,7 @@
       "chapter": "Smart enough is smart enough"
     },
     {
-      "text": "Steep deference norms proved lethal in cockpits, and retraining how crews communicate — not replacing the people — fixed the safety record.",
+      "text": "Steep deference norms turn dangerous wherever a junior softens a warning until it never lands; retraining how a team communicates — not replacing the people — is what fixes it.",
       "chapter": "Where you come from never leaves"
     },
     {
@@ -100,7 +97,7 @@
     },
     {
       "title": "Speak Up the Chain",
-      "body": "Gladwell's aviation chapters show how deference kills: warnings get softened into hints until they fail to register. Practice stating problems to superiors plainly — what you see, what you fear, what you propose. And if you lead, reward the bluntness, because your hierarchy decides which truths ever reach you.",
+      "body": "Steep hierarchies can be lethal. A junior who senses danger softens the warning into a hint until it never registers, the way a surgical tech who suspects a miscount only murmurs it. Practice stating problems to superiors plainly — what you see, what you fear, what you propose. And if you lead, reward the bluntness, because your hierarchy decides which truths ever reach you.",
       "category": "Habit"
     },
     {
@@ -155,7 +152,7 @@
     },
     {
       "title": "Rehearse speaking up the chain",
-      "detail": "Take one real concern you have been hinting at and rehearse stating it plainly to the person above you: what you see, why it matters, what you propose. Gladwell's cockpit chapters show that softened warnings simply do not land.",
+      "detail": "Take one real concern you have been hinting at and rehearse stating it plainly to the person above you: what you see, why it matters, what you propose. Softened, hedged warnings simply do not land; the danger registers only when juniors name it plainly.",
       "kind": "event",
       "day": 6,
       "duration_minutes": 30

@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "validated learning",
-    "minimum viable products",
-    "actionable metrics",
-    "pivoting with discipline",
-    "small-batch experimentation",
-    "startup management"
+    "Strategy",
+    "Learning",
+    "Decisions",
+    "Management"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Lean Startup by Eric Ries (2011). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -33,7 +31,7 @@
       "chapter": "Build less than you think you should"
     },
     {
-      "text": "Dropbox validated demand with a demo video and Zappos with retail-bought shoes, proving you can test a business's core bet before building its machinery.",
+      "text": "A landing page that takes pre-orders, or fulfilling the first sales by hand behind the scenes, can validate demand — proving you can test a business's core bet before building its machinery.",
       "chapter": "Build less than you think you should"
     },
     {
@@ -74,7 +72,7 @@
     },
     {
       "title": "Test the Bet, Not the Build",
-      "body": "Dropbox used a video, Zappos used shoes bought at retail, and concierge teams used manual labor disguised as software. Each tested the core bet — will people want this? — before building the machinery. Ask what your venture's equivalent is: the smallest staged experience that makes real customers reveal real behavior.",
+      "body": "A signup page promising a product that doesn't exist yet, an order quietly fulfilled by hand, a service run manually behind a software-looking front. Each tests the core bet — will people want this? — before building the machinery. Ask what your venture's equivalent is: the smallest staged experience that makes real customers reveal real behavior.",
       "category": "Mental Model"
     },
     {
@@ -84,7 +82,7 @@
     },
     {
       "title": "Read Cohorts, Not Totals",
-      "body": "Track each week's batch of new customers as its own group and watch what fraction activates, returns, and pays. Flat curves across cohorts mean your shipping is not improving the engine, no matter how busy the team feels. Painful flat lines told the truth at IMVU when totals would have flattered.",
+      "body": "Track each week's batch of new customers as its own group and watch what fraction activates, returns, and pays. Flat curves across cohorts mean your shipping is not improving the engine, no matter how busy the team feels. Painful flat lines tell the truth when rising totals would have flattered you into believing the product was working.",
       "category": "Practice"
     },
     {
@@ -99,7 +97,7 @@
     },
     {
       "title": "Pivots Keep One Foot Planted",
-      "body": "A real pivot is not starting over; it changes one strategic element — customer segment, revenue model, or which feature becomes the whole product — while keeping everything you have learned. Groupon grew from one stubbornly popular corner of a failing activism platform. Your dead end probably contains your next direction.",
+      "body": "A real pivot is not starting over; it changes one strategic element — customer segment, revenue model, or which feature becomes the whole product — while keeping everything you have learned. More than one famous company grew from a single stubbornly popular feature buried inside a product that was failing at its original purpose. Your dead end probably contains your next direction.",
       "category": "Insight"
     },
     {

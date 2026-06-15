@@ -9,12 +9,10 @@
     "Business"
   ],
   "themes": [
-    "social epidemics",
-    "word-of-mouth networks",
-    "message stickiness",
-    "power of context",
-    "group size limits",
-    "small targeted interventions"
+    "Persuasion",
+    "Psychology",
+    "Communication",
+    "Strategy"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Tipping Point by Malcolm Gladwell (2000). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -34,31 +32,31 @@
       "chapter": "The handful who do the spreading"
     },
     {
-      "text": "Paul Revere and William Dawes carried the same warning the same night, but only the towns on Revere's route mustered — the messenger's network, not the message, made the revolution.",
+      "text": "Two couriers set out the same night carrying the identical alarm, but only the one who was a natural social hub roused the towns he reached — the messenger's network, not the message, decided what spread.",
       "chapter": "The handful who do the spreading"
     },
     {
-      "text": "Sesame Street was engineered by measuring preschoolers' wandering attention moment by moment and letting the data overrule expert dogma, including the rule against mixing adults and Muppets.",
+      "text": "An educational show that measured preschoolers' wandering attention moment by moment, then rebuilt itself around the data instead of expert opinion, shows that engagement is engineered by testing, not assumed.",
       "chapter": "Tinkering until it sticks"
     },
     {
-      "text": "Blue's Clues aired the identical episode five days in a row because repetition empowers rather than bores small children — stickiness lives in small, testable, counterintuitive structural tweaks.",
+      "text": "A program that aired the same episode several days running found that repetition empowers rather than bores small children — stickiness lives in small, testable, counterintuitive structural tweaks.",
       "chapter": "Tinkering until it sticks"
     },
     {
-      "text": "In the seminary study, whether students stopped for a groaning stranger was predicted not by piety or personality but by whether they had been told they were running late.",
+      "text": "Whether a decent, conscientious person stops to help a stranger in distress hinges less on their piety or character than on whether they believe they are running late — situation outweighs disposition.",
       "chapter": "The situation is a co-author"
     },
     {
-      "text": "Gladwell's broken-windows reading of New York's crime drop has aged badly — comparable cities saw similar declines without that policing — but the underlying sensitivity of behavior to context has held up.",
+      "text": "Gladwell's reliance on broken-windows theory to explain a major crime decline has aged badly — comparable places saw similar declines without it — but the underlying sensitivity of behavior to immediate context has held up.",
       "chapter": "The situation is a co-author"
     },
     {
-      "text": "Around 150 people, a group stops being self-organizing because members can no longer know everyone and how everyone relates; Gore built new plants rather than cross that line.",
+      "text": "Around 150 people, a group stops being self-organizing because members can no longer know everyone and how everyone relates; some firms deliberately spin off a new site rather than let any one grow past that line.",
       "chapter": "The magic number behind groups"
     },
     {
-      "text": "Fear-mongering tetanus booklets moved attitudes but not bodies; adding a campus map with the clinic circled did, because the missing ingredient was a practical next step, not motivation.",
+      "text": "Fear-laden health warnings can shift attitudes without changing behavior; adding a simple practical cue — where to go and when — closes the gap, because the missing ingredient was a concrete next step, not motivation.",
       "chapter": "Small levers, big doors"
     }
   ],
@@ -74,8 +72,8 @@
       "category": "Principle"
     },
     {
-      "title": "Same Message, Different Rider",
-      "body": "Two riders carried the identical warning the night of Paul Revere's ride; only one set of towns mustered. When your initiative dies, resist the urge to rewrite the message first. Ask who carried it — a poorly connected messenger can kill news that a hub would have turned into a movement.",
+      "title": "Same Message, Different Messenger",
+      "body": "Two couriers carried the identical warning on the same night; only the towns reached by the well-connected one roused themselves. When your initiative dies, resist the urge to rewrite the message first. Ask who carried it — a poorly connected messenger can kill news that a hub would have turned into a movement.",
       "category": "Insight"
     },
     {
@@ -85,17 +83,17 @@
     },
     {
       "title": "Test the Package, Not Just the Pitch",
-      "body": "Sesame Street beat expert dogma by tracking exactly when children's eyes wandered, and a tiny envelope gimmick outperformed louder advertising copy. The tweak that makes an idea stick is usually small, structural and counterintuitive — which means your taste cannot find it. Measure attention directly and let the data overrule the experts.",
+      "body": "A children's show beat expert dogma by tracking exactly when young eyes wandered, and a small structural tweak to a mailing outperformed louder advertising copy. The tweak that makes an idea stick is usually small, structural and counterintuitive — which means your taste cannot find it. Measure attention directly and let the data overrule the experts.",
       "category": "Practice"
     },
     {
       "title": "Repetition Is Not Boring",
-      "body": "Blue's Clues ran the same episode five straight days and children's engagement grew, because each pass let them master more. Adults confuse novelty with quality. When teaching anything — to kids, teams or customers — repeat the core far past the point where it bores you. You are not the audience.",
+      "body": "A preschool program ran the same episode several days in a row and children's engagement grew, because each pass let them master more. Adults confuse novelty with quality. When teaching anything — to kids, teams or customers — repeat the core far past the point where it bores you. You are not the audience.",
       "category": "Principle"
     },
     {
       "title": "Hurry Erases Character",
-      "body": "Seminary students walking past a groaning stranger were not predicted by piety or personality — only by being told they were late. Before judging anyone's behavior, including your own, audit the situation for time pressure. A few minutes of hurry routinely outweighs everything we like to call character.",
+      "body": "Whether people walk past a groaning stranger is predicted not by piety or personality but by whether they think they are late. Before judging anyone's behavior, including your own, audit the situation for time pressure. A few minutes of hurry routinely outweighs everything we like to call character.",
       "category": "Warning"
     },
     {
@@ -105,7 +103,7 @@
     },
     {
       "title": "Split Groups Before 150",
-      "body": "Past roughly 150 members, you can no longer know everyone and how they relate, so self-organization gives way to hierarchy, rules and strangers. Gore built a new plant next door rather than expand one. If you want culture to spread by peer pressure instead of policy, fragment before you are forced to.",
+      "body": "Past roughly 150 members, you can no longer know everyone and how they relate, so self-organization gives way to hierarchy, rules and strangers. Some companies open a new site rather than expand one past that ceiling. If you want culture to spread by peer pressure instead of policy, fragment before you are forced to.",
       "category": "Principle"
     },
     {
@@ -115,7 +113,7 @@
     },
     {
       "title": "Add the Map, Not More Fear",
-      "body": "Terrifying tetanus booklets changed students' attitudes and almost nobody's behavior; a campus map with the clinic circled changed behavior immediately. When people agree but do not act, the missing ingredient is rarely motivation. Convert the message into one practical, personal next step and watch the gap close.",
+      "body": "Frightening health warnings can change attitudes and almost nobody's behavior; adding a simple, concrete cue — where to go, and when the door is open — changes behavior immediately. When people agree but do not act, the missing ingredient is rarely motivation. Convert the message into one practical, personal next step and watch the gap close.",
       "category": "Practice"
     },
     {
@@ -134,7 +132,7 @@
     },
     {
       "title": "Map your network's hubs",
-      "detail": "List the ten best-connected people in your world and note which separate circles each one bridges. You are locating your Reveres — the few through whom your message reaches towns you cannot ride to yourself.",
+      "detail": "List the ten best-connected people in your world and note which separate circles each one bridges. You are locating your hubs — the few through whom your message reaches towns you cannot ride to yourself.",
       "kind": "task",
       "day": 2,
       "duration_minutes": 0
@@ -147,15 +145,15 @@
       "duration_minutes": 45
     },
     {
-      "title": "Run a Sesame-style attention test",
-      "detail": "Show your pitch, lesson or landing page to three people with distractions available and note the exact moment eyes wander. Fix only the drop-off points; let the measurement overrule your taste the way the show's researchers did.",
+      "title": "Run an attention test on your message",
+      "detail": "Show your pitch, lesson or landing page to three people with distractions available and note the exact moment eyes wander. Fix only the drop-off points; let the measurement overrule your taste rather than trusting expert opinion.",
       "kind": "event",
       "day": 6,
       "duration_minutes": 60
     },
     {
       "title": "Add the map to one message",
-      "detail": "Take a message your audience already agrees with but ignores and attach one practical, personal next step — a link, a time, a circled location. You are rerunning the tetanus experiment on your own campaign.",
+      "detail": "Take a message your audience already agrees with but ignores and attach one practical, personal next step — a link, a time, a circled location. You are testing whether a concrete next step, not more persuasion, is what unlocks action.",
       "kind": "task",
       "day": 8,
       "duration_minutes": 0
@@ -169,7 +167,7 @@
     },
     {
       "title": "Redesign one environment",
-      "detail": "Spend a focused session changing physical or digital context to favor the behavior you want: defaults, visibility, placement, timing. The seminary study says a few minutes of hurry beats character, so engineer the minutes.",
+      "detail": "Spend a focused session changing physical or digital context to favor the behavior you want: defaults, visibility, placement, timing. The helping research says a few minutes of hurry beats character, so engineer the minutes.",
       "kind": "event",
       "day": 11,
       "duration_minutes": 45
@@ -183,7 +181,7 @@
     },
     {
       "title": "Repeat your core five times",
-      "detail": "Deliver your central message on five separate occasions this week without changing it, Blue's Clues style. Track whether comprehension and retelling improve with each pass — you are testing whether repetition empowers your audience even as it bores you.",
+      "detail": "Deliver your central message on five separate occasions this week without changing it, the way a preschool show reairs an episode. Track whether comprehension and retelling improve with each pass — you are testing whether repetition empowers your audience even as it bores you.",
       "kind": "event",
       "day": 13,
       "duration_minutes": 15

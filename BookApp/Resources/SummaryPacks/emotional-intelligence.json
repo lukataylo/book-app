@@ -9,12 +9,10 @@
     "Science"
   ],
   "themes": [
-    "amygdala hijacks",
-    "self-awareness",
-    "impulse control",
-    "empathy and rapport",
-    "emotional contagion",
-    "teaching emotional skills"
+    "Psychology",
+    "Communication",
+    "Mindset",
+    "Resilience"
   ],
   "read_minutes": 16,
   "attribution": "An original summary of the ideas in Emotional Intelligence by Daniel Goleman (1995). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -30,7 +28,7 @@
       "chapter": "The brain's back-alley shortcut"
     },
     {
-      "text": "A patient whose surgery severed emotion from reasoning kept his IQ but lost the ability to decide — feelings are compressed verdicts, not noise in the rational machine.",
+      "text": "When injury severs emotion from reasoning, a person can keep their full IQ yet lose the ability to decide — feelings are compressed verdicts, not noise in the rational machine.",
       "chapter": "What IQ can't buy"
     },
     {
@@ -46,7 +44,7 @@
       "chapter": "The art of not taking the bait"
     },
     {
-      "text": "The four-year-olds who waited for the second marshmallow did not white-knuckle it; they redirected their own attention, showing impulse control is technique, not character.",
+      "text": "A child who holds out for the bigger treat does not white-knuckle it; they redirect their own attention elsewhere, showing impulse control is technique, not character.",
       "chapter": "The art of not taking the bait"
     },
     {
@@ -70,7 +68,7 @@
     },
     {
       "title": "Feelings Are Data",
-      "body": "A patient cut off from his emotions kept a high IQ and lost the ability to choose anything, because options without felt weight never resolve into decisions. Treat your gut reactions as compressed verdicts of past experience. Consult them explicitly when deciding — not as the final word, but as evidence your spreadsheet cannot see.",
+      "body": "People whose brain injuries cut emotion off from reasoning can keep a high IQ yet lose the ability to choose anything, because options without felt weight never resolve into decisions. Treat your gut reactions as compressed verdicts of past experience. Consult them explicitly when deciding — not as the final word, but as evidence your spreadsheet cannot see.",
       "category": "Principle"
     },
     {
@@ -90,7 +88,7 @@
     },
     {
       "title": "Redirect Attention, Don't Resist Temptation",
-      "body": "The children who successfully waited for a doubled reward did not stare down the treat; they sang, played, and looked away. Willpower as raw resistance loses to strategy. When facing any impulse — the snack, the purchase, the cutting reply — change what your attention is on, rather than fighting the urge head-on.",
+      "body": "A child told they can have one cookie now or two if they hold off does best not by staring the plate down but by singing, fidgeting, looking anywhere else. Willpower as raw resistance loses to strategy. When facing any impulse — the snack, the purchase, the cutting reply — change what your attention is on, rather than fighting the urge head-on.",
       "category": "Insight"
     },
     {
@@ -110,7 +108,7 @@
     },
     {
       "title": "Complain About Acts, Not Character",
-      "body": "In Gottman's research that Goleman highlights, contempt — the global verdict on who someone is — predicts divorce, while specific complaints are survivable and useful. Convert every criticism to the form: when you did this particular thing, I felt this, and I would prefer that. You keep the grievance and lose the poison.",
+      "body": "In the marriage research Goleman highlights, contempt — the global verdict on who someone is — predicts divorce, while specific complaints are survivable and useful. Convert every criticism to the form: when you did this particular thing, I felt this, and I would prefer that. You keep the grievance and lose the poison.",
       "category": "Principle"
     },
     {

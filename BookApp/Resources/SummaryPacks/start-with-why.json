@@ -9,12 +9,10 @@
     "Self-improvement"
   ],
   "themes": [
-    "purpose-driven leadership",
-    "customer loyalty",
-    "inspiring communication",
-    "manipulation versus inspiration",
-    "organizational culture",
-    "decision-making filters"
+    "Purpose",
+    "Leadership",
+    "Motivation",
+    "Persuasion"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Start with Why by Simon Sinek (2009). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -22,7 +20,7 @@
   "summary_short": "Two companies can share the same suppliers, talent, and budgets, yet one limps from launch to launch while the other has customers who tattoo its logo on their arms. Simon Sinek's Start with Why says the difference is that the second company can tell you, in one breath, why it exists. His recurring exhibit is a company that buys the same components as everyone else, yet whose fans queue overnight and follow it into product categories where it has no track record, because they are buying a worldview, not a spec sheet. Its most devoted customers will tattoo the logo onto their skin. Most organizations can say what they do and how they do it; almost none can name the cause behind it. Lacking one, they rent attention through what Sinek bluntly calls manipulations: discounts, fear appeals, novelty dressed as innovation. These move product every time, and cost more with every use.\n\nSinek pictures purpose at the center of three rings, with methods and products around it, and argues that inspiring organizations communicate from the inside out: belief first, methods as the demonstration, product as the proof. He grounds it in biology, claiming the brain's older structures govern trust and decision but have no language, which is why a gut call feels right yet resists explanation, and why spec sheets produce understanding without desire. His favorite case is a famous race won by a scrappy, underfunded team of believers over a lavishly funded favorite, on conviction rather than resources. The tell came next. When the prize was gone, the favorite quit. The practical counsel follows the adoption curve: aim early at the believers who buy to express who they are, because their conviction becomes the proof the cautious majority waits for. A celebrated gadget's feature-first pitch is his cautionary tale of talking past them.\n\nCritics have a fair point: the Golden Circle is partly retrospective, since it is easier to name a winner's why after the fact than to predict who will win. Sinek's hardest warning is about what comes next. A why rarely survives its founder's departure unless it has been built into the hiring and the decisions, which is why metrics quietly eat missions and good companies forget what they were for.",
   "learnings": [
     {
-      "text": "People extend trust across product categories when they are attached to a company's cause, not its spec sheet — which is why Apple could sell phones and Dell couldn't sell MP3 players.",
+      "text": "People extend trust across product categories when they are attached to a company's cause, not its spec sheet — which is why a company people believe in can stretch into a brand-new product line while a respected but soulless rival cannot.",
       "chapter": "The question most companies never ask"
     },
     {
@@ -42,15 +40,15 @@
       "chapter": "Discounts rent customers; belief keeps them"
     },
     {
-      "text": "Langley quit aviation the day the Wright brothers flew, revealing that fame, not flight, was his goal — you can diagnose a team's true motive by what it does when someone else wins.",
-      "chapter": "A bicycle shop beats a war chest"
+      "text": "A well-funded contender will often quit the day an underdog wins, revealing that fame, not the mission, was the goal — you can diagnose a team's true motive by what it does when someone else wins.",
+      "chapter": "Cause beats budget"
     },
     {
       "text": "Early adopters buy unproven products because the purchase expresses their identity; the pragmatic majority only moves after watching them, so aim your first messages at the believers.",
       "chapter": "Trust the people who buy on faith"
     },
     {
-      "text": "TiVo built a product good enough to become a verb and still struggled commercially, because it pitched capabilities to skeptics instead of a belief to believers.",
+      "text": "A famously clever product can become a household verb and still struggle commercially, because it pitched capabilities to skeptics instead of a belief to believers.",
       "chapter": "Trust the people who buy on faith"
     },
     {
@@ -85,7 +83,7 @@
     },
     {
       "title": "Watch What Rivals' Wins Reveal",
-      "body": "Langley abandoned aviation the day the Wrights flew; they had a cause, he had a prize. When a competitor succeeds, notice your team's honest reaction. If the win feels like progress toward something you care about, purpose is driving you. If it feels like the game ending, you were chasing status.",
+      "body": "The day a rival reaches the milestone you were both chasing, watch who quietly quits and who keeps building. When a competitor succeeds, notice your team's honest reaction. If the win feels like progress toward something you care about, purpose is driving you. If it feels like the game ending, you were chasing status.",
       "category": "Insight"
     },
     {

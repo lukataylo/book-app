@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "honest feedback",
-    "management relationships",
-    "team development",
-    "criticism and praise",
-    "career growth conversations",
-    "collaborative decision-making"
+    "Management",
+    "Leadership",
+    "Communication",
+    "Teams"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Radical Candor by Kim Scott (2017). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -21,7 +19,7 @@
   "summary_short": "Picture letting a likable employee flounder for months because correcting them feels mean — then having to fire them, and watching their stunned question land: why did nobody tell me? That trap is the seed of Radical Candor. Kim Scott's core claim, drawn from years running teams at Google and Apple, is that the kindest available option is usually the truth. Withheld criticism compounds like deferred maintenance; the five-minute awkward conversation you skip turns into a job, a project, or a team's faith in you. But blunt honesty from someone who plainly does not care about you is not management. It is just aggression with a performance review attached. Good guidance needs two separate muscles: caring about people as humans, and being willing to say the hard thing. Most managers train only one. The common failure, in Scott's estimate, is the warm-but-silent pattern she calls ruinous empathy, because most managers are not jerks. They are nice, and their niceness quietly starves people of what they need to grow.\n\nThe operating manual follows from that frame. Go first: ask your team to criticize you before you sharpen any criticism of them, endure the silence after you ask, and visibly reward whatever honesty arrives, because a boss who flinches teaches everyone that the real policy is flattery. Make praise as rigorous as criticism, specific about situation, behavior, and impact, since vague compliments give people nothing to repeat. Judge every piece of feedback by what the listener actually heard, not by what you meant. And manage the real person, not the org chart: excellent performers come in two shapes, those hungry for the next role and those brilliant at the one they have, and the standard playbook breaks the second group by forcing promotions they never wanted.\n\nScott's framework was forged on high-skill, high-salary tech teams where staying is a choice, and it strains where power gaps are steeper and the caring half is harder to prove. Even so, her parting distinction lands: nice and kind are different words. Nice protects the manager's comfort. Kind grows the person. Most workplaces are full of nice.",
   "learnings": [
     {
-      "text": "Scott kept a likable underperformer for ten months to avoid awkward conversations, then had to fire him; withheld criticism compounds until the kindest-seeming option becomes the cruelest outcome.",
+      "text": "Keep a likable underperformer on for months to avoid awkward conversations and you usually end up firing him anyway; withheld criticism compounds until the kindest-seeming option becomes the cruelest outcome.",
       "chapter": "The kindest available option is the truth"
     },
     {
@@ -125,8 +123,8 @@
   ],
   "actions": [
     {
-      "title": "Identify your Bob",
-      "detail": "Name the person whose underperformance or bad habit you have been politely ignoring, and write down what your silence has already cost them and the team. Scott's story shows the bill only grows.",
+      "title": "Identify the person you have been sparing",
+      "detail": "Name the person whose underperformance or bad habit you have been politely ignoring, and write down what your silence has already cost them and the team. Left unaddressed, that bill only grows.",
       "kind": "task",
       "day": 1,
       "duration_minutes": 0

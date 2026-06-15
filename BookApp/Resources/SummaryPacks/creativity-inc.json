@@ -9,12 +9,10 @@
     "Memoir"
   ],
   "themes": [
-    "creative candor",
-    "protecting early ideas",
-    "hidden problems",
-    "cheap failure",
-    "team chemistry",
-    "unintended signals"
+    "Creativity",
+    "Leadership",
+    "Teams",
+    "Management"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Creativity, Inc. by Ed Catmull (2014). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -54,7 +52,7 @@
       "chapter": "Bet on the team, not the idea"
     },
     {
-      "text": "Rooms, rituals, and seating emit signals that shape behavior more than stated values; Pixar's leaders sat at a status-ranking table for a decade without noticing, because they held the good seats.",
+      "text": "Rooms, rituals, and seating emit signals that shape behavior more than stated values; a leadership team can sit at a status-ranking table for years without noticing, because they hold the good seats.",
       "chapter": "Watch what the furniture is saying"
     }
   ],
@@ -86,7 +84,7 @@
     },
     {
       "title": "Your Open Door Isn't Working",
-      "body": "An open door only helps people already brave enough to walk through it, and hierarchy filters bad news long before it reaches you. Catmull ran Pixar for years unaware that a whole layer of staff felt unheard. Assume your picture of the organization is wrong somewhere, and go hunting for where.",
+      "body": "An open door only helps people already brave enough to walk through it, and hierarchy filters bad news long before it reaches you. A leader can run a company for years convinced communication is healthy while an entire layer of staff quietly feels unheard. Assume your picture of the organization is wrong somewhere, and go hunting for where.",
       "category": "Insight"
     },
     {
@@ -111,7 +109,7 @@
     },
     {
       "title": "Audit the Furniture",
-      "body": "Rooms, seating, titles, and invitation lists broadcast who matters, and they shape behavior more than any stated value. Pixar's leaders spent a decade at a table that silenced everyone seated at its edges — and never noticed, because they sat in the middle. Walk your own rituals looking for what they accidentally say.",
+      "body": "Rooms, seating, titles, and invitation lists broadcast who matters, and they shape behavior more than any stated value. A team can sit for years at a long table where only the people in the center are ever heard, and never notice, because the deciders hold the good seats. Walk your own rituals looking for what they accidentally say.",
       "category": "Insight"
     }
   ],
@@ -160,7 +158,7 @@
     },
     {
       "title": "Audit one room or ritual for status signals",
-      "detail": "Pick a recurring meeting and examine what its seating, invitation list, and agenda silently broadcast about who matters. Pixar's table distorted conversations for a decade; find your equivalent and change it.",
+      "detail": "Pick a recurring meeting and examine what its seating, invitation list, and agenda silently broadcast about who matters. A single badly shaped table can distort a team's conversations for years; find your equivalent and change it.",
       "kind": "task",
       "day": 11,
       "duration_minutes": 0

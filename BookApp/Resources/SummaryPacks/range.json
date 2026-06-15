@@ -9,12 +9,10 @@
     "Science"
   ],
   "themes": [
-    "generalists vs specialists",
-    "kind and wicked learning environments",
-    "sampling and match quality",
-    "desirable difficulties",
-    "analogical thinking",
-    "strategic quitting"
+    "Learning",
+    "Creativity",
+    "Decisions",
+    "Mindset"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Range: Why Generalists Triumph in a Specialized World by David Epstein (2019). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -50,7 +48,7 @@
       "chapter": "Thinking with borrowed eyes"
     },
     {
-      "text": "Tetlock's forecasting research found integrators who aggregate across disciplines beat deep specialists, and the most famous experts were often the least accurate.",
+      "text": "Long-run forecasting research finds that integrators who aggregate across disciplines beat deep specialists, and the most famous experts were often the least accurate.",
       "chapter": "Foxes beat hedgehogs"
     },
     {
@@ -100,7 +98,7 @@
     },
     {
       "title": "Ask What This Resembles",
-      "body": "When a problem is genuinely new, the only map available is structural analogy. Kepler cracked planetary motion by borrowing from light, magnets, and water. When stuck, stop pushing harder and start listing distant domains where the problem's structure — not its surface — already has a solution.",
+      "body": "When a problem is genuinely new, the only map available is structural analogy. The moving assembly line is said to have been borrowed from the overhead trolleys of meatpacking plants, a solution hiding in an unrelated trade. When stuck, stop pushing harder and start listing distant domains where the problem's structure — not its surface — already has a solution.",
       "category": "Habit"
     },
     {
@@ -110,7 +108,7 @@
     },
     {
       "title": "Be a Fox, Not a Hedgehog",
-      "body": "Tetlock found that one-big-idea experts forecast their own specialty barely better than chance, while integrators who gather across disciplines, hold views loosely, and update readily beat them consistently. Collect lenses, seek dissent, and ask how cases like yours usually turn out before arguing yours is special.",
+      "body": "Long-run forecasting research finds that one-big-idea experts forecast their own specialty barely better than chance, while integrators who gather across disciplines, hold views loosely, and update readily beat them consistently. Collect lenses, seek dissent, and ask how cases like yours usually turn out before arguing yours is special.",
       "category": "Mental Model"
     },
     {
@@ -120,7 +118,7 @@
     },
     {
       "title": "Drop Your Familiar Tools",
-      "body": "Firefighters have died carrying equipment they should have dropped, and seasoned teams cling hardest to identity-defining methods just as conditions change. List the tools and habits that define your professional identity, then ask which one current conditions have quietly made obsolete. Practice working without it before the fire arrives.",
+      "body": "People in danger have died gripping the very equipment they should have dropped, and seasoned teams cling hardest to identity-defining methods just as conditions change. List the tools and habits that define your professional identity, then ask which one current conditions have quietly made obsolete. Practice working without it before the fire arrives.",
       "category": "Practice"
     }
   ],
@@ -155,21 +153,21 @@
     },
     {
       "title": "Start a forecast journal",
-      "detail": "Write three probabilistic predictions about your work or industry, with reasoning, to review in three months. Tetlock's foxes improved because they kept score; hedgehogs stayed wrong because they never did.",
+      "detail": "Write three probabilistic predictions about your work or industry, with reasoning, to review in three months. Foxes improve because they keep score; hedgehogs stay wrong because they never do.",
       "kind": "task",
       "day": 7,
       "duration_minutes": 0
     },
     {
       "title": "Sample one unfamiliar domain",
-      "detail": "Spend a session deliberately trying a skill or field outside your lane — a tool, an instrument, a discipline's introductory material. You are buying analogy stock: distant domains are where Kepler-style solutions come from.",
+      "detail": "Spend a session deliberately trying a skill or field outside your lane — a tool, an instrument, a discipline's introductory material. You are buying analogy stock: distant domains are where the best structural solutions come from.",
       "kind": "event",
       "day": 8,
       "duration_minutes": 60
     },
     {
       "title": "Name a tool you should drop",
-      "detail": "Identify one method or habit that defines your professional identity, and design a small experiment doing the work without it. Epstein's firefighting cases show that seasoned performers cling to tools longest exactly when conditions have changed.",
+      "detail": "Identify one method or habit that defines your professional identity, and design a small experiment doing the work without it. Epstein shows that seasoned performers cling to their defining tools longest exactly when conditions have changed.",
       "kind": "task",
       "day": 10,
       "duration_minutes": 0

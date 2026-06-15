@@ -9,12 +9,10 @@
     "Business"
   ],
   "themes": [
-    "personal effectiveness",
-    "proactive mindset",
-    "principle-centered living",
-    "time management priorities",
-    "win-win relationships",
-    "self-renewal routines"
+    "Habits",
+    "Productivity",
+    "Discipline",
+    "Purpose"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The 7 Habits of Highly Effective People by Stephen R. Covey (1989). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -120,7 +118,7 @@
     },
     {
       "title": "Too Busy Sawing to Sharpen",
-      "body": "Beware the schedule with no time to exercise, read, connect, or reflect — it is the woodcutter refusing to sharpen a dulling saw. Output without renewal degrades the very capacity that produces the output. If you cannot find an hour for maintenance, you have found the proof that you need one.",
+      "body": "Beware the schedule with no time to exercise, read, connect, or reflect — it is an engine run flat-out for months with the oil never changed. Output without renewal degrades the very capacity that produces the output. If you cannot find an hour for maintenance, you have found the proof that you need one.",
       "category": "Warning"
     }
   ],

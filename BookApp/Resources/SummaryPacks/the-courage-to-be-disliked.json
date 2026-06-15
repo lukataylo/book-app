@@ -9,12 +9,10 @@
     "Psychology"
   ],
   "themes": [
-    "adlerian psychology",
-    "teleology over trauma",
-    "separation of tasks",
-    "freedom from approval-seeking",
-    "horizontal relationships",
-    "contribution as happiness"
+    "Psychology",
+    "Philosophy",
+    "Mindset",
+    "Happiness"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Courage to Be Disliked by Ichiro Kishimi and Fumitake Koga (2018). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -65,7 +63,7 @@
   "cards": [
     {
       "title": "Goals Hide Behind Causes",
-      "body": "Adlerian teleology flips the usual story: people do not act because of past causes; they recruit past causes to serve present goals. The recluse does not stay home because of anxiety — the anxiety is produced because staying home serves a purpose. When a behavior will not budge, stop asking what caused it and ask what it accomplishes.",
+      "body": "Adlerian teleology flips the usual story: people do not act because of past causes; they recruit past causes to serve present goals. Someone who insists they cannot speak up in meetings is not silenced by anxiety — the anxiety is produced because staying quiet spares them the risk of being judged. When a behavior will not budge, stop asking what caused it and ask what it accomplishes.",
       "category": "Mental Model"
     },
     {
@@ -85,7 +83,7 @@
     },
     {
       "title": "Separate the Tasks",
-      "body": "For any conflict, ask one question: who ultimately bears the consequence of this choice? Whether your child studies is your child's task. What your boss thinks of you is your boss's task. Support people, stay close, make help available — but the moment you try to control an outcome that lands on someone else, you have trespassed.",
+      "body": "For any conflict, ask one question: who ultimately bears the consequence of this choice? Whether a friend acts on the advice you give them is the friend's task. What your boss thinks of you is your boss's task. Support people, stay close, make help available — but the moment you try to control an outcome that lands on someone else, you have trespassed.",
       "category": "Practice"
     },
     {
@@ -127,7 +125,7 @@
   "actions": [
     {
       "title": "Catch one goal hiding behind a cause",
-      "detail": "Pick a stuck behavior you usually blame on your past and write down what present purpose it might serve — what it lets you avoid or obtain. This is the teleology flip the philosopher uses on the recluse, applied to yourself.",
+      "detail": "Pick a stuck behavior you usually blame on your past and write down what present purpose it might serve — what it lets you avoid or obtain. This is the teleology flip at the heart of Adler's argument, applied to yourself.",
       "kind": "task",
       "day": 1,
       "duration_minutes": 0
@@ -182,7 +180,7 @@
       "duration_minutes": 60
     },
     {
-      "title": "Write your sixty-percent list",
+      "title": "Write an honest self-acceptance list",
       "detail": "Draft an honest self-acceptance inventory: the ordinary, unimpressive parts of yourself you will accept and work with, as opposed to affirmations claiming you are exceptional. Adlerian courage starts from what is actually there.",
       "kind": "task",
       "day": 13,

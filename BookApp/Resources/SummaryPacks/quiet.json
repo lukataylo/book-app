@@ -9,12 +9,10 @@
     "Self-improvement"
   ],
   "themes": [
-    "introversion and temperament",
-    "the extrovert ideal",
-    "solitude and creativity",
-    "quiet leadership",
-    "raising sensitive children",
-    "restorative niches"
+    "Psychology",
+    "Communication",
+    "Leadership",
+    "Creativity"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Quiet: The Power of Introverts in a World That Can't Stop Talking by Susan Cain (2012). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -30,7 +28,7 @@
       "chapter": "When charisma became a job requirement"
     },
     {
-      "text": "Kagan's high-reactive infants — the ones who wail at novelty — grow into quiet adults, because introversion is sensitivity to stimulation, not dislike of people.",
+      "text": "Infants with highly reactive nervous systems — the ones who startle and wail at anything new — tend to grow into quiet adults, because introversion is sensitivity to stimulation, not dislike of people.",
       "chapter": "Born with a sensitive alarm system"
     },
     {
@@ -129,7 +127,7 @@
     },
     {
       "title": "Audit your calendar for performance and recovery",
-      "detail": "Mark every upcoming event that requires acting more outgoing than you feel, then check whether a restorative niche follows each one. Add a recovery slot after any performance that lacks one — Little's research says the recovery is what makes the acting sustainable.",
+      "detail": "Mark every upcoming event that requires acting more outgoing than you feel, then check whether a restorative niche follows each one. Add a recovery slot after any performance that lacks one — free trait theory says the recovery is what makes the acting sustainable.",
       "kind": "task",
       "day": 2,
       "duration_minutes": 0

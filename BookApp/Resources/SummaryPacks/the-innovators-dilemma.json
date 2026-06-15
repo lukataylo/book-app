@@ -8,12 +8,10 @@
     "Business"
   ],
   "themes": [
-    "disruptive innovation",
-    "sustaining technology",
-    "resource dependence",
-    "performance oversupply",
-    "discovery-driven planning",
-    "organizational capabilities"
+    "Strategy",
+    "Management",
+    "Decisions",
+    "Creativity"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in The Innovator's Dilemma by Clayton M. Christensen (1997). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -95,7 +93,7 @@
     },
     {
       "title": "Plan to Learn, Not to Execute",
-      "body": "In a market that does not yet exist, your first plan is wrong by definition. Treat strategy as a list of assumptions ranked by danger, spend the minimum required to test the biggest one, and protect enough capital to pivot twice. Honda found its American motorcycle market by accident, not analysis.",
+      "body": "In a market that does not yet exist, your first plan is wrong by definition. Treat strategy as a list of assumptions ranked by danger, spend the minimum required to test the biggest one, and protect enough capital to pivot twice. Plenty of ventures stumble into their real market by accident, not analysis — a product built for one purpose catches on for another nobody forecast.",
       "category": "Practice"
     },
     {

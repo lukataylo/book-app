@@ -9,11 +9,9 @@
     "Politics"
   ],
   "themes": [
-    "choice architecture",
-    "defaults and inertia",
-    "libertarian paternalism",
-    "designing for human error",
-    "behavioral public policy"
+    "Decisions",
+    "Psychology",
+    "Strategy"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Nudge by Richard H. Thaler and Cass R. Sunstein (2008). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -25,7 +23,7 @@
       "chapter": "Every menu is rigged"
     },
     {
-      "text": "Rearranging cafeteria items can shift what children eat by roughly a quarter — context routinely beats stated preference.",
+      "text": "Put the fruit where the queue starts and the dessert at the far end, and what people pile on their plates shifts sharply — context routinely beats stated preference.",
       "chapter": "Every menu is rigged"
     },
     {
@@ -33,7 +31,7 @@
       "chapter": "Humans are not Econs"
     },
     {
-      "text": "Otherwise similar countries show enormous gaps in organ-donor consent depending solely on whether citizens must opt in or opt out.",
+      "text": "Switch a sign-up form from opt-in to opt-out and participation can leap from a minority to almost everyone, though not a word of the actual choice has changed.",
       "chapter": "The default is destiny"
     },
     {
@@ -45,7 +43,7 @@
       "chapter": "Design for the fumbling human"
     },
     {
-      "text": "Households shown their electricity use alongside their neighbors' cut consumption, and a small signal of approval kept efficient users from drifting upward.",
+      "text": "People given feedback that compares their own consumption with similar others tend to cut back, and a small signal of approval keeps the thrifty ones from drifting upward.",
       "chapter": "Design for the fumbling human"
     },
     {
@@ -57,7 +55,7 @@
       "chapter": "Freedom plus a gentle push"
     },
     {
-      "text": "Swedish savers who actively built pension portfolios chased recent returns and underperformed the expertly designed default they were steered away from.",
+      "text": "Savers handed a vast menu to build their own retirement portfolio often chased whatever had recently soared, then trailed the expertly designed default they were steered away from.",
       "chapter": "Nudges loose in the world"
     }
   ],
@@ -69,7 +67,7 @@
     },
     {
       "title": "Defaults Decide for the Distracted",
-      "body": "Whatever happens when people do nothing is what mostly happens, because doing nothing is the most popular choice in the world. Organ donation rates, savings rates, and subscription revenues all hinge on it. Set the default to what informed choosers would pick, and keep the exit one easy step away.",
+      "body": "Whatever happens when people do nothing is what mostly happens, because doing nothing is the most popular choice in the world. Enrollment rates, savings rates, and subscription revenues all hinge on it. Set the default to what informed choosers would pick, and keep the exit one easy step away.",
       "category": "Insight"
     },
     {
@@ -104,7 +102,7 @@
     },
     {
       "title": "More Choice Is Not More Freedom",
-      "body": "Hundreds of pension funds left Swedish savers worse off than one excellent default; dozens of drug plans defeated the seniors they were meant to serve. Past a modest point, added options raise error rates and abandonment, not satisfaction. Offer a strong default plus a clear path for the motivated — for others and yourself.",
+      "body": "A retirement menu of hundreds of funds can leave savers worse off than one excellent default, and a benefits market crammed with near-identical plans can defeat the very people it was meant to serve. Past a modest point, added options raise error rates and abandonment, not satisfaction. Offer a strong default plus a clear path for the motivated — for others and yourself.",
       "category": "Mental Model"
     },
     {

@@ -9,12 +9,10 @@
     "Business"
   ],
   "themes": [
-    "behavioral economics",
-    "anchoring and relativity",
-    "the allure of free",
-    "social versus market norms",
-    "self-control and precommitment",
-    "expectations and honesty"
+    "Decisions",
+    "Psychology",
+    "Money",
+    "Discipline"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Predictably Irrational by Dan Ariely (2008). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -30,7 +28,7 @@
       "chapter": "Comparison is the engine of choice"
     },
     {
-      "text": "Arbitrary first numbers — even digits from a social security number — anchored auction bids that stayed internally consistent ever after.",
+      "text": "A plainly random number flashed just before people name a price pulls their bids up or down to match it, yet every later bid stays consistent with that arbitrary start.",
       "chapter": "Anchors that never lift"
     },
     {
@@ -38,7 +36,7 @@
       "chapter": "The intoxicating power of free"
     },
     {
-      "text": "Fining parents for late daycare pickups increased lateness by converting a moral obligation into a purchasable service — and the damage outlasted the fine.",
+      "text": "Putting a small fine on a behavior people once avoided out of conscience can backfire: the fine becomes a price, the obligation dissolves, and the lapse persists even after the fine is dropped.",
       "chapter": "Two worlds with different rules"
     },
     {
@@ -50,7 +48,7 @@
       "chapter": "The stranger who wears your face"
     },
     {
-      "text": "Lottery winners demanded roughly fourteen times what equally eager losers would pay for the same tickets; ownership reframes selling as losing.",
+      "text": "People who win scarce tickets in a lottery demand far more to part with them than equally eager people who lost would ever pay; ownership reframes selling as losing.",
       "chapter": "Owners, doors, and overpriced keys"
     },
     {
@@ -95,7 +93,7 @@
     },
     {
       "title": "Borrow the Power of Deadlines",
-      "body": "Students given rigid, evenly spaced deadlines outperformed both the self-scheduled and the completely free. Your future self will not rescue the project, so build the scaffolding now: split big goals into dated milestones, space them evenly, and attach a real consequence someone else can enforce. Structure beats sincerity every time.",
+      "body": "People given rigid, evenly spaced deadlines tend to outperform both the self-scheduled and the completely free. Your future self will not rescue the project, so build the scaffolding now: split big goals into dated milestones, space them evenly, and attach a real consequence someone else can enforce. Structure beats sincerity every time.",
       "category": "Habit"
     },
     {
@@ -120,7 +118,7 @@
     },
     {
       "title": "Distance From Cash Loosens Conscience",
-      "body": "Swapping cash for tokens — one step removed from money — roughly doubled cheating in Ariely's experiments. Every layer of abstraction, from expense lines to digital credits, makes small dishonesty easier to excuse. When you handle anything that converts to money, mentally convert it first. Treat the token as the bill it represents.",
+      "body": "Putting one step of distance between people and actual cash — tokens they will swap for money moments later — sharply increases small cheating. Every layer of abstraction, from expense lines to digital credits, makes small dishonesty easier to excuse. When you handle anything that converts to money, mentally convert it first. Treat the token as the bill it represents.",
       "category": "Warning"
     }
   ],
@@ -148,7 +146,7 @@
     },
     {
       "title": "Build a deadline scaffold for one big project",
-      "detail": "Split your most procrastinated project into evenly spaced milestones with calendar dates, then send the schedule to someone who will check. Ariely's classes proved that imposed, well-spaced deadlines beat good intentions by a full grade.",
+      "detail": "Split your most procrastinated project into evenly spaced milestones with calendar dates, then send the schedule to someone who will check. Imposed, evenly spaced deadlines reliably beat good intentions.",
       "kind": "event",
       "day": 5,
       "duration_minutes": 45

@@ -9,12 +9,10 @@
     "Self-improvement"
   ],
   "themes": [
-    "perseverance over talent",
-    "how interests develop",
-    "deliberate practice",
-    "goal hierarchies and purpose",
-    "parenting for persistence",
-    "cultures that build grit"
+    "Discipline",
+    "Motivation",
+    "Resilience",
+    "Psychology"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Grit: The Power of Passion and Perseverance by Angela Duckworth (2016). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -22,7 +20,7 @@
   "summary_short": "The polished credentials that win a place in a grueling training program, top scores and strong references and peak fitness, often fail to predict who is still standing when it ends. A short questionnaire Angela Duckworth wrote as a graduate student can. It measures grit, her term for passion fused with long-haul perseverance, and her book argues this trait explains achievement better than talent does, and that it can be grown. She starts by exposing our bias for naturals. Picture a hiring panel weighing two equally qualified candidates: told that one is a prodigy who barely had to try and the other a grinder who clawed every inch, people lean toward the prodigy, even while swearing they prize hard work. The myth of the effortless gift wins quietly. Mythologizing genius, she suggests, is partly self-protection, since the great being simply built differently excuses the rest of us from trying.\n\nHer central correction is that effort counts twice. Talent is the rate at which effort builds skill, but skill produces nothing until effort deploys it, so the steady worker routinely overtakes the inconsistent prodigy. Passion, she insists, is cultivated, not discovered: her high achievers began with faint curiosities deepened over years, which means waiting to feel called has the sequence backward. And showing up only pays when the practice stings. Think of a student who spends quiet hours drilling the exact problems that keep tripping her up rather than rereading what she already knows; the most driven learners pile up the most of precisely the work they enjoy least.\n\nGrit has limits Duckworth does not hide, and they belong here rather than in a footnote. As she measures it, grit correlates with advantage as well as effort, and persistence aimed at the wrong summit is just expensive stubbornness. That is the book's sharpest caveat. Grit is not always a virtue. It earns the caution precisely because it earns the claim.",
   "learnings": [
     {
-      "text": "Professional musicians rated a pianist framed as a natural above one framed as a striver — even though both recordings were the same performer.",
+      "text": "Play one recording of the same musician twice and listeners rate the take labeled the work of a natural above the take labeled the product of grind — even though it is the identical performance.",
       "chapter": "The seduction of the natural"
     },
     {
@@ -34,7 +32,7 @@
       "chapter": "Effort does double duty"
     },
     {
-      "text": "Grit scores predicted who survived West Point's brutal first summer better than the academy's own multi-year admissions composite.",
+      "text": "In a punishing military induction program, grit scores predicted who made it through the brutal first weeks better than the institution's own elaborate multi-year admissions composite.",
       "chapter": "Effort does double duty"
     },
     {
@@ -46,7 +44,7 @@
       "chapter": "Interests are cultivated, not discovered"
     },
     {
-      "text": "Among spelling-bee finalists, only solitary drilling on specific weaknesses predicted advancement — and the grittiest kids did the most of it while enjoying it least.",
+      "text": "Among finalists in a national competition, only solitary drilling on specific weaknesses predicted who advanced — and the grittiest contenders did the most of it while enjoying it least.",
       "chapter": "Practice that stings"
     },
     {

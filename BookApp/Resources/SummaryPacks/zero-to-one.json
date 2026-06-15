@@ -9,12 +9,11 @@
     "Philosophy"
   ],
   "themes": [
-    "monopoly economics",
-    "contrarian thinking",
-    "definite optimism",
-    "power-law outcomes",
-    "undiscovered truths",
-    "startup strategy"
+    "Strategy",
+    "Leadership",
+    "Creativity",
+    "Success",
+    "Investing"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Zero to One by Peter Thiel (2014). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -30,7 +29,7 @@
       "chapter": "Two kinds of progress"
     },
     {
-      "text": "Competition erodes profits to zero, like big-city restaurants, while uncontested positions like Google's in search generate the surplus that funds long-term bets.",
+      "text": "Competition erodes profits to zero, like big-city restaurants, while an uncontested position — say the sole firm controlling a critical industry standard — generates the surplus that funds long-term bets.",
       "chapter": "The case against competition"
     },
     {
@@ -38,7 +37,7 @@
       "chapter": "The case against competition"
     },
     {
-      "text": "Thiel's expansion playbook is to own a tiny market completely first — PayPal with eBay power sellers, Facebook with one campus — then grow in concentric circles.",
+      "text": "Thiel's expansion playbook is to own a tiny market completely first — say a scheduling tool used by every clinic on one hospital campus — then grow in concentric circles.",
       "chapter": "The case against competition"
     },
     {
@@ -54,7 +53,7 @@
       "chapter": "A few bets carry everything"
     },
     {
-      "text": "Secrets are hard but discoverable truths nobody is looking for — Airbnb's empty spare rooms were visible to everyone and acted on by almost no one.",
+      "text": "Secrets are hard but discoverable truths nobody is looking for — millions of garages sit empty all day while commuters circle the block for parking, a fact visible to everyone and acted on by almost no one.",
       "chapter": "The world still hides truths"
     },
     {
@@ -75,12 +74,12 @@
     },
     {
       "title": "Competition Is a Tax",
-      "body": "Rivalry feels like proof you picked a real market, but it grinds margins toward zero and fixes your attention on opponents instead of customers. Microsoft and Google spent years mirroring each other while Apple passed them both. If you find yourself in a war, question the prize before escalating.",
+      "body": "Rivalry feels like proof you picked a real market, but it grinds margins toward zero and fixes your attention on opponents instead of customers. Two search giants can spend years cloning each other's every feature while a newcomer in an adjacent category quietly walks off with the future. If you find yourself in a war, question the prize before escalating.",
       "category": "Warning"
     },
     {
       "title": "Own a Small Pond First",
-      "body": "Dominating a tiny market beats holding one percent of a huge one, because dominance generates the loyalty, data, and cash to expand from. PayPal started with a few thousand eBay power sellers; Facebook started with one campus. Define your first market so narrowly that winning all of it is realistic.",
+      "body": "Dominating a tiny market beats holding one percent of a huge one, because dominance generates the loyalty, data, and cash to expand from. A payments startup might begin with the few thousand busiest sellers on a single marketplace; a social app might begin with one university campus. Define your first market so narrowly that winning all of it is realistic.",
       "category": "Mental Model"
     },
     {
@@ -105,7 +104,7 @@
     },
     {
       "title": "Look Where Looking Is Discouraged",
-      "body": "Valuable secrets hide behind taboo, fashion, and bureaucratic habit — places where social pressure stops smart people from staring at the obvious. Airbnb's empty bedrooms were in plain sight. Ask which important domain your industry treats as settled, embarrassing, or beneath consideration; that is where uncontested ground remains.",
+      "body": "Valuable secrets hide behind taboo, fashion, and bureaucratic habit — places where social pressure stops smart people from staring at the obvious. The idle garages and spare driveways people pass every day were always in plain sight. Ask which important domain your industry treats as settled, embarrassing, or beneath consideration; that is where uncontested ground remains.",
       "category": "Practice"
     },
     {

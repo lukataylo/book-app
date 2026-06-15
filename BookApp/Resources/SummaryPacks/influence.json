@@ -9,12 +9,10 @@
     "Business"
   ],
   "themes": [
-    "compliance triggers",
-    "reciprocity and obligation",
-    "commitment and consistency",
-    "social proof",
-    "authority and obedience",
-    "scarcity and desire"
+    "Persuasion",
+    "Psychology",
+    "Communication",
+    "Decisions"
   ],
   "read_minutes": 15,
   "attribution": "An original summary of the ideas in Influence: The Psychology of Persuasion by Robert B. Cialdini (1984). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
@@ -30,7 +28,7 @@
       "chapter": "The brain's autopilot"
     },
     {
-      "text": "Canned laughter works on audiences who claim to hate it, because the apparent behavior of others functions as evidence of what is correct.",
+      "text": "We treat the visible behavior of others as evidence of what is correct, so a busy-looking cafe draws still more diners — even from people who insist their own taste, not the crowd, decides where they eat.",
       "chapter": "Why the crowd feels like evidence"
     },
     {
@@ -38,7 +36,7 @@
       "chapter": "Why the crowd feels like evidence"
     },
     {
-      "text": "An unrequested soft drink doubled raffle ticket sales regardless of whether the recipient liked the giver; obligation, not affection, drove the purchase.",
+      "text": "A small unrequested favor sharply lifts later compliance whether or not the recipient likes the giver — picture a vendor who presses a free taste into your hand and moments later asks you to buy; obligation, not affection, drives the yes.",
       "chapter": "The gift that obligates"
     },
     {
@@ -46,7 +44,7 @@
       "chapter": "The gift that obligates"
     },
     {
-      "text": "Small initial commitments edit self-image; homeowners who accepted a tiny window sticker later agreed to host a huge billboard for the same cause.",
+      "text": "Small initial commitments edit self-image; someone who agrees to display a tiny token of support for a cause becomes far more willing, weeks later, to take on a much larger and more demanding request for it.",
       "chapter": "The trap of your own signature"
     },
     {
@@ -75,7 +73,7 @@
     },
     {
       "title": "Crowds Can Be Counterfeited",
-      "body": "Social proof is the easiest lever to fake: seeded tip jars, canned laughter, purchased reviews, bestseller claims. When popularity is the main argument for a product, ask two questions. Is the crowd real? Does the crowd actually know anything about quality? Manufactured consensus deserves zero weight in your decision.",
+      "body": "Social proof is the easiest lever to fake: seeded tip jars, staged queues, purchased reviews, bestseller claims. When popularity is the main argument for a product, ask two questions. Is the crowd real? Does the crowd actually know anything about quality? Manufactured consensus deserves zero weight in your decision.",
       "category": "Warning"
     },
     {
