@@ -16,6 +16,9 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var resetDone = false
 
+    private static let privacyPolicyURL = URL(string: "https://lukataylo.github.io/book-app/privacy")
+    private static let supportURL = URL(string: "mailto:luka.dadiani@me.com")
+
     var body: some View {
         NavigationStack {
             Form {
@@ -88,6 +91,9 @@ struct SettingsView: View {
                 }
 
                 Section("AI") {
+                    Text("Cloud features use your own Anthropic account, billed directly by Anthropic. Get a key at console.anthropic.com. Everything else works without one.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     SecureField("Anthropic API key", text: $apiKey)
                         .textContentType(.password)
                         .autocorrectionDisabled()
@@ -160,7 +166,7 @@ struct SettingsView: View {
                 }
 
                 Section("Privacy") {
-                    Text("Cloud transformations send the source book to Anthropic for that request only. Local transformations stay on-device. Every cloud run needs an explicit confirmation in the Transformation Studio.")
+                    Text("Cloud transformations send the source book to Anthropic for that request only. Local transformations stay on-device. The first cloud run asks your permission before any text leaves your device.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -184,8 +190,12 @@ struct SettingsView: View {
                     } label: {
                         Text("Acknowledgements & licenses")
                     }
-                    Link("Privacy Policy", destination: URL(string: "https://github.com/lukataylo/book-app/blob/main/AppStore/privacy.md")!)
-                    Link("Contact support", destination: URL(string: "mailto:luka.dadiani@me.com")!)
+                    if let url = Self.privacyPolicyURL {
+                        Link("Privacy Policy", destination: url)
+                    }
+                    if let url = Self.supportURL {
+                        Link("Contact support", destination: url)
+                    }
                     HStack { Text("Version"); Spacer(); Text(appVersion).foregroundStyle(.secondary) }
                 }
             }

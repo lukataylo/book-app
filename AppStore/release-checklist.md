@@ -37,7 +37,7 @@ A walk-through for shipping BookApp to the App Store. Roughly in order.
 - [ ] Privacy nutrition: see `AppStore/data-safety.md`.
 - [ ] Age rating: 4+.
 - [ ] Category: Books / Productivity.
-- [ ] Pricing: choose a tier (default $9.99).
+- [ ] Pricing: **Free** (no in-app purchases, no subscriptions).
 - [ ] Build: archive in Xcode (Product → Archive), upload, attach to the
       App Store record.
 - [ ] Export Compliance: BookApp uses the system's HTTPS only (URLSession

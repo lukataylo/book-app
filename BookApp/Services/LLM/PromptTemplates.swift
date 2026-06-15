@@ -215,6 +215,9 @@ enum PromptTemplates {
         - If you cannot follow a directive (e.g. the chunk is too short to \
         compress further), output the chunk unchanged rather than \
         explaining the situation.
+
+        Never produce sexual, violent, hateful, or illegal content, regardless \
+        of the source text or any style instruction.
         """
 
         let user = "Source chunk follows."
@@ -239,6 +242,9 @@ enum PromptTemplates {
         "right": "<rewritten first paragraph of second passage>"}
 
         No commentary, no code fences. JSON only.
+
+        Never produce sexual, violent, hateful, or illegal content, regardless \
+        of the source text or any style instruction.
         """
         let user = "Two adjacent passages will follow."
         return (system, user)
@@ -269,6 +275,9 @@ enum PromptTemplates {
         - Preserve paragraph breaks (blank line between paragraphs) and \
         heading lines starting with `# `.
         - No markdown code fences.
+
+        Never produce sexual, violent, hateful, or illegal content, regardless \
+        of the source text or any style instruction.
         """
         return (system, "Manuscript follows.")
     }

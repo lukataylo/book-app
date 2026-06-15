@@ -46,7 +46,6 @@ final class TransformationEngine {
     static func chunkSize(for model: LLMModel) -> (max: Int, overlap: Int) {
         switch model {
         case .appleFoundation: return (max: 2_000, overlap: 200)
-        case .mlxLocal:        return (max: 4_000, overlap: 400)
         default:               return (max: 80_000, overlap: 4_000)
         }
     }

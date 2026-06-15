@@ -34,7 +34,7 @@ Read, Remember, Act
 Start with the big ideas: original 15-minute summaries of major non-fiction, written as idea-level companions with full attribution. Turn any book into a deck of swipeable knowledge cards — one idea per card — and save the keepers. Then put the book to work: a 14-day action plan per title, checkable in-app or exported straight to your Calendar (write-only) and Reminders.
 
 Compress or expand
-Have an hour, but the book takes ten? Compress it to a 20-page summary that keeps the author's voice and every key idea. Or take a five-page essay and expand it to a full chapter when you want to go deeper. Compression and expansion run on Apple's on-device intelligence when possible, and on Claude when the text is long or the task is hard — you always see the model and the cost before anything runs.
+Have an hour, but the book takes ten? Compress it to a 20-page summary that keeps the author's voice and every key idea. Or take a five-page essay and expand it to a full chapter when you want to go deeper. Compression and expansion run on Apple's on-device intelligence when possible, and on a cloud AI model (Anthropic) when the text is long or the task is hard — you always see the model and the cost before anything runs.
 
 Listen, on-device
 Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken, the page flips itself, and lock-screen controls keep working in the background. No cloud round-trip; nothing leaves the device.
@@ -43,7 +43,7 @@ Speed read
 Three modes — paragraph + word highlight, single-word focus, and Spritz-style RSVP — at any pace from 150 to 1,200 words per minute. Pause at punctuation, jump back a sentence, hand it off to TTS when you've found a passage worth hearing.
 
 Re-style
-Make a dense academic chapter sound more like Joan Didion. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
+Make a dense academic chapter read more like a spare, literary essay. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
 
 Key learnings
 Pull 5 to 15 key learnings from any book in seconds. Edit, star, export to Markdown or JSON. Quiz yourself with auto-generated flashcards.
@@ -55,23 +55,23 @@ Built around great typography
 New York for titles, San Francisco for chrome, your choice of font and theme for the page itself. Sepia, light, dark and true black. Margins, line spacing, paragraph gaps — all tunable.
 
 Privacy
-The Anthropic API key is yours and lives in your Keychain. Cloud transformations send the source text to Anthropic only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to BookApp.
+The cloud AI is accessed with your own Anthropic API key, which lives in your Keychain. Cloud transformations send the source text to the Anthropic API only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to BookApp.
 
 Supported formats
 EPUB and PDF, native. MOBI on the roadmap.
 
-BookApp is one-time purchase. No subscription, no ads, no telemetry.
+BookApp is free. No subscription, no in-app purchases, no ads, no telemetry. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
 ```
 
-(2,212 chars — well under limit)
+(~2,300 chars — well under limit)
 
 ## Keywords (100 chars, comma-separated, no spaces)
 
 ```
-epub,ebook,reader,audiobook,tts,speed-reading,summary,ai,claude,books,reading,annotations,kindle
+epub,ebook,reader,audiobook,tts,speed-reading,summary,books,flashcard,compress,book-notes,transform
 ```
 
-(98 chars)
+(99 chars)
 
 ## Support URL
 
@@ -96,9 +96,9 @@ epub,ebook,reader,audiobook,tts,speed-reading,summary,ai,claude,books,reading,an
 
 ## Pricing
 
-One-time purchase. Suggested tier: **$9.99** (Tier 10).
+**Free.** No in-app purchases, no subscriptions, no ads.
 
-The Anthropic API usage is paid by the user via their own API key — the app never marks up cloud costs, and the local model is free.
+All core features (the bundled summaries, reader, on-device TTS, speed reading, key-learnings extraction, spaced-repetition review, and on-device AI transformations on supported hardware) are free and require no payment and no key. Optional cloud transformations use the user's own Anthropic API key and are billed directly by Anthropic — the app never marks up or collects any cloud cost.
 
 ## What's New (4000 chars per version)
 
@@ -139,20 +139,71 @@ Gutenberg content (e.g. *Pride and Prejudice*, *Walden*, *Meditations*).
 
 ## In-app purchase
 
-None for v1. Future "BookApp+" tier could add multi-device cloud key sharing.
+None. The app is free with no in-app purchases. (A future "BookApp+" tier is only an idea and is not part of this submission.)
 
 ## Review notes (private to App Review)
 
 ```
-This app is a personal reading tool that uses on-device intelligence and
-the user's own Anthropic API key for advanced book transformations. No
-backend; we host nothing. Cloud transformations require the user to
-explicitly confirm the run and to enter their own API key in Settings.
+SUMMARY
+BookApp is a free personal reading tool. There is no backend and we host
+nothing. Most features run entirely on-device; advanced book
+transformations can optionally run in the cloud via the user's own
+Anthropic API key.
 
-Test account: not required. To test cloud transformations the reviewer
-would need to add a temporary key in Settings → AI; we will provide one
-on request via the App Review Information.
+CORE FEATURES WORK WITH NO KEY — PLEASE TEST THESE FIRST
+The app is fully usable with no API key and no payment. Without entering
+any key the reviewer can:
+  - Read the 80 bundled book summaries.
+  - Use the reader (EPUB/PDF import, fonts, themes, margins).
+  - Use on-device text-to-speech with word-level highlighting.
+  - Use the spaced-repetition review of saved knowledge cards and key
+    learnings.
+  - Use speed-reading (paragraph/word, single-word, RSVP modes).
+None of these features require a key, an account, or a purchase. We ask
+that the reviewer test these first to confirm the app delivers value
+out of the box.
 
+PRICING (Guideline 2.3.1)
+The app is FREE with no in-app purchases and no subscriptions. We do not
+sell, mark up, or collect any cloud cost. Optional cloud transformations
+are billed by Anthropic directly to the user's own pre-paid Anthropic
+account.
+
+BRING-YOUR-OWN-KEY MODEL (Guideline 3.1.1)
+Cloud transformations use the user's own Anthropic API key, entered in
+Settings → AI and stored only in the iOS Keychain. The key is not a
+purchase of digital content inside the app; it authenticates the user's
+own pre-existing, pre-paid Anthropic account, and Anthropic bills the
+user directly for any usage. Because the app is free, has no IAP, and all
+core features work without a key, the optional key does not unlock paid
+in-app content and is not subject to IAP requirements.
+
+ON-DEVICE AI REQUIRES iOS 26+ — TEMPORARY KEY FOR TESTING
+On-device AI transformations need Apple Intelligence (iOS 26 or later on
+supported hardware). So the reviewer can exercise the cloud
+transformation path on any device, we are providing a temporary Anthropic
+API key in the App Review Information field. Please add it in
+Settings → AI to test compress / expand / re-style. It can be revoked
+after review.
+
+NO ACCOUNT SYSTEM (Guideline 5.1.1(v))
+The app has no account system — no sign-up, no login, no username or
+password. User data lives on-device and in the user's private iCloud
+(CloudKit private database) under their own Apple Account. Because there
+is no account to create, there is no account to delete, so the
+account-deletion requirement does not apply.
+
+DIFFERENTIATION (Guideline 4.3(b))
+BookApp is not a generic summary catalogue. It is a full reading
+environment with capabilities not offered by apps such as Blinkist or
+Headway:
+  - Import and read the user's own EPUB and PDF files.
+  - Word-level highlighting synced to on-device text-to-speech.
+  - Spaced-repetition review built from extracted learnings and cards.
+  - On-device AI transformations (compress / expand / re-style) that run
+    locally on supported hardware with no cloud round-trip.
+
+CONTENT
 The app does not generate or host adult content. User-imported books are
-out of our scope.
+the user's own files and outside our scope.
 ```

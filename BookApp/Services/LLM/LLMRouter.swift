@@ -25,24 +25,24 @@ final actor LLMRouter {
     func plan(for task: LLMTask, sourceTokens: Int) -> [LLMModel] {
         switch task {
         case .categoryTagging, .keyLearningsExtraction, .quizGeneration, .shortSummary:
-            return [.appleFoundation, .mlxLocal, .claudeHaiku4_5]
+            return [.appleFoundation, .claudeHaiku4_5]
         case .knowledgeCards, .actionPlan:
             // Structured-JSON output benefits from a stronger cloud fallback
             // than Haiku, but the local-first policy still applies.
-            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeHaiku4_5]
+            return [.appleFoundation, .claudeSonnet4_6, .claudeHaiku4_5]
         case .compression:
-            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
+            return [.appleFoundation, .claudeSonnet4_6, .claudeOpus4_7]
         case .expansion(let ratio):
-            if ratio >= 3.0 { return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6] }
-            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
+            if ratio >= 3.0 { return [.appleFoundation, .claudeOpus4_7, .claudeSonnet4_6] }
+            return [.appleFoundation, .claudeSonnet4_6, .claudeOpus4_7]
         case .styleTransfer:
-            return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6]
+            return [.appleFoundation, .claudeOpus4_7, .claudeSonnet4_6]
         case .themeOmission:
-            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeOpus4_7]
+            return [.appleFoundation, .claudeSonnet4_6, .claudeOpus4_7]
         case .combined:
-            return [.appleFoundation, .mlxLocal, .claudeOpus4_7, .claudeSonnet4_6]
+            return [.appleFoundation, .claudeOpus4_7, .claudeSonnet4_6]
         case .chatWithBook:
-            return [.appleFoundation, .mlxLocal, .claudeSonnet4_6, .claudeHaiku4_5]
+            return [.appleFoundation, .claudeSonnet4_6, .claudeHaiku4_5]
         }
     }
 

@@ -23,7 +23,6 @@ enum LLMProviderID: String, Sendable, Codable {
 
 enum LLMModel: String, Sendable, Codable {
     case appleFoundation     = "apple-foundation"
-    case mlxLocal            = "mlx-local"
     case claudeSonnet4_6     = "claude-sonnet-4-6"
     case claudeOpus4_7       = "claude-opus-4-7"
     case claudeHaiku4_5      = "claude-haiku-4-5-20251001"
@@ -31,7 +30,6 @@ enum LLMModel: String, Sendable, Codable {
     var displayName: String {
         switch self {
         case .appleFoundation: return "Apple Foundation Models"
-        case .mlxLocal:        return "MLX (on-device)"
         case .claudeSonnet4_6: return "Claude Sonnet 4.6"
         case .claudeOpus4_7:   return "Claude Opus 4.7"
         case .claudeHaiku4_5:  return "Claude Haiku 4.5"
@@ -41,7 +39,6 @@ enum LLMModel: String, Sendable, Codable {
     var providerID: LLMProviderID {
         switch self {
         case .appleFoundation: return .foundationModels
-        case .mlxLocal:        return .mlx
         default:               return .anthropic
         }
     }
@@ -50,7 +47,7 @@ enum LLMModel: String, Sendable, Codable {
     /// Used only for cost estimates; cloud spend is recorded from API responses.
     var price: (inputPerM: Double, outputPerM: Double) {
         switch self {
-        case .appleFoundation, .mlxLocal: return (0, 0)
+        case .appleFoundation:            return (0, 0)
         case .claudeHaiku4_5:             return (1.0, 5.0)
         case .claudeSonnet4_6:            return (3.0, 15.0)
         case .claudeOpus4_7:              return (15.0, 75.0)

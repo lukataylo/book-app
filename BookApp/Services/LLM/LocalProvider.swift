@@ -4,30 +4,22 @@ import Foundation
 import FoundationModels
 #endif
 
-/// On-device LLM provider. Tries Apple's `FoundationModels` framework first
-/// (free, private, available on Apple Intelligence devices since iOS 18.1),
-/// and falls back to MLX-Swift on older hardware.
-///
-/// MLX integration is gated behind `canImport(MLXLLM)` so the project still
-/// builds before the package is fetched. When MLX is available we initialise
-/// a small instruct model on first use and reuse it for the actor's lifetime.
+/// On-device LLM provider backed by Apple's `FoundationModels` framework
+/// (free, private, available on Apple Intelligence devices since iOS 26).
+/// When the framework or model isn't available the router falls through to
+/// the cloud provider.
 final actor LocalProvider: LLMProvider {
     let id: LLMProviderID = .foundationModels
 
     private var foundationReady: Bool?
-    private var mlxReady: Bool = false
 
     func isAvailable() async -> Bool {
-        if await foundationModelsAvailable() { return true }
-        return await mlxAvailable()
+        await foundationModelsAvailable()
     }
 
     func complete(_ request: LLMRequest) async throws -> LLMResponse {
         if await foundationModelsAvailable() {
             return try await runFoundationModels(request)
-        }
-        if await mlxAvailable() {
-            return try await runMLX(request)
         }
         throw LLMError.noProviderAvailable
     }
@@ -136,35 +128,5 @@ final actor LocalProvider: LLMProvider {
         }
         #endif
         throw LLMError.providerUnavailable("FoundationModels")
-    }
-
-    // MARK: - MLX fallback
-
-    private func mlxAvailable() async -> Bool {
-        if mlxReady { return true }
-        #if canImport(MLXLLM)
-        // MLX requires Apple Silicon. Don't attempt on non-arm64 simulators.
-        #if arch(arm64)
-        mlxReady = true
-        return true
-        #else
-        return false
-        #endif
-        #else
-        return false
-        #endif
-    }
-
-    private func runMLX(_ request: LLMRequest) async throws -> LLMResponse {
-        #if canImport(MLXLLM) && arch(arm64)
-        // Real implementation will load an MLX-distributed instruct model
-        // (e.g. Llama-3.2-3B-Instruct-4bit) on first use and stream completions.
-        // The full wiring is intentionally omitted from this scaffold; callers
-        // currently fall through to the cloud provider when FoundationModels
-        // isn't available. See README → "Local LLM" for the model-fetching plan.
-        throw LLMError.providerUnavailable("MLX wiring not yet implemented")
-        #else
-        throw LLMError.providerUnavailable("MLX")
-        #endif
     }
 }

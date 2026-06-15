@@ -23,7 +23,7 @@ struct OnboardingView: View {
         Panel(
             symbol: "wand.and.stars",
             title: "Elastic length, on-device",
-            blurb: "Compress a 400-page book to 20, or expand five pages to fifty, with Apple Intelligence. No key needed for short transforms; add a Claude key for deep restyles.",
+            blurb: "Compress a 400-page book to 20, or expand five pages to fifty. On-device AI handles short transforms on the latest iPhones; add your own Anthropic key for the rest.",
             tone: .accent
         ),
         Panel(

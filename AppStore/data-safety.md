@@ -8,24 +8,33 @@ Use these when filling out the Privacy section in App Store Connect.
 
 **No** — for everything BookApp itself handles.
 
-The Anthropic API requests (which you initiate explicitly) are governed by
-Anthropic's own data policy. App Store Connect treats those as third-party
-collection only if BookApp passes user-identifying data; we don't pass any
-identifier (no name, email, account, advertising ID). The text content of
-the book you choose to transform is sent under your own API key. Declare
-this honestly:
+The requests to **Anthropic** (which you initiate explicitly) are governed
+by Anthropic's own data policy. App Store Connect treats those as
+third-party collection only if BookApp passes user-identifying data; we
+don't pass any identifier (no name, email, account, advertising ID). What
+is sent under your own API key is (a) the book / source text you choose to
+transform, and (b) the explanation you type during teach-back grading when
+on-device AI is unavailable. The app does not store either, and there is no
+account. Declare this honestly:
 
 | Data type | Linked to user? | Used for tracking? | Purpose |
 |---|---|---|---|
-| User content (book text you transform) | No | No | App functionality (the transformation you requested) |
+| User content (book/source text you transform, and teach-back text when graded in the cloud) | No | No | App functionality (the transformation or grading you requested) |
 
 Set everything else to "Data not collected".
+
+### Data shared with third parties
+
+**Anthropic — User Content — App Functionality — not linked to identity,
+not used for tracking.** Sent only with the user's own Anthropic API key,
+only on explicit confirmation, and never stored by the app.
 
 ## Privacy practices summary (the nutrition-label result)
 
 - **Data Not Collected** by BookApp.
-- **Data Not Linked to You**: User content (book text passed to Anthropic when you choose).
-- No tracking.
+- **Data Not Linked to You**: User content (book/source text, and teach-back grading text, passed to Anthropic when you choose).
+- **Third party**: Anthropic only, under the user's own API key, not stored by the app.
+- No tracking. No account.
 
 ## App Privacy Details — long form
 
@@ -42,9 +51,11 @@ Set everything else to "Data not collected".
 
 ### What data leaves the device?
 
-- Only the prompt + source text for a cloud transformation, sent directly
-  to `api.anthropic.com` under the user's API key. The user must confirm
-  each cloud run.
+- Only the prompt + source text for a cloud transformation, and the user's
+  typed explanation during teach-back grading when on-device AI is
+  unavailable, sent directly to `api.anthropic.com` under the user's API
+  key. The user must confirm each cloud run. The app does not store this
+  data.
 - iCloud sync for metadata + transformation outputs to the user's private
   CloudKit database.
 

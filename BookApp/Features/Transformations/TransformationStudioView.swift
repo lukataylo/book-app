@@ -53,6 +53,10 @@ struct TransformationStudioView: View {
     @State private var localAvailable: Bool = false
     /// Holds the active run task so Cancel can stop a long on-device run.
     @State private var runTask: Task<Void, Never>?
+    /// Drives the one-time cloud-consent gate (Guideline 5.1.2(i)). Set when
+    /// the resolved model is an Anthropic cloud model and consent hasn't yet
+    /// been granted; clearing it via "Allow" records consent and runs.
+    @State private var showCloudConsent: Bool = false
 
     @FocusState private var styleFieldFocused: Bool
 
@@ -115,6 +119,15 @@ struct TransformationStudioView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(errorText ?? "")
+        }
+        .alert("Send this book to Anthropic?", isPresented: $showCloudConsent) {
+            Button("Cancel", role: .cancel) {}
+            Button("Allow") {
+                CloudConsent.grant()
+                beginRun()
+            }
+        } message: {
+            Text("To perform this cloud transformation, the source text of this book will be sent to Anthropic (api.anthropic.com), using your own Anthropic API key. Local, on-device transformations never leave your device. You'll only be asked once.")
         }
         .task {
             // Detect Apple Intelligence availability before chunking so the
@@ -650,7 +663,24 @@ struct TransformationStudioView: View {
         return "\(n)"
     }
 
+    /// The model the engine will actually use for this run — mirrors the
+    /// estimate's routing so the consent gate keys off the real provider.
+    private var resolvedModel: LLMModel {
+        transformRequest.modelOverride ?? defaultModelLocal(for: transformRequest)
+    }
+
     private func startRun() {
+        // Guideline 5.1.2(i): name the third party and get explicit consent
+        // before any book text is transmitted. Cloud (Anthropic) runs only;
+        // on-device transforms never trigger the gate.
+        if resolvedModel.providerID == .anthropic, !CloudConsent.granted {
+            showCloudConsent = true
+            return
+        }
+        beginRun()
+    }
+
+    private func beginRun() {
         runTask?.cancel()
         runTask = Task { @MainActor in
             await run()

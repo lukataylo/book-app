@@ -36,6 +36,17 @@ struct ReviewSessionView: View {
     @State private var teachBackText = ""
     @State private var grading = false
     @State private var teachBackFeedback: String?
+    // Cloud-consent gate (Guideline 5.1.2(i)): teach-back grading can fall
+    // through to Anthropic when on-device AI is unavailable, so the typed
+    // explanation must not leave the device without explicit one-time consent.
+    @State private var showCloudConsent = false
+    @State private var pendingTeachBackCard: KeyLearning?
+    /// Drives the one-time cloud-consent gate for teach-back grading
+    /// (Guideline 5.1.2(i)). The grader can fall through to Anthropic when
+    /// on-device grading is unavailable, so the typed explanation is gated.
+    @State private var showGradeConsent = false
+    /// The card awaiting grading once consent is granted.
+    @State private var pendingGradeCard: KeyLearning?
 
     var body: some View {
         ZStack {
@@ -45,6 +56,18 @@ struct ReviewSessionView: View {
         .navigationTitle("Daily Review")
         .navigationBarTitleDisplayMode(.inline)
         .task { if !loaded { start() } }
+        .alert("Grade with Anthropic?", isPresented: $showCloudConsent) {
+            Button("Cancel", role: .cancel) { pendingTeachBackCard = nil }
+            Button("Allow") {
+                CloudConsent.grant()
+                if let card = pendingTeachBackCard {
+                    pendingTeachBackCard = nil
+                    Task { await gradeTeachBack(card) }
+                }
+            }
+        } message: {
+            Text("If your device can't grade on-device, your typed explanation is sent to Anthropic (api.anthropic.com) using your own API key to score it. You'll only be asked once.")
+        }
     }
 
     @ViewBuilder
@@ -121,7 +144,12 @@ struct ReviewSessionView: View {
                 }
                 .buttonStyle(.bordered)
                 Button {
-                    Task { await gradeTeachBack(card) }
+                    if CloudConsent.granted {
+                        Task { await gradeTeachBack(card) }
+                    } else {
+                        pendingTeachBackCard = card
+                        showCloudConsent = true
+                    }
                 } label: {
                     Group {
                         if grading { ProgressView() } else { Text("Check my answer") }
