@@ -48,6 +48,9 @@ struct RootTabView: View {
             // who installed before v11 see a populated Bookmarks tab on
             // upgrade. Idempotent.
             AnnotationBackfill.runIfNeeded(modelContext: modelContext)
+            // Assign designed-cover slugs to the seed classics for users who
+            // installed before vector covers shipped. Idempotent.
+            CoverArtBackfill.runIfNeeded(modelContext: modelContext)
             // Move legacy in-row blobs (Book.coverData,
             // BookVariant.contentText) onto disk. Idempotent, gated by
             // its own UserDefaults flag.

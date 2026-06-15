@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// First-launch walkthrough. Shown by `BookAppApp` when
-/// `UserDefaults["Onboarding.completed-v1"]` is false. Three swipeable panels
-/// covering: import → AI elastic length / style → audio + speed reading.
+/// `UserDefaults["Onboarding.completed-v1"]` is false. Four swipeable panels
+/// covering: import → AI elastic length / style → spaced-repetition review →
+/// audio + speed reading.
 /// Dismissing the last panel writes the flag so it never appears again on
 /// this device. (Restoring iCloud state on a fresh install can re-trigger
 /// this — that's intentional, since the app's affordances change enough
@@ -23,6 +24,12 @@ struct OnboardingView: View {
             title: "Elastic length, on-device",
             blurb: "Compress a 400-page book to 20 — or expand five pages to fifty — using Apple Intelligence. Zero API key needed for short transforms; bring a Claude key for the deep restyles.",
             tone: .accent
+        ),
+        Panel(
+            symbol: "brain.head.profile",
+            title: "Remember what you read",
+            blurb: "Turn the ideas you keep into spaced-repetition cards. A quick daily review brings each one back right before you'd forget it.",
+            tone: .ink
         ),
         Panel(
             symbol: "headphones",

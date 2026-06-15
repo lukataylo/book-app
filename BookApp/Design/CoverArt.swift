@@ -38,14 +38,13 @@ enum CoverArt {
     /// or `nil` when none ships — callers then fall back to the generated
     /// Idea-Glyph cover. The SVGs are authored at a true 2:3 ratio, so they
     /// fill the 2:3 card frame exactly and never crop.
+    ///
+    /// `artSlug` is only ever set (by the loaders / backfill) for books whose
+    /// cover actually ships in the catalog, so we trust it rather than probing
+    /// `UIImage(named:)` on every render — that lookup, repeated per card per
+    /// body pass across an 80-book shelf, was real main-thread overhead.
     static func designedAssetName(for book: Book) -> String? {
-        guard !book.artSlug.isEmpty else { return nil }
-        let name = "cover-\(book.artSlug)"
-        #if canImport(UIKit)
-        return UIImage(named: name) != nil ? name : nil
-        #else
-        return nil
-        #endif
+        book.artSlug.isEmpty ? nil : "cover-\(book.artSlug)"
     }
 
     /// Stable seed for per-title variation. `hashValue` is randomized per

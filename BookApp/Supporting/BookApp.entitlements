@@ -27,9 +27,5 @@
     <true/>
     <key>com.apple.security.network.client</key>
     <true/>
-    <key>com.apple.security.assets.movies.read-only</key>
-    <false/>
-    <key>com.apple.security.personal-information.audio</key>
-    <true/>
 </dict>
 </plist>

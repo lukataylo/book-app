@@ -62,49 +62,24 @@ struct BookCardView: View {
                 .frame(width: width, alignment: .leading)
             }
         }
+        // One spoken element per card — the cover art is decorative
+        // (hidden in BookCoverView), so VoiceOver reads a single clean label
+        // instead of the title twice plus an asset filename.
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
     }
 
-    @ViewBuilder
-    private var cover: some View {
-        #if canImport(UIKit)
-        if let asset = CoverArt.designedAssetName(for: book) {
-            // Designed vector cover (Covers.xcassets). Authored at 2:3, so
-            // `.fill` into the 2:3 frame fills edge-to-edge without cropping.
-            Image(asset)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } else if !book.coverFilename.isEmpty {
-            // New disk-backed path (set by ImportService /
-            // SeedBooksLoader / BlobMigration).
-            let url = BookStore.shared.coverURL(bookID: book.id)
-            CachedCoverImage(bookID: book.id, source: .file(url)) {
-                generatedCover
-            }
-        } else if let data = book.coverData {
-            CachedCoverImage(bookID: book.id, source: .data(data)) {
-                generatedCover
-            }
-        } else {
-            generatedCover
+    private var accessibilityLabel: String {
+        var parts = [book.title]
+        if !book.author.isEmpty { parts.append("by \(book.author)") }
+        if book.isSummaryEdition, book.readMinutesEstimate > 0 {
+            parts.append("3 to \(book.readMinutesEstimate) minute read")
         }
-        #else
-        if let data = book.coverImageData(),
-           let image = Self.platformImage(from: data) {
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } else {
-            generatedCover
-        }
-        #endif
+        if progress > 0.01 { parts.append("\(Int((progress * 100).rounded())) percent read") }
+        return parts.joined(separator: ", ")
     }
 
-    private var generatedCover: some View {
-        // Idea Glyphs cover system (Design/CoverArt.swift) — warm paper,
-        // category glyph, color foot bar. Chosen from the three mockups
-        // in research/cover-art (approach B).
-        GeneratedCoverView(book: book)
-    }
+    private var cover: some View { BookCoverView(book: book) }
 
     /// Platform-aware image decoder used by both compact and grid layouts.
     /// Static so we don't capture `self` in the call site.

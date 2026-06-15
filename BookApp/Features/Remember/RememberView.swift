@@ -87,8 +87,8 @@ struct RememberView: View {
     /// due cards sit right above the decks they came from.
     private var reviewBanner: some View {
         let store = MemoryStore(context: modelContext)
-        let dueCount = store.dueToday(dailyLimit: 20).count
-        let waiting = store.waitingCount(dailyLimit: 20)
+        let (due, waiting) = store.dueAndWaiting(dailyLimit: 20)
+        let dueCount = due.count
         let subtitle: String
         if dueCount > 0 {
             subtitle = waiting > 0

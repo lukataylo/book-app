@@ -60,6 +60,18 @@ struct MemoryStore {
         ReviewQueue.waiting(from: fetchScheduled().map(projection), now: now(), dailyLimit: dailyLimit)
     }
 
+    /// Today's queue and the held-back count from a SINGLE fetch — used by the
+    /// Remember banner, which re-renders per search keystroke, so two separate
+    /// fetch+sort passes there were measurable overhead.
+    func dueAndWaiting(dailyLimit: Int) -> (due: [KeyLearning], waiting: Int) {
+        let scheduled = fetchScheduled()
+        let items = scheduled.map(projection)
+        let byID = Dictionary(uniqueKeysWithValues: scheduled.map { ($0.id, $0) })
+        let queue = ReviewQueue.dailyQueue(from: items, now: now(), dailyLimit: dailyLimit)
+        let waiting = ReviewQueue.waiting(from: items, now: now(), dailyLimit: dailyLimit)
+        return (queue.compactMap { byID[$0.id] }, waiting)
+    }
+
     /// Apply a grade to a Memory: advance the scheduler, log the review, update
     /// the session, and auto-suspend the card if it just became a leech.
     @discardableResult

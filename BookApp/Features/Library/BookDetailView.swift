@@ -117,32 +117,13 @@ struct BookDetailView: View {
         }
     }
 
-    @ViewBuilder
     private var cover: some View {
-        if let asset = CoverArt.designedAssetName(for: book) {
-            // Designed vector cover — authored at 2:3, framed at 2:3, so it
-            // fills without cropping (preferred over any imported jacket).
-            Image(asset)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 110, height: 165)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
-                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
-        } else if let data = book.coverImageData(),
-           let image = BookCardView.platformImage(from: data) {
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 110, height: 160)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
-                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
-        } else {
-            // Idea Glyphs generated cover (Design/CoverArt.swift).
-            GeneratedCoverView(book: book)
-                .frame(width: 110, height: 160)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
-                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
-        }
+        // Unified cover (same resolution + off-thread cache as the shelf),
+        // framed at a true 2:3 so designed covers fill without cropping.
+        BookCoverView(book: book)
+            .frame(width: 110, height: 165)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
+            .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
     }
 
     private var categoryRow: [String] { book.categoryTags + book.detectedThemes.prefix(3) }

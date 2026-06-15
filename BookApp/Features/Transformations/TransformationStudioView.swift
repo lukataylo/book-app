@@ -701,7 +701,6 @@ private struct SectionCard<Content: View>: View {
     let title: String
     let subtitle: String
     @Binding var isOn: Bool
-    var disabled: Bool = false
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -720,9 +719,8 @@ private struct SectionCard<Content: View>: View {
                 Toggle("", isOn: $isOn)
                     .labelsHidden()
                     .tint(Theme.Palette.accent)
-                    .disabled(disabled)
             }
-            if isOn && !disabled {
+            if isOn {
                 content()
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -730,7 +728,6 @@ private struct SectionCard<Content: View>: View {
         .padding(14)
         .background(Theme.Palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .opacity(disabled ? 0.5 : 1)
         .animation(.easeInOut(duration: 0.18), value: isOn)
     }
 }

@@ -27,6 +27,16 @@
                 <string>CA92.1</string>
             </array>
         </dict>
+        <!-- File Timestamp: MetricsLog reads .contentModificationDateKey to
+             order/age diagnostic log files. App-private, never sent off device. -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string>
+            </array>
+        </dict>
     </array>
 </dict>
 </plist>
