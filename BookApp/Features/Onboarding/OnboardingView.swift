@@ -11,6 +11,7 @@ import SwiftUI
 struct OnboardingView: View {
     let onFinish: () -> Void
     @State private var page: Int = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let pages: [Panel] = [
         Panel(
@@ -62,13 +63,13 @@ struct OnboardingView: View {
                     .padding(.bottom, 20)
 
                 Button("Skip") { complete() }
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .padding(.bottom, 28)
                     .opacity(page == pages.count - 1 ? 0 : 1)
             }
         }
-        .animation(.smooth(duration: 0.45), value: page)
+        .animation(reduceMotion ? nil : .smooth(duration: 0.45), value: page)
     }
 
     @ViewBuilder
@@ -82,12 +83,12 @@ struct OnboardingView: View {
                 .padding(.bottom, 12)
 
             Text(panel.title)
-                .font(.system(size: 30, weight: .semibold, design: .serif))
+                .font(.system(.title, design: .serif, weight: .semibold))
                 .foregroundStyle(panel.tone == .accent ? Color.white : Theme.Palette.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text(panel.blurb)
-                .font(.system(size: 16))
+                .font(.system(.body))
                 .foregroundStyle(panel.tone == .accent ? Color.white.opacity(0.85) : Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
@@ -105,7 +106,7 @@ struct OnboardingView: View {
                           ? (pages[page].tone == .accent ? Color.white : Theme.Palette.textPrimary)
                           : (pages[page].tone == .accent ? Color.white.opacity(0.35) : Theme.Palette.textSecondary.opacity(0.35)))
                     .frame(width: i == page ? 22 : 7, height: 7)
-                    .animation(.smooth(duration: 0.35), value: page)
+                    .animation(reduceMotion ? nil : .smooth(duration: 0.35), value: page)
             }
         }
     }
@@ -119,7 +120,7 @@ struct OnboardingView: View {
             }
         } label: {
             Text(page < pages.count - 1 ? "Next" : "Start reading")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(.callout, weight: .semibold))
                 .foregroundStyle(pages[page].tone == .accent ? Theme.Palette.accent : Color.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)

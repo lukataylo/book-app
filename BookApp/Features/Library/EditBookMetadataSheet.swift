@@ -18,7 +18,7 @@ struct EditBookMetadataSheet: View {
             Form {
                 Section("Title & author") {
                     TextField("Title", text: $book.title)
-                        .font(.system(size: 16, weight: .semibold, design: .serif))
+                        .font(.system(.callout, design: .serif, weight: .semibold))
                     TextField("Author", text: $book.author)
                 }
 

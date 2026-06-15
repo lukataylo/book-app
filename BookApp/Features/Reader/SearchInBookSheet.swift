@@ -15,7 +15,7 @@ struct SearchInBookSheet: View {
             VStack(alignment: .leading, spacing: 0) {
                 if !query.isEmpty {
                     Text(matchCountSummary)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(.caption, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .padding(.horizontal, 18)
                         .padding(.top, 6)
@@ -29,12 +29,12 @@ struct SearchInBookSheet: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(highlightedSnippet(for: match))
-                                    .font(.system(size: 14))
+                                    .font(.system(.subheadline))
                                     .foregroundStyle(Theme.Palette.textPrimary)
                                     .lineLimit(3)
                                 Text(String(localized: "Paragraph \(match.paragraphIndex + 1)",
                                             comment: "Search result row — paragraph index"))
-                                    .font(.system(size: 11, design: .monospaced))
+                                    .font(.system(.caption2, design: .monospaced))
                                     .foregroundStyle(Theme.Palette.textSecondary)
                             }
                             .padding(.vertical, 4)
@@ -103,7 +103,7 @@ struct SearchInBookSheet: View {
 
         var attr = AttributedString(prefix + String(window) + suffix)
         if let attrRange = attr.range(of: String(body[match.range])) {
-            attr[attrRange].font = .system(size: 14, weight: .semibold)
+            attr[attrRange].font = .system(.subheadline, weight: .semibold)
             attr[attrRange].backgroundColor = Theme.Palette.textPrimary.opacity(0.08)
         }
         return attr

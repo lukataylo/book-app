@@ -64,16 +64,16 @@ struct MarkingsSheet: View {
                             .fill(Color(hex: ann.color.hex))
                             .frame(width: 8, height: 8)
                         Text(ann.createdAt.formatted(.relative(presentation: .named)))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(.caption2, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
                     Text(ann.quotedText)
-                        .font(.system(size: 14, design: .serif))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(5)
                     if !ann.note.isEmpty {
                         Text(ann.note)
-                            .font(.system(size: 12))
+                            .font(.system(.caption))
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
                 }
@@ -104,16 +104,16 @@ struct MarkingsSheet: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Text(bm.label.isEmpty ? "Paragraph \(bm.paragraphIndex + 1)" : bm.label)
-                                .font(.system(size: 14, weight: .semibold, design: .serif))
+                                .font(.system(.subheadline, design: .serif, weight: .semibold))
                                 .foregroundStyle(Theme.Palette.textPrimary)
                             Spacer()
                             Text(bm.createdAt.formatted(.relative(presentation: .named)))
-                                .font(.system(size: 11))
+                                .font(.system(.caption2))
                                 .foregroundStyle(Theme.Palette.textSecondary)
                         }
                         if !bm.snippet.isEmpty {
                             Text(bm.snippet)
-                                .font(.system(size: 13))
+                                .font(.system(.footnote))
                                 .foregroundStyle(Theme.Palette.textSecondary)
                                 .lineLimit(2)
                         }
@@ -137,7 +137,7 @@ struct MarkingsSheet: View {
     @ViewBuilder
     private func placeholder(_ message: String) -> some View {
         Text(message)
-            .font(.system(size: 13))
+            .font(.system(.footnote))
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)

@@ -31,17 +31,17 @@ struct ChapterListSheet: View {
                         } label: {
                             HStack(alignment: .firstTextBaseline) {
                                 Text("\(idx + 1)")
-                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                    .font(.system(.footnote, design: .monospaced, weight: .medium))
                                     .foregroundStyle(Theme.Palette.textSecondary)
                                     .frame(width: 28, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(chapter.title)
-                                        .font(.system(size: 16, weight: .semibold, design: .serif))
+                                        .font(.system(.callout, design: .serif, weight: .semibold))
                                         .foregroundStyle(Theme.Palette.textPrimary)
                                         .lineLimit(2)
                                     if isCurrent(chapter) {
                                         Text("Reading now")
-                                            .font(.system(size: 11, weight: .medium))
+                                            .font(.system(.caption2, weight: .medium))
                                             .foregroundStyle(Theme.Palette.accent)
                                     }
                                 }

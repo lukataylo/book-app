@@ -65,7 +65,7 @@ private struct ContainerErrorView: View {
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary)
             Text("Couldn't start BookApp")
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(message)
                 .font(.body)

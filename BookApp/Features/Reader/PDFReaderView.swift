@@ -56,12 +56,12 @@ struct PDFReaderView: View {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 1) {
                     Text(book.title)
-                        .font(.system(size: 14, weight: .semibold, design: .serif))
+                        .font(.system(.subheadline, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(1)
                     if pageCount > 0 {
                         Text("Page \(currentPage + 1) of \(pageCount)")
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .font(.system(.caption2, design: .monospaced, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
                 }
@@ -173,10 +173,10 @@ struct PDFReaderView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary)
             Text("Can't open this PDF")
-                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(message)
-                .font(.system(size: 14))
+                .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
