@@ -7,10 +7,12 @@ import SwiftData
 struct RememberView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Book.title) private var books: [Book]
+    @Query(filter: #Predicate<KeyLearning> { $0.isSuspended }) private var suspended: [KeyLearning]
 
     @State private var selectedBook: Book?
     @State private var generatingBookID: UUID?
     @State private var errorText: String?
+    @State private var enrolledMessage: String?
     @State private var query = ""
 
     private func applyQuery(_ list: [Book]) -> [Book] {
@@ -38,6 +40,7 @@ struct RememberView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
                     header
                     reviewBanner
+                    if !suspended.isEmpty { suspendedLink }
                     if decks.isEmpty && candidates.isEmpty {
                         if query.isEmpty {
                             emptyState
@@ -68,6 +71,14 @@ struct RememberView: View {
             } message: {
                 Text(errorText ?? "")
             }
+            .alert("Daily Review", isPresented: Binding(
+                get: { enrolledMessage != nil },
+                set: { if !$0 { enrolledMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(enrolledMessage ?? "")
+            }
         }
     }
 
@@ -87,15 +98,17 @@ struct RememberView: View {
     /// due cards sit right above the decks they came from.
     private var reviewBanner: some View {
         let store = MemoryStore(context: modelContext)
-        let (due, waiting) = store.dueAndWaiting(dailyLimit: 20)
+        let streakState = store.streakState()
+        let (due, waiting) = store.dueAndWaiting(dailyLimit: streakState.dailyLimit)
         let dueCount = due.count
+        let streak = streakState.currentStreak
         let subtitle: String
         if dueCount > 0 {
             subtitle = waiting > 0
                 ? "\(dueCount) due now · \(waiting) waiting"
                 : "\(dueCount) due now"
         } else {
-            subtitle = "Add saved ideas to start a review"
+            subtitle = "Save cards from a deck to start reviewing"
         }
         return NavigationLink {
             ReviewSessionView()
@@ -114,6 +127,13 @@ struct RememberView: View {
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
                 Spacer()
+                if streak > 0 {
+                    Label("\(streak)", systemImage: "flame.fill")
+                        .font(.system(.caption, weight: .semibold))
+                        .foregroundStyle(.orange)
+                        .labelStyle(.titleAndIcon)
+                        .accessibilityLabel("\(streak) day streak")
+                }
                 if dueCount > 0 {
                     Text("\(dueCount)")
                         .font(.system(.headline, weight: .bold))
@@ -133,6 +153,32 @@ struct RememberView: View {
         .buttonStyle(.plain)
     }
 
+    /// Surfaced only when the scheduler has set cards aside for repeated
+    /// failure — a quiet entry to the leech-reinstate screen.
+    private var suspendedLink: some View {
+        NavigationLink {
+            SuspendedCardsView()
+        } label: {
+            HStack(spacing: Theme.Spacing.m) {
+                Image(systemName: "exclamationmark.arrow.circlepath")
+                    .font(.system(.subheadline, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                    .frame(width: 30)
+                Text("\(suspended.count) stuck card\(suspended.count == 1 ? "" : "s") to revisit")
+                    .font(.system(.subheadline))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(.footnote, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+            }
+            .padding(.horizontal, Theme.Spacing.m)
+            .padding(.vertical, Theme.Spacing.s)
+            .glassCard(cornerRadius: Theme.Radius.m)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func deckGrid(_ decks: [Book]) -> some View {
         LazyVGrid(
             columns: [GridItem(.adaptive(minimum: 160), spacing: Theme.Spacing.m)],
@@ -143,6 +189,16 @@ struct RememberView: View {
                     deckTile(book)
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        let added = MemoryStore(context: modelContext).enroll(book: book)
+                        enrolledMessage = added > 0
+                            ? "Added \(added) card\(added == 1 ? "" : "s") to Daily Review."
+                            : "All of this deck's cards are already in review."
+                    } label: {
+                        Label("Add all to Daily Review", systemImage: "brain.head.profile")
+                    }
+                }
             }
         }
     }

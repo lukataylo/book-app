@@ -45,6 +45,90 @@ struct MemoryStore {
         try? context.save()
     }
 
+    // MARK: - Enrolling knowledge cards
+
+    /// Enroll a knowledge card into the review deck as a real recall card:
+    /// the card's punchy title is the prompt, its body is the answer to
+    /// self-check against. Stored as a `.cloze` so the review UI hides the
+    /// answer until "Show idea". Idempotent per card (tracked via
+    /// `sourceSummaryID`), so saving the same card twice never duplicates.
+    @discardableResult
+    func enroll(card: KnowledgeCard) -> Bool {
+        let cardID = card.id
+        var probe = FetchDescriptor<KeyLearning>(predicate: #Predicate { $0.sourceSummaryID == cardID })
+        probe.fetchLimit = 1
+        if let found = try? context.fetch(probe), !found.isEmpty { return false }
+
+        let learning = KeyLearning(book: card.book, text: card.body)
+        learning.front = card.title
+        learning.back = card.body
+        learning.sourceSummaryID = card.id
+        learning.cardKind = .cloze
+        learning.isScheduled = true
+        learning.dueAt = now()
+        context.insert(learning)
+        try? context.save()
+        return true
+    }
+
+    /// Enroll every knowledge card of a book. Returns how many were newly added.
+    @discardableResult
+    func enroll(book: Book) -> Int {
+        var added = 0
+        for card in (book.knowledgeCards ?? []) where enroll(card: card) { added += 1 }
+        return added
+    }
+
+    /// Enroll every knowledge card the user has saved, across the catalog.
+    /// This is what "Add my saved ideas" means — the cards they kept, not a
+    /// blind dump of every extracted learning.
+    @discardableResult
+    func enrollSavedCards() -> Int {
+        let saved = (try? context.fetch(FetchDescriptor<KnowledgeCard>(predicate: #Predicate { $0.saved }))) ?? []
+        var added = 0
+        for card in saved where enroll(card: card) { added += 1 }
+        return added
+    }
+
+    // MARK: - Streak / preferences
+
+    /// The single streak/preferences record, created on first access.
+    func streakState() -> StreakState {
+        if let existing = try? context.fetch(FetchDescriptor<StreakState>()), let first = existing.first {
+            return first
+        }
+        let state = StreakState()
+        context.insert(state)
+        try? context.save()
+        return state
+    }
+
+    /// Record that the user reviewed today and advance the streak.
+    func registerStreakActivity() {
+        let state = streakState()
+        state.registerActivity(on: calendar.startOfDay(for: now()), calendar: calendar)
+        try? context.save()
+    }
+
+    // MARK: - Leeches
+
+    /// Cards auto-suspended for repeated failure, for the reinstate screen.
+    func suspendedCards() -> [KeyLearning] {
+        (try? context.fetch(FetchDescriptor<KeyLearning>(predicate: #Predicate { $0.isSuspended }))) ?? []
+    }
+
+    /// Re-space overdue cards forward at the daily cap so a returning user is
+    /// met with a sane queue instead of a wall (spec §3). Call when a review
+    /// session begins.
+    func meterOverdueCards(dailyLimit: Int) {
+        let scheduled = fetchScheduled()
+        guard !scheduled.isEmpty else { return }
+        let byID = Dictionary(uniqueKeysWithValues: scheduled.map { ($0.id, $0) })
+        let metered = ReviewQueue.meterOverdue(scheduled.map(projection), now: now(), dailyLimit: dailyLimit, calendar: calendar)
+        for (id, newDue) in metered { byID[id]?.dueAt = newDue }
+        try? context.save()
+    }
+
     // MARK: - Reviewing
 
     /// Today's review queue: due, ordered, capped at `dailyLimit`.

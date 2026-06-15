@@ -112,7 +112,7 @@ struct CardDeckView: View {
                 .font(.system(.title, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(savedCount > 0
-                 ? "You kept \(savedCount) of \(cards.count) ideas — they're waiting in Saved."
+                 ? "You kept \(savedCount) of \(cards.count) ideas — they're in Saved and queued for Daily Review."
                  : "Swipe back to bookmark the ideas you want to keep.")
                 .font(.system(.callout))
                 .foregroundStyle(Theme.Palette.textSecondary)
@@ -169,6 +169,12 @@ struct CardDeckView: View {
         card.saved.toggle()
         card.savedAt = card.saved ? .now : nil
         try? modelContext.save()
+        // Saving a card also enrolls it in spaced-repetition review (its title
+        // prompts, its body answers), so "keep this" and "review this" are the
+        // same gesture. Idempotent; un-saving leaves the existing schedule.
+        if card.saved {
+            MemoryStore(context: modelContext).enroll(card: card)
+        }
     }
 }
 
