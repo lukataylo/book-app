@@ -59,7 +59,24 @@ struct ReaderView: View {
     var body: some View {
         Group {
             if let vm = viewModel {
-                content(viewModel: vm)
+                if vm.isLoading {
+                    // Body text lives on disk for migrated / freshly
+                    // imported variants; show a spinner while
+                    // `viewModel.load()` reads the file rather than
+                    // flashing an empty scroll view at the user.
+                    VStack(spacing: 12) {
+                        ProgressView()
+                        Text("Opening book…")
+                            .font(.system(size: 13))
+                            .foregroundStyle(textColor.opacity(0.6))
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .task {
+                        await vm.load()
+                    }
+                } else {
+                    content(viewModel: vm)
+                }
             } else {
                 ProgressView()
                     .onAppear {
@@ -651,7 +668,7 @@ struct ReaderView: View {
         ttsEngine.configureNowPlaying(
             title: book.title,
             author: book.author,
-            coverData: book.coverData
+            coverData: book.coverImageData()
         )
         let bookID = book.id
         let variantID = viewModel.currentVariant.id

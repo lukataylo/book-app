@@ -52,6 +52,22 @@ enum CoverImageCache {
         return img
     }
 
+    /// Variant of `prepare` that reads cover bytes off disk. Used for
+    /// books whose cover lives at `BookStore.coverURL(bookID:)` rather
+    /// than in the SwiftData row's `coverData` field.
+    static func prepare(for bookID: UUID, fileURL: URL) async -> UIImage? {
+        if let cached = cache.object(forKey: bookID as NSUUID) { return cached }
+        let path = fileURL.path
+        let decoded: UIImage? = await Task.detached(priority: .userInitiated) {
+            guard let raw = UIImage(contentsOfFile: path) else { return nil }
+            return raw.preparingForDisplay() ?? raw
+        }.value
+        guard let img = decoded else { return nil }
+        let cost = Int(img.size.width * img.size.height * 4)
+        cache.setObject(img, forKey: bookID as NSUUID, cost: max(cost, 1))
+        return img
+    }
+
     static func evict(bookID: UUID) {
         cache.removeObject(forKey: bookID as NSUUID)
     }
@@ -60,23 +76,34 @@ enum CoverImageCache {
 }
 
 /// Reusable cover view that decodes the JPEG once per book and reuses
-/// the bitmap across renders. Callers pass in the source `Data` (so we
-/// don't take a strong ref to the SwiftData model from inside the cache)
-/// plus the stable book ID used as the cache key.
+/// the bitmap across renders. The cover bytes can come from either the
+/// legacy `Book.coverData` field (in-row) or from the on-disk file at
+/// `BookStore.coverURL(bookID:)` — the cache keys off `bookID` so both
+/// paths share decoded bitmaps.
 struct CachedCoverImage: View {
+    enum Source {
+        case data(Data)
+        case file(URL)
+    }
+
     let bookID: UUID
-    let data: Data
+    let source: Source
     /// Fallback rendered when the data fails to decode — keeps the cell
     /// laid out at the same size so the scroll position doesn't jump.
     let fallback: () -> AnyView
 
     @State private var image: UIImage?
 
-    init(bookID: UUID, data: Data, @ViewBuilder fallback: @escaping () -> some View) {
+    init(bookID: UUID, source: Source, @ViewBuilder fallback: @escaping () -> some View) {
         self.bookID = bookID
-        self.data = data
+        self.source = source
         let wrapped: () -> AnyView = { AnyView(fallback()) }
         self.fallback = wrapped
+    }
+
+    /// Convenience for the legacy in-row data path.
+    init(bookID: UUID, data: Data, @ViewBuilder fallback: @escaping () -> some View) {
+        self.init(bookID: bookID, source: .data(data), fallback: fallback)
     }
 
     var body: some View {
@@ -98,7 +125,12 @@ struct CachedCoverImage: View {
             // misses (first-paint of an unseen book).
             self.image = CoverImageCache.image(for: bookID)
             if self.image != nil { return }
-            self.image = await CoverImageCache.prepare(for: bookID, data: data)
+            switch source {
+            case .data(let data):
+                self.image = await CoverImageCache.prepare(for: bookID, data: data)
+            case .file(let url):
+                self.image = await CoverImageCache.prepare(for: bookID, fileURL: url)
+            }
         }
     }
 }

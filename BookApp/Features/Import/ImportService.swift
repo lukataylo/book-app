@@ -71,21 +71,35 @@ final class ImportService {
             throw ImportError.unknownFormat(sourceURL.pathExtension)
         }
 
+        // EPUBParser streams image bytes directly into the book's
+        // images folder when a destination is supplied — avoids buffering
+        // 50–100 MB of bitmap data in `[ParsedImage]` for image-heavy
+        // books.
+        let imagesDir = store.imagesFolder(for: bookID)
         let parsed: ParsedBook
         do {
-            parsed = try await parser.parse(fileURL: parsedURL)
+            parsed = try await parser.parse(fileURL: parsedURL, imagesDirectory: imagesDir)
         } catch {
             throw ImportError.parserFailed(error)
         }
 
-        // Persist inline images flat in <bookFolder>/images/. Reader paragraphs
-        // beginning with "[img:" look them up by filename.
-        if !parsed.images.isEmpty {
-            let imagesDir = store.imagesFolder(for: bookID)
-            for img in parsed.images {
-                let dest = imagesDir.appendingPathComponent(img.filename)
-                try? img.data.write(to: dest, options: .atomic)
-            }
+        // Any `ParsedImage` that still carries `data` is one the parser
+        // couldn't stream (e.g. PDFs, or EPUB write failure). Write
+        // those out now so the reader can resolve `[img:<name>]` markers.
+        for img in parsed.images {
+            guard let bytes = img.data else { continue }
+            let dest = imagesDir.appendingPathComponent(img.filename)
+            try? bytes.write(to: dest, options: .atomic)
+        }
+
+        // Cover and body text live on disk under `<bookFolder>` so the
+        // SwiftData record stays small and CloudKit sync isn't dragging
+        // a 200KB JPEG plus megabytes of text on every change. The
+        // legacy in-row fields are left empty for new imports — older
+        // installs may still have data in them and `BlobMigration`
+        // moves it onto disk on next launch.
+        if let coverData = parsed.coverData, !coverData.isEmpty {
+            store.writeCover(coverData, bookID: bookID)
         }
 
         let book = Book(
@@ -93,9 +107,12 @@ final class ImportService {
             title: parsed.title,
             author: parsed.author,
             format: parsedFormat,
-            coverData: parsed.coverData,
+            coverData: nil,
             originalFileBookmark: bookmark
         )
+        if parsed.coverData != nil {
+            book.coverFilename = "cover.jpg"
+        }
         book.totalPagesEstimate = parsed.totalPagesEstimate
         book.totalWordsEstimate = parsed.totalWords
         book.languageCode = parsed.languageCode
@@ -103,9 +120,19 @@ final class ImportService {
         let variant = BookVariant(
             book: book,
             kind: .original,
-            contentText: parsed.fullText,
+            contentText: "",
             contentBookmark: bookmark
         )
+        // Write the body text now that we know the variant's ID, so
+        // the file matches the deterministic URL `loadText()` resolves.
+        if store.writeVariantText(parsed.fullText, bookID: bookID, variantID: variant.id) {
+            variant.contentFilename = "variant-\(variant.id.uuidString).txt"
+        } else {
+            // Disk write failed (rare; permissions, full disk). Keep
+            // the body in-row as a fallback so the book is still
+            // readable, even if CloudKit balks.
+            variant.contentText = parsed.fullText
+        }
 
         modelContext.insert(book)
         modelContext.insert(variant)

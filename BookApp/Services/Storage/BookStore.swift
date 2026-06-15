@@ -68,6 +68,50 @@ final class BookStore: @unchecked Sendable {
         return folder
     }
 
+    /// Deterministic URL for the file that holds a variant's plain-text
+    /// content. Used by the disk-backed `BookVariant.loadText()` so a
+    /// multi-MB transform body doesn't ride along through SwiftData /
+    /// CloudKit (where it would hit the per-record field-size cap and
+    /// stall sync).
+    func variantTextURL(bookID: UUID, variantID: UUID, create: Bool = false) -> URL {
+        bookFolder(for: bookID, create: create)
+            .appendingPathComponent("variant-\(variantID.uuidString).txt")
+    }
+
+    /// Deterministic URL for a book's cover image. Stored as a JPEG so a
+    /// 200KB cover doesn't sit in CloudKit field-storage on every Book
+    /// record.
+    func coverURL(bookID: UUID, create: Bool = false) -> URL {
+        bookFolder(for: bookID, create: create)
+            .appendingPathComponent("cover.jpg")
+    }
+
+    /// Atomic write of a variant's text body. Returns true on success so
+    /// callers can decide whether to clear the legacy `contentText`
+    /// SwiftData field.
+    @discardableResult
+    func writeVariantText(_ text: String, bookID: UUID, variantID: UUID) -> Bool {
+        let url = variantTextURL(bookID: bookID, variantID: variantID, create: true)
+        do {
+            try text.write(to: url, atomically: true, encoding: .utf8)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Atomic write of a book's cover image bytes.
+    @discardableResult
+    func writeCover(_ data: Data, bookID: UUID) -> Bool {
+        let url = coverURL(bookID: bookID, create: true)
+        do {
+            try data.write(to: url, options: .atomic)
+            return true
+        } catch {
+            return false
+        }
+    }
+
     /// Copy an imported file into the book's folder, returning a security-scoped bookmark.
     @discardableResult
     func ingestOriginal(from sourceURL: URL, bookID: UUID, format: BookFormat) throws -> (URL, Data) {

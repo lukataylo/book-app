@@ -48,6 +48,10 @@ struct RootTabView: View {
             // who installed before v11 see a populated Bookmarks tab on
             // upgrade. Idempotent.
             AnnotationBackfill.runIfNeeded(modelContext: modelContext)
+            // Move legacy in-row blobs (Book.coverData,
+            // BookVariant.contentText) onto disk. Idempotent, gated by
+            // its own UserDefaults flag.
+            BlobMigration.runIfNeeded(modelContext: modelContext)
             #if DEBUG
             // Dev convenience: any EPUB / PDF dropped into the simulator's
             // Documents/_seed/ folder gets imported on next launch.

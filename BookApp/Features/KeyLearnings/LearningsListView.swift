@@ -168,7 +168,11 @@ struct BookLearningsView: View {
     }
 
     private func runExtraction() async {
-        guard let text = book.originalVariant?.contentText, !text.isEmpty else { return }
+        // `loadText()` resolves both the legacy in-row contentText and
+        // the new disk-backed body, so this works through the migration.
+        guard let variant = book.originalVariant else { return }
+        let text = await variant.loadText()
+        guard !text.isEmpty else { return }
         isExtracting = true
         defer { isExtracting = false }
         do {

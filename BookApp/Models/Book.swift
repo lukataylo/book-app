@@ -15,7 +15,17 @@ final class Book {
     var id: UUID = UUID()
     var title: String = ""
     var author: String = ""
+    /// Legacy in-row cover bytes. Kept for backwards compatibility with
+    /// existing CloudKit data; new books leave this `nil` and store the
+    /// cover at `BookStore.shared.coverURL(bookID:)`. `BlobMigration`
+    /// moves any non-nil values onto disk and clears them on first
+    /// launch after the upgrade — keeping a 200KB JPEG in a CloudKit
+    /// record bumps every sync into the slow path.
     var coverData: Data?
+    /// Filename within `<bookFolder>` that holds the cover when the
+    /// new disk-backed path is in use. Empty string means "fall back to
+    /// `coverData`".
+    var coverFilename: String = ""
     var formatRaw: String = BookFormat.unknown.rawValue
     var originalFileBookmark: Data?
     var totalPagesEstimate: Int = 0
@@ -85,5 +95,17 @@ final class Book {
 
     var nonOriginalVariants: [BookVariant] {
         (variants ?? []).filter { $0.kind != .original }
+    }
+
+    /// Cover image bytes for synchronous consumers (e.g. Now-Playing
+    /// artwork). Prefers the in-row `coverData` if a legacy / test row
+    /// has it, otherwise reads from disk. The disk read is a single
+    /// `Data(contentsOf:)` — fine for cover-sized images, but UI layers
+    /// (cards, detail page) should still go through the async
+    /// `CoverImageCache` so the JPEG decode stays off the main thread.
+    func coverImageData() -> Data? {
+        if let inRow = coverData, !inRow.isEmpty { return inRow }
+        let url = BookStore.shared.coverURL(bookID: id)
+        return try? Data(contentsOf: url)
     }
 }

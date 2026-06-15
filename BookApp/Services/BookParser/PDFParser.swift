@@ -10,7 +10,10 @@ import AppKit
 
 struct PDFParser: BookParser {
 
-    func parse(fileURL: URL) async throws -> ParsedBook {
+    func parse(fileURL: URL, imagesDirectory: URL? = nil) async throws -> ParsedBook {
+        // PDFParser doesn't extract inline images today — the parameter
+        // is kept on the protocol for API symmetry with EPUBParser.
+        _ = imagesDirectory
         guard let document = PDFDocument(url: fileURL) else {
             throw ParserError.fileUnreadable("PDFKit refused to open \(fileURL.lastPathComponent)")
         }

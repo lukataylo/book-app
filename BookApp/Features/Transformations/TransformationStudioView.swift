@@ -44,6 +44,10 @@ struct TransformationStudioView: View {
     @State private var cachedInputTokens: Int = 0
     @State private var cachedChunkCount: Int = 0
     @State private var sourceLoading: Bool = true
+    /// Body text loaded once from `sourceVariant.loadText()`. Populated
+    /// asynchronously because new variants store the body on disk
+    /// rather than in the SwiftData row.
+    @State private var cachedSourceText: String = ""
     /// Filled in on appear from `LocalProvider().isAvailable()`. When true,
     /// "Auto" defaults to Apple FM and the studio shows "Free · on-device".
     @State private var localAvailable: Bool = false
@@ -579,7 +583,10 @@ struct TransformationStudioView: View {
     /// so a long book (~280K tokens for The Republic) doesn't stall the
     /// sheet's appearance animation.
     private func loadSourceTokens() async {
-        let source = sourceVariant.contentText
+        // Source body lives on disk for migrated / freshly imported
+        // variants — `loadText()` resolves both old and new layouts.
+        let source = await sourceVariant.loadText()
+        self.cachedSourceText = source
         let result: (tokens: Int, count: Int) = await Task.detached(priority: .userInitiated) {
             let chunks = Chunker.chunk(source)
             let tokens = chunks.reduce(0) { $0 + $1.approxTokens }
@@ -630,7 +637,7 @@ struct TransformationStudioView: View {
     }
 
     private func estimateInputTokens() -> Int {
-        cachedInputTokens > 0 ? cachedInputTokens : Chunker.tokenEstimate(sourceVariant.contentText)
+        cachedInputTokens > 0 ? cachedInputTokens : Chunker.tokenEstimate(cachedSourceText)
     }
 
     private func formatTokens(_ n: Int) -> String {
@@ -659,10 +666,20 @@ struct TransformationStudioView: View {
             isRunning = false
             runTask = nil
         }
+        // `loadSourceTokens` populates `cachedSourceText` on appear, but
+        // a user could mash Run before that finishes. Make sure the
+        // engine sees the actual body (legacy or disk-backed) either way.
+        let sourceText: String
+        if !cachedSourceText.isEmpty {
+            sourceText = cachedSourceText
+        } else {
+            sourceText = await sourceVariant.loadText()
+            cachedSourceText = sourceText
+        }
         do {
             _ = try await engine.run(
                 on: book,
-                sourceText: sourceVariant.contentText,
+                sourceText: sourceText,
                 sourceVariant: sourceVariant,
                 request: transformRequest,
                 context: modelContext,

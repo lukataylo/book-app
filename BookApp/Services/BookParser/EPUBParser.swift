@@ -23,7 +23,7 @@ import ReadiumZIPFoundation
 /// in the dedicated EPUB renderer.
 struct EPUBParser: BookParser {
 
-    func parse(fileURL: URL) async throws -> ParsedBook {
+    func parse(fileURL: URL, imagesDirectory: URL? = nil) async throws -> ParsedBook {
         #if canImport(ReadiumZIPFoundation)
         let archive: Archive
         do {
@@ -85,9 +85,17 @@ struct EPUBParser: BookParser {
             coverData = try? await readEntry(archive, path: resolved)
         }
 
-        // Pull every manifest entry whose href looks like an image into
-        // ParsedImage. The reader matches `[img:<basename>]` markers against
-        // the basename, so we don't need to track the original path.
+        // Pull every manifest entry whose href looks like an image. If
+        // `imagesDirectory` was supplied we stream bytes directly to
+        // `<dir>/<leaf>` and emit a filename-only `ParsedImage`, so an
+        // image-heavy book never holds the full set in memory.
+        // Otherwise (no directory) we fall back to buffering bytes for
+        // compatibility with the legacy ImportService path.
+        if let imagesDirectory {
+            try? FileManager.default.createDirectory(
+                at: imagesDirectory, withIntermediateDirectories: true
+            )
+        }
         var images: [ParsedImage] = []
         var seenNames = Set<String>()
         let imageExts: Set<String> = ["jpg", "jpeg", "png", "gif", "webp", "svg"]
@@ -97,7 +105,19 @@ struct EPUBParser: BookParser {
             guard imageExts.contains(ext), !seenNames.contains(leaf) else { continue }
             let resolved = resolve(href: href, base: opfBase)
             guard let bytes = try? await readEntry(archive, path: resolved) else { continue }
-            images.append(ParsedImage(filename: leaf, data: bytes))
+            if let imagesDirectory {
+                let dest = imagesDirectory.appendingPathComponent(leaf)
+                do {
+                    try bytes.write(to: dest, options: .atomic)
+                    images.append(ParsedImage(filename: leaf, data: nil))
+                } catch {
+                    // Disk write failed — keep bytes in-memory so the
+                    // importer can retry the write on its side.
+                    images.append(ParsedImage(filename: leaf, data: bytes))
+                }
+            } else {
+                images.append(ParsedImage(filename: leaf, data: bytes))
+            }
             seenNames.insert(leaf)
         }
 

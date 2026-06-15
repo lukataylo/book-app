@@ -67,15 +67,23 @@ struct BookCardView: View {
     @ViewBuilder
     private var cover: some View {
         #if canImport(UIKit)
-        if let data = book.coverData {
-            CachedCoverImage(bookID: book.id, data: data) {
+        if !book.coverFilename.isEmpty {
+            // New disk-backed path (set by ImportService /
+            // SeedBooksLoader / BlobMigration).
+            let url = BookStore.shared.coverURL(bookID: book.id)
+            CachedCoverImage(bookID: book.id, source: .file(url)) {
+                generatedCover
+            }
+        } else if let data = book.coverData {
+            CachedCoverImage(bookID: book.id, source: .data(data)) {
                 generatedCover
             }
         } else {
             generatedCover
         }
         #else
-        if let image = book.coverData.flatMap(Self.platformImage(from:)) {
+        if let data = book.coverImageData(),
+           let image = Self.platformImage(from: data) {
             image
                 .resizable()
                 .aspectRatio(contentMode: .fill)
