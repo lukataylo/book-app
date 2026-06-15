@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Beyond</text>
+  <text x="40" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Good and</text>
+  <text x="40" y="226" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Evil</text>
+  <g fill="none" stroke="#6B3FC9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M300,385 A91,91 0 0 1 118,385 A82,82 0 0 1 282,385 A73,73 0 0 1 136,385 A64,64 0 0 1 264,385 A55,55 0 0 1 154,385 A46,46 0 0 1 246,385 A37,37 0 0 1 172,385"/>
+  </g>
+  <circle cx="200" cy="385" r="8" fill="#6B3FC9"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Friedrich Nietzsche</text>
+  <rect x="0" y="576" width="400" height="24" fill="#6B3FC9"/>
+</svg>

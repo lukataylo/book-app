@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The Black</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Swan</text>
+  <g fill="none" stroke="#0B7F58" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="195" cy="442" rx="68" ry="26"/>
+    <path d="M232,425 C226,385 230,352 252,340"/>
+    <path d="M160,442 Q200,418 245,440"/>
+    <line x1="110" y1="484" x2="300" y2="484"/>
+    <line x1="135" y1="496" x2="270" y2="496"/>
+  </g>
+  <circle cx="254" cy="336" r="9" fill="#0B7F58"/>
+  <polygon points="263,335 281,343 263,349" fill="#0B7F58"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Nassim Nicholas Taleb</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0B7F58"/>
+</svg>

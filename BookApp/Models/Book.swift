@@ -45,6 +45,11 @@ final class Book {
     var sourceAttribution: String = ""
     /// Estimated minutes to read the summary edition (0 for imported books).
     var readMinutesEstimate: Int = 0
+    /// Slug naming this book's designed vector cover in `Covers.xcassets`
+    /// (asset name `cover-<artSlug>`). Set by the loaders from the pack /
+    /// seed slug. Empty → fall back to the generated Idea-Glyph cover.
+    /// Additive + defaulted, so it migrates cleanly into existing stores.
+    var artSlug: String = ""
 
     @Relationship(deleteRule: .cascade, inverse: \BookVariant.book)
     var variants: [BookVariant]? = []

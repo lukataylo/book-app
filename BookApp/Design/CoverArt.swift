@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Generated cover system — "Idea Glyphs" (approach B from
 /// `research/cover-art/`): warm paper ground, ink typography, one
@@ -29,6 +32,20 @@ enum CoverArt {
             if let c = palette[tag] { return c }
         }
         return Color(hex: "475569")
+    }
+
+    /// Asset name of this book's designed vector cover (`Covers.xcassets`),
+    /// or `nil` when none ships — callers then fall back to the generated
+    /// Idea-Glyph cover. The SVGs are authored at a true 2:3 ratio, so they
+    /// fill the 2:3 card frame exactly and never crop.
+    static func designedAssetName(for book: Book) -> String? {
+        guard !book.artSlug.isEmpty else { return nil }
+        let name = "cover-\(book.artSlug)"
+        #if canImport(UIKit)
+        return UIImage(named: name) != nil ? name : nil
+        #else
+        return nil
+        #endif
     }
 
     /// Stable seed for per-title variation. `hashValue` is randomized per

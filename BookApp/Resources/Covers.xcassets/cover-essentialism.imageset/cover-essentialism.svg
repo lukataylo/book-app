@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+<rect width="400" height="600" fill="#F7F3EB"/>
+<text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+<text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Essentialism:</text>
+<text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">The Disciplined</text>
+<text x="40" y="216" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Pursuit of Less</text>
+<path d="M 108,302 L 292,302 L 214,398 L 214,450 L 186,450 L 186,398 Z" fill="none" stroke="#C92A21" stroke-width="7" stroke-linejoin="round"/>
+<circle cx="150" cy="332" r="5" fill="#C92A21"/>
+<circle cx="185" cy="326" r="5" fill="#C92A21"/>
+<circle cx="220" cy="332" r="5" fill="#C92A21"/>
+<circle cx="252" cy="330" r="5" fill="#C92A21"/>
+<circle cx="168" cy="352" r="5" fill="#C92A21"/>
+<circle cx="232" cy="352" r="5" fill="#C92A21"/>
+<circle cx="200" cy="476" r="8" fill="#C92A21"/>
+<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Greg McKeown</text>
+<rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
+</svg>

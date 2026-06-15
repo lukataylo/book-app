@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">The ONE</text>
+  <text x="40" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Thing</text>
+  <g fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="86" y1="478" x2="306" y2="478" stroke-width="5"/>
+    <rect x="100" y="433" width="16" height="42" fill="#C92A21" stroke="none" transform="rotate(-22 108 475)"/>
+    <rect x="150" y="415" width="20" height="60"/>
+    <rect x="205" y="393" width="24" height="82"/>
+    <rect x="268" y="367" width="28" height="108"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Gary Keller and Jay Papasan</text>
+  <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
+</svg>

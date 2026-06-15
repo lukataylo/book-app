@@ -119,9 +119,16 @@ struct BookDetailView: View {
 
     @ViewBuilder
     private var cover: some View {
-        // Read through `coverImageData()` so this view sees both the
-        // legacy in-row blob and the new disk-backed cover.
-        if let data = book.coverImageData(),
+        if let asset = CoverArt.designedAssetName(for: book) {
+            // Designed vector cover — authored at 2:3, framed at 2:3, so it
+            // fills without cropping (preferred over any imported jacket).
+            Image(asset)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 110, height: 165)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
+                .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
+        } else if let data = book.coverImageData(),
            let image = BookCardView.platformImage(from: data) {
             image
                 .resizable()

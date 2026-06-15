@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The 4-Hour</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Workweek</text>
+  <circle cx="200" cy="300" r="16" fill="#0E7C96"/>
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="85" y1="330" x2="85" y2="486"/>
+    <line x1="315" y1="330" x2="315" y2="486"/>
+    <path d="M85,338 Q200,470 315,338"/>
+    <path d="M85,354 Q200,490 315,354"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Timothy Ferriss</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

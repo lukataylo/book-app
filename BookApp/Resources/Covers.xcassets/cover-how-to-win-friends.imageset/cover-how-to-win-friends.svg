@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="130" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="600" fill="#2B2620">How to Win</text>
+  <text x="40" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="600" fill="#2B2620">Friends and</text>
+  <text x="40" y="206" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="600" fill="#2B2620">Influence</text>
+  <text x="40" y="244" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="600" fill="#2B2620">People</text>
+  <rect x="108" y="298" width="132" height="84" rx="16" fill="none" stroke="#C92A21" stroke-width="7" stroke-linejoin="round"/>
+  <polyline points="138,382 130,408 168,382" fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="150" cy="342" r="4" fill="#C92A21"/>
+  <circle cx="176" cy="342" r="4" fill="#C92A21"/>
+  <circle cx="202" cy="342" r="4" fill="#C92A21"/>
+  <rect x="192" y="362" width="132" height="80" rx="16" fill="none" stroke="#C92A21" stroke-width="7" stroke-linejoin="round"/>
+  <polyline points="300,442 308,466 270,442" fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Dale Carnegie</text>
+  <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
+</svg>

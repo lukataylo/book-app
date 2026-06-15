@@ -1,0 +1,15 @@
+{
+  "images": [
+    {
+      "filename": "cover-the-e-myth-revisited.svg",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true
+  }
+}

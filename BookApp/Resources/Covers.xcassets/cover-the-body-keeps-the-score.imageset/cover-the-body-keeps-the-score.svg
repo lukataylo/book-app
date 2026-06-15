@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The Body</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Keeps the</text>
+  <text x="40" y="232" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Score</text>
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="200" cy="300" r="20"/>
+    <path d="M172,348 Q200,338 228,348 L221,452 Q200,460 179,452 Z"/>
+    <line x1="174" y1="352" x2="156" y2="428"/>
+    <line x1="226" y1="352" x2="244" y2="428"/>
+    <line x1="191" y1="456" x2="187" y2="500"/>
+    <line x1="209" y1="456" x2="213" y2="500"/>
+  </g>
+  <path d="M200,382 C216,382 217,408 199,408 C185,408 185,390 200,390 C209,390 209,400 201,400" fill="none" stroke="#2447C2" stroke-width="5" stroke-linecap="round"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Bessel van der Kolk</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

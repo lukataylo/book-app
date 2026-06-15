@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="138" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Rich Dad</text>
+  <text x="40" y="196" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Poor Dad</text>
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="135" cy="452" r="28"/>
+    <circle cx="135" cy="452" r="6" fill="#0E7C96" stroke="none"/>
+    <polyline points="152,438 216,378 276,330 324,300"/>
+    <polyline points="302,302 324,298 322,322"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Robert T. Kiyosaki</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

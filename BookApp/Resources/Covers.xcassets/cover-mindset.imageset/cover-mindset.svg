@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="118" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Mindset</text>
+  <text x="40" y="160" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">The New</text>
+  <text x="40" y="202" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Psychology</text>
+  <text x="40" y="244" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">of Success</text>
+
+  <!-- MOTIF: a seedling growing upward — ability developed, not fixed -->
+  <line x1="200" y1="470" x2="200" y2="362" stroke="#2447C2" stroke-width="7" stroke-linecap="round"/>
+  <polyline points="188,376 200,360 212,376" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="175" cy="402" rx="24" ry="11" fill="none" stroke="#2447C2" stroke-width="7" transform="rotate(-35 175 402)"/>
+  <ellipse cx="226" cy="386" rx="24" ry="11" fill="none" stroke="#2447C2" stroke-width="7" transform="rotate(35 226 386)"/>
+  <line x1="166" y1="472" x2="234" y2="472" stroke="#2447C2" stroke-width="7" stroke-linecap="round"/>
+  <line x1="200" y1="472" x2="184" y2="490" stroke="#2447C2" stroke-width="7" stroke-linecap="round"/>
+  <line x1="200" y1="472" x2="216" y2="490" stroke="#2447C2" stroke-width="7" stroke-linecap="round"/>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">CAROL S. DWECK</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

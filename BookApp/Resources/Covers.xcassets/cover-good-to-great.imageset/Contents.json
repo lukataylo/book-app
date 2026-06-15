@@ -1,0 +1,15 @@
+{
+  "images": [
+    {
+      "filename": "cover-good-to-great.svg",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true
+  }
+}

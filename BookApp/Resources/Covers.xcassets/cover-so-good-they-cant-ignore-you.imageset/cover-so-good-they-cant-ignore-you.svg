@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">So Good They</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Can't Ignore You</text>
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="150,330 250,330 280,365 200,475 120,365"/>
+    <line x1="120" y1="365" x2="280" y2="365" stroke-width="5"/>
+    <line x1="150" y1="330" x2="200" y2="365" stroke-width="5"/>
+    <line x1="250" y1="330" x2="200" y2="365" stroke-width="5"/>
+    <line x1="200" y1="365" x2="200" y2="475" stroke-width="5"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Cal Newport</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

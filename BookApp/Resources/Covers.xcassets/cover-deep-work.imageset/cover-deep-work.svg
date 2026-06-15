@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Deep</text>
+  <text x="40" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Work</text>
+  <g stroke="#C92A21" stroke-width="7" stroke-linecap="round">
+    <line x1="115" y1="305" x2="285" y2="305"/>
+    <line x1="135" y1="355" x2="265" y2="355"/>
+    <line x1="155" y1="405" x2="245" y2="405"/>
+    <line x1="175" y1="455" x2="225" y2="455"/>
+    <line x1="200" y1="305" x2="200" y2="468"/>
+  </g>
+  <polygon points="200,480 189,460 211,460" fill="#C92A21"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Cal Newport</text>
+  <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
+</svg>

@@ -67,7 +67,13 @@ struct BookCardView: View {
     @ViewBuilder
     private var cover: some View {
         #if canImport(UIKit)
-        if !book.coverFilename.isEmpty {
+        if let asset = CoverArt.designedAssetName(for: book) {
+            // Designed vector cover (Covers.xcassets). Authored at 2:3, so
+            // `.fill` into the 2:3 frame fills edge-to-edge without cropping.
+            Image(asset)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } else if !book.coverFilename.isEmpty {
             // New disk-backed path (set by ImportService /
             // SeedBooksLoader / BlobMigration).
             let url = BookStore.shared.coverURL(bookID: book.id)

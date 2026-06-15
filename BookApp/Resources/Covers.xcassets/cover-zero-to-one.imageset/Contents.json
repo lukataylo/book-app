@@ -1,0 +1,15 @@
+{
+  "images": [
+    {
+      "filename": "cover-zero-to-one.svg",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true
+  }
+}

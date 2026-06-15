@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="156" font-family="Georgia, 'Times New Roman', serif" font-weight="600" font-size="54" fill="#2B2620">Zero to</text>
+  <text x="40" y="214" font-family="Georgia, 'Times New Roman', serif" font-weight="600" font-size="54" fill="#2B2620">One</text>
+  <!-- the leap from 0 to 1: a single arrow out of a void circle to a solid mark -->
+  <circle cx="120" cy="380" r="52" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <line x1="186" y1="380" x2="276" y2="380" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
+  <polyline points="252,360 280,380 252,400" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="296" y="350" width="60" height="60" fill="#0E7C96"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Peter Thiel</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

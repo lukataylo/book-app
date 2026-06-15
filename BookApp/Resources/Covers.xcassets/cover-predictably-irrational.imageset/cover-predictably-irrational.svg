@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Predictably</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Irrational</text>
+  <line x1="80" y1="400" x2="330" y2="400" stroke="#2447C2" stroke-width="3" stroke-dasharray="4 9" stroke-linecap="round"/>
+  <path d="M80 400 C108 332 136 468 164 400 C192 332 220 468 248 400 C276 332 304 468 330 400" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="164" cy="400" r="5" fill="#2447C2"/>
+  <circle cx="248" cy="400" r="5" fill="#2447C2"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Dan Ariely</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Nonviolent</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Communication</text>
+  <g stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="92" y="300" width="128" height="86" rx="18"/>
+    <polygon points="122,384 122,414 152,386"/>
+    <rect x="180" y="330" width="128" height="86" rx="18"/>
+    <polygon points="278,414 278,444 250,416"/>
+  </g>
+  <circle cx="124" cy="343" r="4" fill="#2447C2"/>
+  <circle cx="144" cy="343" r="4" fill="#2447C2"/>
+  <circle cx="164" cy="343" r="4" fill="#2447C2"/>
+  <path d="M244 360 c -7 -9 -22 -3 -22 9 c 0 11 22 24 22 24 c 0 0 22 -13 22 -24 c 0 -12 -15 -18 -22 -9 z" fill="#2447C2"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Marshall B. Rosenberg</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

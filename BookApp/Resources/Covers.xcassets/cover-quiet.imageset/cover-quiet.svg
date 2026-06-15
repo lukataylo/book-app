@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="600" fill="#2B2620">Quiet: The Power</text>
+  <text x="40" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="600" fill="#2B2620">of Introverts in a</text>
+  <text x="40" y="204" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="600" fill="#2B2620">World That Can't</text>
+  <text x="40" y="240" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="600" fill="#2B2620">Stop Talking</text>
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="118" y="300" width="164" height="104" rx="26"/>
+    <polyline points="150,403 158,442 190,403"/>
+    <circle cx="200" cy="352" r="9" fill="#2447C2" stroke="none"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Susan Cain</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

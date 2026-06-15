@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Influence</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">The Psychology</text>
+  <text x="40" y="216" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">of Persuasion</text>
+  <rect x="138" y="360" width="124" height="52" rx="26" fill="none" stroke="#2447C2" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="164" cy="386" r="6" fill="none" stroke="#2447C2" stroke-width="7"/>
+  <circle cx="236" cy="386" r="18" fill="#2447C2"/>
+  <path d="M168,346 Q200,324 234,346" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="224,342 234,346 230,357" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Robert B. Cialdini</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Intelligent</text>
+  <text x="40" y="232" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Investor</text>
+
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- capital guarded behind a margin of safety -->
+    <path d="M140 300 L260 300 L260 380 C260 432, 234 458, 200 472 C166 458, 140 432, 140 380 Z"/>
+  </g>
+  <text x="176" y="422" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="600" fill="#0E7C96">$</text>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Benjamin Graham</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

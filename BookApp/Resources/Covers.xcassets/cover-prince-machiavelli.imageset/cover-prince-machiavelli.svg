@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">The</text>
+  <text x="40" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Prince</text>
+  <g fill="none" stroke="#6B3FC9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M150,440 L150,360 L180,400 L200,350 L220,400 L250,360 L250,440 Z"/>
+    <path d="M150,440 L250,440 L250,462 L150,462 Z"/>
+  </g>
+  <circle cx="150" cy="358" r="6" fill="#6B3FC9"/>
+  <circle cx="200" cy="347" r="7" fill="#6B3FC9"/>
+  <circle cx="250" cy="358" r="6" fill="#6B3FC9"/>
+  <circle cx="175" cy="451" r="4" fill="#6B3FC9"/>
+  <circle cx="200" cy="451" r="5" fill="#6B3FC9"/>
+  <circle cx="225" cy="451" r="4" fill="#6B3FC9"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Niccolò Machiavelli</text>
+  <rect x="0" y="576" width="400" height="24" fill="#6B3FC9"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">The Righteous</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Mind</text>
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="205" cy="400" rx="92" ry="58"/>
+    <path d="M 252 372 C 244 382 245 401 259 407"/>
+    <path d="M 295 405 C 320 415 326 445 318 470 C 314 482 300 484 296 472 C 293 463 300 455 300 446"/>
+    <line x1="160" y1="455" x2="160" y2="492"/>
+    <line x1="200" y1="457" x2="200" y2="492"/>
+    <line x1="250" y1="455" x2="250" y2="492"/>
+    <line x1="288" y1="452" x2="288" y2="490"/>
+    <circle cx="288" cy="392" r="4" fill="#2447C2" stroke="none"/>
+    <circle cx="175" cy="330" r="11" fill="#2447C2" stroke="none"/>
+    <line x1="175" y1="342" x2="175" y2="348"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jonathan Haidt</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

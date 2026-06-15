@@ -74,8 +74,16 @@ struct ShelfView: View {
                     }
                 }
                 .padding(.horizontal, Theme.Spacing.l)
-                .padding(.bottom, Theme.Spacing.xs)
+                // The card carries a drop shadow (radius 8, y:4). A
+                // horizontal ScrollView clips to its content bounds, so
+                // without room on every edge the shadow is sheared off at
+                // the top and bottom of the shelf. Pad the scrolled content
+                // by the shadow's reach so it renders whole.
+                .padding(.vertical, Theme.Spacing.s)
             }
+            // Counter the added top/bottom padding so shelf spacing is
+            // unchanged — the padding exists only to give the shadow room.
+            .padding(.vertical, -Theme.Spacing.s + Theme.Spacing.xs)
         }
     }
 }

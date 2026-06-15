@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Why We</text>
+  <text x="40" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Sleep</text>
+  <g fill="none" stroke="#0B7F58" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M235,315 A82,82 0 1 0 235,475 A60,60 0 1 1 235,315 Z"/>
+  </g>
+  <circle cx="300" cy="350" r="5" fill="#0B7F58"/>
+  <circle cx="322" cy="418" r="4" fill="#0B7F58"/>
+  <circle cx="296" cy="456" r="3" fill="#0B7F58"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Matthew Walker</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0B7F58"/>
+</svg>

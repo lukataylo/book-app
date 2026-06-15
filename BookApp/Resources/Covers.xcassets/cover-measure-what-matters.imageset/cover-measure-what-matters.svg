@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Measure</text>
+  <text x="40" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">What</text>
+  <text x="40" y="248" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Matters</text>
+
+  <!-- MOTIF: a target (objective) struck dead-centre by an arrow (key result) -->
+  <circle cx="208" cy="388" r="76" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <circle cx="208" cy="388" r="50" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <circle cx="208" cy="388" r="24" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <circle cx="208" cy="388" r="8" fill="#0E7C96"/>
+  <line x1="118" y1="478" x2="208" y2="388" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
+  <polyline points="186,398 208,388 198,410" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="118" y1="478" x2="106" y2="462" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
+  <line x1="118" y1="478" x2="134" y2="490" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">JOHN DOERR</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

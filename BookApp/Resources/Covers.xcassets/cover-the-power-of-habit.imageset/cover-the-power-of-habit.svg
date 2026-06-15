@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The Power</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">of Habit</text>
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="200" cy="385" r="72"/>
+    <polyline points="237,333 255,338 250,320"/>
+    <circle cx="200" cy="313" r="10" fill="#2447C2" stroke="none"/>
+    <circle cx="138" cy="421" r="10" fill="#2447C2" stroke="none"/>
+    <circle cx="262" cy="421" r="10" fill="#2447C2" stroke="none"/>
+  </g>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Charles Duhigg</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

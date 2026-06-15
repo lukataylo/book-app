@@ -95,6 +95,12 @@ enum SummaryPackLoader {
         // of a summary book that already synced down.
         let books = existingBooks ?? existingSummaryBooks(context: context)
         if let existing = books[pack.title] {
+            // Upgrade path: backfill the designed-cover slug onto books
+            // seeded before vector covers shipped.
+            if existing.artSlug != pack.slug {
+                existing.artSlug = pack.slug
+                try? context.save()
+            }
             // Upgrade path: packs gained a short "quick take" variant after
             // launch — attach it to books seeded before it existed.
             if let gist = pack.summaryShort,
@@ -107,6 +113,7 @@ enum SummaryPackLoader {
 
         let book = Book(title: pack.title, author: pack.sourceAuthor, format: .unknown)
         book.isSummaryEdition = true
+        book.artSlug = pack.slug
         book.sourceAttribution = pack.attribution
         book.readMinutesEstimate = pack.readMinutes
         book.categoryTags = pack.categories

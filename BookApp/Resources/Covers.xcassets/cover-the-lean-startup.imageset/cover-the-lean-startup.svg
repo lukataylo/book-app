@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">The Lean</text>
+  <text x="40" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="600" fill="#2B2620">Startup</text>
+
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the build-measure-learn feedback loop -->
+    <path d="M187 311 A75 75 0 0 0 130 411"/>
+    <path d="M143 433 A75 75 0 0 0 258 433"/>
+    <path d="M270 411 A75 75 0 0 0 213 311"/>
+    <circle cx="200" cy="310" r="9" fill="#0E7C96" stroke="none"/>
+    <circle cx="135" cy="422" r="9" fill="#0E7C96" stroke="none"/>
+    <circle cx="265" cy="422" r="9" fill="#0E7C96" stroke="none"/>
+    <polygon points="134,422 135,405 122,410" fill="#0E7C96" stroke="none"/>
+    <polygon points="266,424 250,431 261,441" fill="#0E7C96" stroke="none"/>
+    <polygon points="201,309 216,319 218,305" fill="#0E7C96" stroke="none"/>
+  </g>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Eric Ries</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">The Happiness</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Hypothesis</text>
+
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the small conscious rider atop the vast automatic elephant -->
+    <ellipse cx="210" cy="405" rx="86" ry="50"/>
+    <circle cx="132" cy="398" r="40"/>
+    <ellipse cx="145" cy="392" rx="18" ry="24"/>
+    <path d="M100 405 C78 425, 82 458, 96 476"/>
+    <line x1="112" y1="430" x2="100" y2="452"/>
+    <line x1="165" y1="452" x2="165" y2="490"/>
+    <line x1="205" y1="452" x2="205" y2="490"/>
+    <line x1="255" y1="452" x2="255" y2="490"/>
+    <line x1="288" y1="452" x2="288" y2="490"/>
+    <path d="M296 400 C312 410, 314 430, 306 445"/>
+    <circle cx="130" cy="388" r="4" fill="#2447C2" stroke="none"/>
+    <polygon points="226,358 254,358 248,328 232,328" fill="#2447C2" stroke="none"/>
+    <circle cx="240" cy="321" r="14" fill="#2447C2" stroke="none"/>
+  </g>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jonathan Haidt</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>

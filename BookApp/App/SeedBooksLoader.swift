@@ -147,6 +147,7 @@ enum SeedBooksLoader {
         // see "The Republic / Plato" rather than whatever the EPUB headers say.
         book.title = meta.title
         book.author = meta.author
+        book.artSlug = meta.slug
         if !meta.categories.isEmpty { book.categoryTags = meta.categories }
         if !meta.themes.isEmpty     { book.detectedThemes = meta.themes }
         // `book.notes` is the user-facing notes field — leave it alone so

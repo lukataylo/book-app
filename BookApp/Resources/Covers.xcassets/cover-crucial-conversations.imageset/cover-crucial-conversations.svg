@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Crucial</text>
+  <text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" fill="#2B2620">Conversations</text>
+  <ellipse cx="158" cy="368" rx="70" ry="50" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <polyline points="150,415 132,452 174,410" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="138" cy="368" r="6" fill="#0E7C96"/>
+  <circle cx="158" cy="368" r="6" fill="#0E7C96"/>
+  <circle cx="178" cy="368" r="6" fill="#0E7C96"/>
+  <ellipse cx="252" cy="418" rx="60" ry="42" fill="none" stroke="#0E7C96" stroke-width="7"/>
+  <polyline points="280,452 298,486 252,456" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Kerry Patterson et al.</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

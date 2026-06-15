@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">The Hard</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Thing About</text>
+  <text x="40" y="232" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Hard Things</text>
+
+  <g fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the brutal climb: a switchback trail up a hard peak to the summit -->
+    <polygon points="95,485 160,400 185,420 215,305 260,395 315,485"/>
+    <polygon points="215,305 198,332 232,332" fill="#0E7C96" stroke="none"/>
+    <line x1="215" y1="305" x2="215" y2="278"/>
+    <polygon points="215,278 240,285 215,292" fill="#0E7C96" stroke="none"/>
+    <polyline points="190,485 225,455 190,420 220,385 200,360"/>
+  </g>
+
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Ben Horowitz</text>
+  <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
+</svg>

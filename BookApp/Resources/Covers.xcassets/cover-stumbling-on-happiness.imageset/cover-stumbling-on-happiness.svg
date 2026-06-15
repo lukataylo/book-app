@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <rect width="400" height="600" fill="#F7F3EB"/>
+  <text x="40" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="17" letter-spacing="2" fill="#2B2620" opacity="0.55">THE BIG IDEAS IN</text>
+  <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Stumbling on</text>
+  <text x="40" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Happiness</text>
+  <g fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="200" cy="352" r="78"/>
+    <polygon points="150,432 250,432 238,470 162,470"/>
+  </g>
+  <polygon points="200,304 208,326 230,334 208,342 200,366 192,342 170,334 192,326" fill="#2447C2"/>
+  <circle cx="238" cy="312" r="5" fill="#2447C2"/>
+  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Daniel Gilbert</text>
+  <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
+</svg>
