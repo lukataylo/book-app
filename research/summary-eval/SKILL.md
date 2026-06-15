@@ -13,11 +13,17 @@ the failures in our catalog.
    "The full summary works through X, Y, and Z in greater depth." Kill it. End on
    the book's sharpest implication, an unresolved tension, or the one question only
    the full book answers. A summary is a trailer for *the book*, not for us.
-2. **At least one named scene, person, study, or number from the actual book** — per
-   summary, ideally per idea-section. Concreteness predicts quality directly in the
-   eval (the pack that names six real people scored highest; the three that name
-   nothing scored lowest). "Environment beats willpower" → name the cafeteria-tray
-   study. Attribute it; never invent.
+2. **Be concrete — but with OUR OWN examples, never the book's.** Concreteness predicts
+   quality in the eval, so ground each big idea in a specific scene, number, or
+   everyday case. **For legal safety (these are copyrighted books), do NOT retell the
+   author's signature anecdotes, case studies, or chosen illustrations** — the
+   selection/arrangement of examples is the riskiest thing to copy. Instead invent an
+   original illustration of the same idea, or use a widely-known fact that isn't
+   distinctive to the book. You MAY name the author, the title, and the book's concepts
+   or coined terms (attributed). Example: for "small habits compound," do NOT use the
+   book's British-Cycling story; use an original case ("save 1% more each payday and
+   the gap is invisible by Friday, decisive by retirement"). Keep it accurate to the
+   idea; never invent claims the book doesn't make.
 3. **Break the rhythm flatline.** Vary sentence length hard: at least one sub-8-word
    sentence per ~200 words. A wall of uniform 20–30-word "literary" sentences is the
    quietest, strongest AI tell. Short. Then a long one that earns its length.
@@ -59,7 +65,7 @@ the failures in our catalog.
 
 ## Self-check scan (run before shipping any summary)
 - [ ] Does it open on the thesis, not the topic?
-- [ ] ≥1 named scene/person/study/number from the book, attributed?
+- [ ] ≥1 concrete example — and is it OURS, not the book's own anecdote/case study?
 - [ ] Is there a sub-8-word sentence? Real sentence-length variance?
 - [ ] One friction / "for whom / where it strains" sentence?
 - [ ] Em-dashes ≤ ~1 per 300 words; not every paragraph a tricolon?
@@ -72,3 +78,4 @@ the failures in our catalog.
 - Every paragraph the same length and shape; balanced "It's not just X, it's Y".
 - Unconditional advocacy with no stated limit.
 - Chapter-by-chapter abridgement (reads as a substitute for the book; also raises IP risk).
+- Retelling the author's signature anecdotes/examples/case studies (IP risk — use our own).
