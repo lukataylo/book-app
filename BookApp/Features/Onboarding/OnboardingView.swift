@@ -17,13 +17,13 @@ struct OnboardingView: View {
         Panel(
             symbol: "books.vertical.fill",
             title: "Your library, your way",
-            blurb: "Drop in EPUBs, PDFs, even MOBI — they get auto-tagged and shelved by category. Three classics are pre-loaded so you can dive in immediately.",
+            blurb: "Drop in EPUBs, PDFs, even MOBI. They're auto-tagged and shelved by category, ready to read.",
             tone: .ink
         ),
         Panel(
             symbol: "wand.and.stars",
             title: "Elastic length, on-device",
-            blurb: "Compress a 400-page book to 20 — or expand five pages to fifty — using Apple Intelligence. Zero API key needed for short transforms; bring a Claude key for the deep restyles.",
+            blurb: "Compress a 400-page book to 20, or expand five pages to fifty, with Apple Intelligence. No key needed for short transforms; add a Claude key for deep restyles.",
             tone: .accent
         ),
         Panel(

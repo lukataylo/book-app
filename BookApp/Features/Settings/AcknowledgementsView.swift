@@ -7,7 +7,7 @@ struct AcknowledgementsView: View {
     var body: some View {
         Form {
             Section("Summary content") {
-                Text("The \u{201C}Big Ideas in \u{2026}\u{201D} summaries are original works written for this app. They paraphrase the ideas of each book and are not affiliated with, authorized, or endorsed by the authors or publishers. If a summary resonates, please buy the full book — the author earned it.")
+                Text("The \u{201C}Big Ideas in \u{2026}\u{201D} summaries are original works written for this app. They paraphrase the ideas of each book and are not affiliated with, authorized, or endorsed by the authors or publishers. If a summary resonates, please buy the full book; the author earned it.")
                     .font(.callout)
             }
 

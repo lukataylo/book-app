@@ -71,7 +71,7 @@ struct TTSSettingsSheet: View {
                     Text("Loading voices…").tag("__loading__")
                 } else {
                     ForEach(voices) { voice in
-                        Text("\(voice.name) — \(voice.language) — \(voice.qualityLabel)")
+                        Text("\(voice.name) · \(voice.language) · \(voice.qualityLabel)")
                             .tag(voice.id)
                     }
                 }

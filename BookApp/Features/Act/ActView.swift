@@ -186,7 +186,7 @@ struct ActView: View {
             Text("Nothing to act on yet")
                 .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-            Text("Open a summary in the Read tab — every book can become a 14-day plan.")
+            Text("Open a summary in the Read tab. Every book can become a 14-day plan.")
                 .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)

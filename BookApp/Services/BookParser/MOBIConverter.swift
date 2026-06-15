@@ -28,6 +28,6 @@ struct MOBIConverter {
         }
         // Step 2: with libmobi linked we'd run conversion here.
         // Until the C target is wired into the project, fail gracefully.
-        throw ParserError.mobiConversionFailed("MOBI conversion isn't wired up yet — convert to EPUB with Calibre and re-import.")
+        throw ParserError.mobiConversionFailed("MOBI import isn't supported yet. Convert to EPUB with Calibre and re-import.")
     }
 }

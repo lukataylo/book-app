@@ -112,7 +112,7 @@ struct CardDeckView: View {
                 .font(.system(.title, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(savedCount > 0
-                 ? "You kept \(savedCount) of \(cards.count) ideas — they're in Saved and queued for Daily Review."
+                 ? "You kept \(savedCount) of \(cards.count) ideas. They're in Saved and queued for Daily Review."
                  : "Swipe back to bookmark the ideas you want to keep.")
                 .font(.system(.callout))
                 .foregroundStyle(Theme.Palette.textSecondary)
@@ -261,7 +261,7 @@ struct KnowledgeCardFace: View {
         var lines = [card.title, "", card.body]
         if let title = card.book?.title {
             lines.append("")
-            lines.append("— from \(title)")
+            lines.append("from \(title)")
         }
         return lines.joined(separator: "\n")
     }

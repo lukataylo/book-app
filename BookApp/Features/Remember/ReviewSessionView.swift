@@ -236,7 +236,7 @@ struct ReviewSessionView: View {
         case .some(0):
             return "Save cards you want to keep from any deck in the Remember tab, then add them here to review."
         case .some(let n):
-            return "Added \(n) card\(n == 1 ? "" : "s") to your review schedule — they'll come back at the right moment. Check back tomorrow."
+            return "Added \(n) card\(n == 1 ? "" : "s") to your review schedule. They'll come back at the right moment; check back tomorrow."
         default:
             return "Save cards from a deck, then add them to your review schedule and they'll come back right before you'd forget."
         }
@@ -322,7 +322,7 @@ struct ReviewSessionView: View {
             let result = try await TeachBackGrader().grade(idea: idea, explanation: teachBackText)
             submit(card, result.grade, teachBackScore: result.score)
         } catch {
-            teachBackFeedback = "Couldn't grade that automatically — tap Show idea and grade yourself."
+            teachBackFeedback = "Couldn't grade that automatically. Tap Show idea and grade yourself."
             withAnimation(reduceMotion ? nil : .snappy) {
                 teachingBack = false
                 revealed = true

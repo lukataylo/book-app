@@ -38,7 +38,7 @@ struct TeachBackGrader {
         return Result(
             score: 0,
             missedPoints: [],
-            feedback: "Couldn't grade that attempt — give it another try.",
+            feedback: "Couldn't grade that. Try again.",
             grade: .again
         )
     }

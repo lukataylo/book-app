@@ -96,7 +96,7 @@ struct ReaderSettingsSheet: View {
                     }
                     .pickerStyle(.segmented)
                     Text(settings.paginatedScroll
-                         ? "Each scroll snaps to the next viewport — like turning a page."
+                         ? "Each scroll snaps to the next viewport, like turning a page."
                          : "Read at your own pace; the position bar tracks your place in the book.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -142,7 +142,7 @@ struct ReaderSettingsSheet: View {
         switch settings.progressIndicator {
         case .timeLeft:    return "How many minutes are left at 250 words / minute."
         case .pageCount:   return "Current page out of the book's estimated total."
-        case .progressBar: return "A draggable bar — slide to scrub through the book."
+        case .progressBar: return "A draggable bar to scrub through the book."
         }
     }
 }

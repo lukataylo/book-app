@@ -81,7 +81,7 @@ struct SettingsView: View {
                                 displayedComponents: .hourAndMinute
                             )
                         }
-                        Text("One gentle nudge a day when cards are due. No account, no server — scheduled on this device.")
+                        Text("One gentle nudge a day when cards are due. No account, no server; scheduled on this device.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -154,13 +154,13 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                             .textSelection(.enabled)
                     }
-                    Text("On-device handles short tasks (auto-categorisation, brief learnings). Whole-book compression and re-style need a Claude API key — the on-device context window is too small.")
+                    Text("On-device handles short tasks (auto-categorisation, brief learnings). Whole-book compression and re-style need a Claude API key; the on-device context window is too small.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Section("Privacy") {
-                    Text("Cloud transformations send the source book to Anthropic for the duration of the request. Local transformations stay on-device. The router never silently switches between them — every cloud run requires an explicit confirmation in the Transformation Studio.")
+                    Text("Cloud transformations send the source book to Anthropic for that request only. Local transformations stay on-device. Every cloud run needs an explicit confirmation in the Transformation Studio.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

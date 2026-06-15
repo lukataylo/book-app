@@ -313,7 +313,7 @@ struct RememberView: View {
             Text("No decks yet")
                 .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-            Text("Open a summary from the Read tab, or import a book — every book can become a deck of idea cards.")
+            Text("Open a summary from the Read tab, or import a book. Every book can become a deck of idea cards.")
                 .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)

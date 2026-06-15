@@ -108,7 +108,7 @@ enum LLMError: Error, LocalizedError {
         case .noProviderAvailable:        return "No language model is available on this device or account."
         case .missingAPIKey:              return "Add your Anthropic API key in Settings → AI."
         case .providerUnavailable(let m): return "Provider unavailable: \(m)"
-        case .rateLimited:                return "Rate limited — try again in a moment."
+        case .rateLimited:                return "Rate limited. Try again in a moment."
         case .decodingFailed(let m):      return "Couldn't decode the model's response: \(m)"
         case .http(let code, let body):   return "HTTP \(code): \(body)"
         case .cancelled:                  return "Request cancelled."

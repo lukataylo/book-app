@@ -144,7 +144,7 @@ private struct SavedCardsView: View {
         var lines = [card.title, "", card.body]
         if let title = card.book?.title {
             lines.append("")
-            lines.append("— from \(title)")
+            lines.append("from \(title)")
         }
         return lines.joined(separator: "\n")
     }
