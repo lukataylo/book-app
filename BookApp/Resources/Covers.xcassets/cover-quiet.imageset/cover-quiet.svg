@@ -10,6 +10,5 @@
     <polyline points="150,403 158,442 190,403"/>
     <circle cx="200" cy="352" r="9" fill="#2447C2" stroke="none"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Susan Cain</text>
   <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

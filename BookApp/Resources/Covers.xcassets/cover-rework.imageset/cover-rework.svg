@@ -6,6 +6,5 @@
     <circle cx="200" cy="385" r="95"/>
     <line x1="158" y1="385" x2="242" y2="385" stroke-width="16"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jason Fried &amp; David H. Hansson</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

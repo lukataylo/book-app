@@ -15,6 +15,5 @@
     <circle cx="175" cy="330" r="11" fill="#2447C2" stroke="none"/>
     <line x1="175" y1="342" x2="175" y2="348"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jonathan Haidt</text>
   <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

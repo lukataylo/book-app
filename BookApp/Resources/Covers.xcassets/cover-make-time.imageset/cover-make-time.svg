@@ -15,6 +15,5 @@
   <line x1="200" y1="385" x2="200" y2="435" stroke="#C92A21" stroke-width="7" stroke-linecap="round"/>
   <circle cx="200" cy="385" r="7" fill="#C92A21"/>
 
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">JAKE KNAPP &amp; JOHN ZERATSKY</text>
   <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

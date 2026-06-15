@@ -12,6 +12,5 @@
     <polyline points="150,455 175,412 160,386 196,346 200,308" stroke-dasharray="3 10"/>
   </g>
   <polygon points="200,280 224,288 200,296" fill="#2447C2"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Anders Ericsson &amp; Robert Pool</text>
   <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

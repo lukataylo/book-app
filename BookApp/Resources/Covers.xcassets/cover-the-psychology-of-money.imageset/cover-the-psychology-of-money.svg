@@ -10,6 +10,5 @@
     <circle cx="206" cy="418" r="13"/>
     <circle cx="280" cy="347" r="19" fill="#0E7C96" stroke="none"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Morgan Housel</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

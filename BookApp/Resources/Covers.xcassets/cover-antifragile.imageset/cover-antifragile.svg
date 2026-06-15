@@ -4,6 +4,5 @@
   <text x="40" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="600" fill="#2B2620">Antifragile</text>
   <polyline points="75,470 105,435 125,455 160,390 185,415 225,335 252,360 294,293" fill="none" stroke="#6B3FC9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <polygon points="303,281 285,287 299,303" fill="#6B3FC9"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Nassim Nicholas Taleb</text>
   <rect x="0" y="576" width="400" height="24" fill="#6B3FC9"/>
 </svg>

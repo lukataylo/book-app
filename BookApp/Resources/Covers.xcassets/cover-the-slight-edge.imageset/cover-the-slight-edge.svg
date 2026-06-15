@@ -10,6 +10,5 @@
     <polyline points="300,472 318,474 311,457"/>
     <circle cx="80" cy="385" r="8" fill="#C92A21" stroke="none"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jeff Olson</text>
   <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

@@ -12,6 +12,5 @@
   <circle cx="110" cy="470" r="12" fill="none" stroke="#0B7F58" stroke-width="7"/>
   <circle cx="200" cy="470" r="12" fill="none" stroke="#0B7F58" stroke-width="7"/>
   <circle cx="290" cy="470" r="13" fill="#0B7F58"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Brian Christian &amp; Tom Griffiths</text>
   <rect x="0" y="576" width="400" height="24" fill="#0B7F58"/>
 </svg>

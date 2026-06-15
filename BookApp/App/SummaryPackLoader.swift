@@ -49,7 +49,9 @@ enum SummaryPackLoader {
             return pending.compactMap { file in
                 guard let data = try? Data(contentsOf: file),
                       let pack = try? decoder.decode(SummaryPack.self, from: data) else {
+                    #if DEBUG
                     print("[SummaryPacks] failed to decode \(file.lastPathComponent)")
+                    #endif
                     return nil
                 }
                 return pack
@@ -187,7 +189,9 @@ enum SummaryPackLoader {
             // Roll the failed pack's pending inserts back so one bad pack
             // can't poison every subsequent pack's save in this run.
             context.rollback()
+            #if DEBUG
             print("[SummaryPacks] save failed for \(pack.slug): \(error)")
+            #endif
             return false
         }
     }

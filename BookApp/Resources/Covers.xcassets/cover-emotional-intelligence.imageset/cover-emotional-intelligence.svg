@@ -6,6 +6,5 @@
 <circle cx="200" cy="388" r="92" fill="none" stroke="#2447C2" stroke-width="7"/>
 <path d="M 200,430 C 172,406 150,390 150,366 C 150,348 165,338 180,344 C 189,348 196,356 200,364 C 204,356 211,348 220,344 C 235,338 250,348 250,366 C 250,390 228,406 200,430 Z" fill="none" stroke="#2447C2" stroke-width="6" stroke-linejoin="round"/>
 <circle cx="200" cy="377" r="5" fill="#2447C2"/>
-<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Daniel Goleman</text>
 <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

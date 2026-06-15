@@ -111,6 +111,14 @@ struct BookDetailView: View {
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
                             .padding(.top, 4)
                     }
+                    if book.isSummaryEdition {
+                        // Surface the independence/non-affiliation up front, next
+                        // to the title + author (not just in the closing footer).
+                        Label("Independent summary · not affiliated with the author or publisher", systemImage: "info.circle")
+                            .font(.system(.caption2, weight: .medium))
+                            .foregroundStyle(Theme.Palette.textSecondary)
+                            .padding(.top, 6)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

@@ -8,6 +8,5 @@
   <rect x="100" y="436" width="40" height="26" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linejoin="round"/>
   <line x1="282" y1="360" x2="282" y2="392" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
   <polyline points="274,382 282,394 290,382" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Andrew S. Grove</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

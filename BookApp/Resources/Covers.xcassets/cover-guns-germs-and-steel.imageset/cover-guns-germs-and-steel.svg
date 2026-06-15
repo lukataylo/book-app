@@ -10,6 +10,5 @@
   <line x1="126" y1="385" x2="274" y2="385" stroke="#8F4A12" stroke-width="7" stroke-linecap="round"/>
   <polyline points="141,374 126,385 141,396" fill="none" stroke="#8F4A12" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <polyline points="259,374 274,385 259,396" fill="none" stroke="#8F4A12" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Jared Diamond</text>
   <rect x="0" y="576" width="400" height="24" fill="#8F4A12"/>
 </svg>

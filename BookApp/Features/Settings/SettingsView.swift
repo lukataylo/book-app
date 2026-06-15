@@ -197,6 +197,15 @@ struct SettingsView: View {
             }
             .task {
                 onDeviceStatus = await LocalProvider().availabilityReport()
+                // If the user revoked notifications in iOS Settings, the
+                // toggle would otherwise still read ON — reconcile it.
+                if let streak, streak.remindersEnabled {
+                    let status = await NotificationScheduler.authorizationStatus()
+                    if status == .denied {
+                        streak.remindersEnabled = false
+                        save()
+                    }
+                }
             }
             .alert("Reset all content?", isPresented: $confirmReset) {
                 Button("Reset", role: .destructive) { resetAllContent() }
@@ -259,6 +268,9 @@ struct SettingsView: View {
         try? modelContext.delete(model: ReviewLog.self)
         try? modelContext.delete(model: StreakState.self)
         try? modelContext.save()
+        // Reclaim the on-disk blobs (covers, variant text, images, originals)
+        // so they don't leak across resets.
+        BookStore.shared.deleteAllBookFiles()
         for key in ["SummaryPacks.loadedSlugs-v2", "SeedBooks.completed-v1",
                     "Annotations.backfill-v1", "CoverArt.seedBackfill-v1"] {
             UserDefaults.standard.removeObject(forKey: key)

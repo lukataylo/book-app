@@ -8,6 +8,5 @@
 <path d="M 100,430 C 148,415 158,388 200,382 C 242,376 252,348 300,338" fill="none" stroke="#2447C2" stroke-width="6" stroke-linecap="round"/>
 <path d="M 100,456 C 148,441 158,414 200,408 C 242,402 252,374 300,364" fill="none" stroke="#2447C2" stroke-width="6" stroke-linecap="round"/>
 <circle cx="200" cy="382" r="6" fill="#2447C2"/>
-<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Mihaly Csikszentmihalyi</text>
 <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

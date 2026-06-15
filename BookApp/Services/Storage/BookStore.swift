@@ -138,6 +138,26 @@ final class BookStore: @unchecked Sendable {
         return (dest, bookmark)
     }
 
+    /// Remove a single book's on-disk folder (cover, variant text, images,
+    /// original file).
+    func deleteBookFolder(for bookID: UUID) {
+        let folder = rootURL.appendingPathComponent(bookID.uuidString, isDirectory: true)
+        try? FileManager.default.removeItem(at: folder)
+    }
+
+    /// Remove every book folder under the root. Used by Settings → Reset all
+    /// content so on-disk covers / variant text / images don't leak across
+    /// resets (the SwiftData rows are deleted separately).
+    func deleteAllBookFiles() {
+        guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: rootURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]
+        ) else { return }
+        // Book folders are UUID-named directories; remove each.
+        for url in contents where UUID(uuidString: url.lastPathComponent) != nil {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     /// Resolve a stored bookmark back into a usable URL.
     func resolveBookmark(_ data: Data) -> URL? {
         var stale = false

@@ -178,11 +178,15 @@ enum SeedBooksLoader {
         for v in meta.variants {
             let txtURL = bookFolder.appendingPathComponent(v.file)
             guard let txt = try? String(contentsOf: txtURL, encoding: .utf8), !txt.isEmpty else {
+                #if DEBUG
                 print("[SeedBooks] missing/empty: \(v.file) for \(meta.slug)")
+                #endif
                 continue
             }
             guard let kind = VariantKind(rawValue: v.kind) else {
+                #if DEBUG
                 print("[SeedBooks] unknown kind \(v.kind) for \(meta.slug)/\(v.file)")
+                #endif
                 continue
             }
             let variant = BookVariant(
@@ -204,10 +208,14 @@ enum SeedBooksLoader {
             context.insert(variant)
             addedCount += 1
         }
+        #if DEBUG
         print("[SeedBooks] \(meta.slug): added \(addedCount) variants in addition to Original")
+        #endif
 
         do { try context.save() } catch {
+            #if DEBUG
             print("[SeedBooks] save failed for \(meta.slug): \(error)")
+            #endif
         }
     }
 
@@ -312,7 +320,7 @@ enum SeedBooksLoader {
                 variantTemplates: [
                     "compressed-25":   .init(kind: "compressed", target_pages: 25, style_reference: "",                  model: "claude-sonnet-4-6"),
                     "compressed-75":   .init(kind: "compressed", target_pages: 75, style_reference: "",                  model: "claude-sonnet-4-6"),
-                    "restyled-gladwell": .init(kind: "styled",   target_pages: 75, style_reference: "Malcolm Gladwell",  model: "claude-opus-4-7"),
+                    "restyled-gladwell": .init(kind: "styled",   target_pages: 75, style_reference: "Narrative non-fiction",  model: "claude-opus-4-7"),
                 ]
             )
         case "prince-machiavelli":
@@ -323,7 +331,7 @@ enum SeedBooksLoader {
                 variantTemplates: [
                     "compressed-10":   .init(kind: "compressed", target_pages: 10, style_reference: "",                  model: "claude-sonnet-4-6"),
                     "compressed-30":   .init(kind: "compressed", target_pages: 30, style_reference: "",                  model: "claude-sonnet-4-6"),
-                    "restyled-harari": .init(kind: "styled",     target_pages: 25, style_reference: "Yuval Noah Harari", model: "claude-opus-4-7"),
+                    "restyled-harari": .init(kind: "styled",     target_pages: 25, style_reference: "Big-picture narrative", model: "claude-opus-4-7"),
                 ]
             )
         case "beyond-good-evil-nietzsche":
@@ -334,7 +342,7 @@ enum SeedBooksLoader {
                 variantTemplates: [
                     "compressed-20":  .init(kind: "compressed", target_pages: 20, style_reference: "",             model: "claude-sonnet-4-6"),
                     "compressed-60":  .init(kind: "compressed", target_pages: 60, style_reference: "",             model: "claude-sonnet-4-6"),
-                    "restyled-didion": .init(kind: "styled",    target_pages: 50, style_reference: "Joan Didion",  model: "claude-opus-4-7"),
+                    "restyled-didion": .init(kind: "styled",    target_pages: 50, style_reference: "Spare and literary",  model: "claude-opus-4-7"),
                 ]
             )
         default:

@@ -13,6 +13,5 @@
 <line x1="290" y1="420" x2="276" y2="420" stroke="#2447C2" stroke-width="5" stroke-linecap="round"/>
 <line x1="200" y1="420" x2="240" y2="360" stroke="#2447C2" stroke-width="6" stroke-linecap="round"/>
 <circle cx="200" cy="420" r="8" fill="#2447C2"/>
-<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Daniel H. Pink</text>
 <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

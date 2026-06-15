@@ -10,6 +10,5 @@
 <line x1="136" y1="375" x2="262" y2="375" stroke="#0E7C96" stroke-width="6" stroke-linecap="round"/>
 <circle cx="120" cy="404" r="4" fill="#0E7C96"/>
 <line x1="136" y1="404" x2="238" y2="404" stroke="#0E7C96" stroke-width="6" stroke-linecap="round"/>
-<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Stone, Patton &amp; Heen</text>
 <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

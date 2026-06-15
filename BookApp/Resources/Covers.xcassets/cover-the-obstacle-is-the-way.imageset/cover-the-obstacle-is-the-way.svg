@@ -8,6 +8,5 @@
     <path d="M 90 468 C 140 468 150 400 178 380 L 222 380 C 252 380 272 358 300 320"/>
     <polyline points="297,336 300,318 284,326"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Ryan Holiday</text>
   <rect x="0" y="576" width="400" height="24" fill="#6B3FC9"/>
 </svg>

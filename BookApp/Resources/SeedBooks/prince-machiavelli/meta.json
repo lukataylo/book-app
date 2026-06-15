@@ -37,7 +37,7 @@
       "file": "restyled-harari.txt",
       "kind": "styled",
       "target_pages": 25,
-      "style_reference": "Yuval Noah Harari",
+      "style_reference": "Big-picture narrative",
       "model": "claude-opus-4-7",
       "input_tokens": 194,
       "cached_input_tokens": 0,

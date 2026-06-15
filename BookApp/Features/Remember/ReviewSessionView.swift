@@ -22,6 +22,9 @@ struct ReviewSessionView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var queue: [KeyLearning] = []
+    /// How many times each card has been re-queued after an `again` this
+    /// session, so a stubborn card can't loop the session forever.
+    @State private var requeueCount: [UUID: Int] = [:]
     @State private var index = 0
     @State private var revealed = false
     @State private var session: ReviewSession?
@@ -287,7 +290,13 @@ struct ReviewSessionView: View {
         // The scheduler relearns a failed card in ~10 minutes; re-queue it so
         // that relearn step actually happens this session instead of waiting
         // until tomorrow. It re-appears after the remaining due cards.
-        if grade == .again { queue.append(card) }
+        // Re-queue a failed card so its 10-min relearn step happens this
+        // session — but cap it so a card you genuinely can't recall can't trap
+        // the session in a loop (after this it's left for tomorrow / leeched).
+        if grade == .again, requeueCount[card.id, default: 0] < 2 {
+            requeueCount[card.id, default: 0] += 1
+            queue.append(card)
+        }
         haptic(for: grade)
         withAnimation(reduceMotion ? nil : .snappy) {
             revealed = false

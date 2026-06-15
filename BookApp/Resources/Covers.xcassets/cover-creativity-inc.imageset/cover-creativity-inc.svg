@@ -8,6 +8,5 @@
   <ellipse cx="170" cy="402" rx="28" ry="13" fill="none" stroke="#0E7C96" stroke-width="7" transform="rotate(-40 170 402)"/>
   <ellipse cx="232" cy="390" rx="28" ry="13" fill="none" stroke="#0E7C96" stroke-width="7" transform="rotate(40 232 390)"/>
   <circle cx="200" cy="358" r="9" fill="#0E7C96"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Ed Catmull</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

@@ -9,6 +9,5 @@
   <circle cx="236" cy="386" r="18" fill="#2447C2"/>
   <path d="M168,346 Q200,324 234,346" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <polyline points="224,342 234,346 230,357" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Robert B. Cialdini</text>
   <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

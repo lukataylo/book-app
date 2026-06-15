@@ -12,6 +12,5 @@
   <circle cx="170" cy="455" r="6" fill="#C92A21"/>
   <circle cx="228" cy="440" r="6" fill="#C92A21"/>
   <circle cx="270" cy="400" r="6" fill="#C92A21"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Darren Hardy</text>
   <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

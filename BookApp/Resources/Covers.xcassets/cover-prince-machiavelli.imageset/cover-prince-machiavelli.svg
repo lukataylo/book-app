@@ -12,6 +12,5 @@
   <circle cx="175" cy="451" r="4" fill="#6B3FC9"/>
   <circle cx="200" cy="451" r="5" fill="#6B3FC9"/>
   <circle cx="225" cy="451" r="4" fill="#6B3FC9"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Niccolò Machiavelli</text>
   <rect x="0" y="576" width="400" height="24" fill="#6B3FC9"/>
 </svg>

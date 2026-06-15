@@ -8,6 +8,5 @@
   <polyline points="184,374 200,392 216,374" fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <polyline points="148,400 158,452 242,452 252,400" fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <polyline points="172,424 190,440 226,408" fill="none" stroke="#C92A21" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">David Allen</text>
   <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

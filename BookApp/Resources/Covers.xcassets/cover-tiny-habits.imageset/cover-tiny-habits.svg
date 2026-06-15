@@ -10,6 +10,5 @@
     <path d="M200,390 C230,384 250,398 250,420 C222,420 202,410 200,390 Z"/>
   </g>
   <circle cx="200" cy="350" r="8" fill="#C92A21"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">BJ Fogg</text>
   <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

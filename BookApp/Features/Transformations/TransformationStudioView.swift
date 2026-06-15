@@ -57,11 +57,15 @@ struct TransformationStudioView: View {
     @FocusState private var styleFieldFocused: Bool
 
     private let engine = TransformationEngine()
+    // Descriptive style presets rather than the names of living authors —
+    // productizing "rewrite in the style of <named author>" invites
+    // right-of-publicity / false-endorsement claims (see content-legal-review).
+    // Users can still type any reference of their own in the free field.
     private let suggestedAuthors = [
-        "Joan Didion", "Hemingway",
-        "Susan Sontag", "James Baldwin", "Annie Dillard",
-        "Edward Tufte", "Yuval Harari", "Ursula K. Le Guin",
-        "Mary Oliver", "Oliver Sacks"
+        "Spare and literary", "Warm and narrative",
+        "Punchy and direct", "Academic and precise", "Vivid and sensory",
+        "Plain and clear", "Conversational", "Playful and witty",
+        "Lyrical", "Journalistic"
     ]
 
     var body: some View {
@@ -197,7 +201,7 @@ struct TransformationStudioView: View {
             isOn: $changeStyle
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                TextField("e.g. Joan Didion", text: $styleReference)
+                TextField("e.g. Spare and literary", text: $styleReference)
                     .focused($styleFieldFocused)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 14)

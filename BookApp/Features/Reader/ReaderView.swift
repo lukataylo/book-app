@@ -67,7 +67,7 @@ struct ReaderView: View {
                     VStack(spacing: 12) {
                         ProgressView()
                         Text("Opening book…")
-                            .font(.system(size: 13))
+                            .font(.system(.footnote))
                             .foregroundStyle(textColor.opacity(0.6))
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -96,7 +96,7 @@ struct ReaderView: View {
             // doesn't bleed in.
             ToolbarItem(placement: .principal) {
                 Text(book.title)
-                    .font(.system(size: 14, weight: .semibold, design: .serif))
+                    .font(.system(.subheadline, design: .serif, weight: .semibold))
                     .foregroundStyle(textColor.opacity(0.85))
                     .lineLimit(1)
             }
@@ -280,7 +280,7 @@ struct ReaderView: View {
 
             if let toast = savedToast {
                 Text(toast)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(.footnote, weight: .semibold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background {
@@ -800,11 +800,11 @@ struct ReaderView: View {
         VStack(spacing: 6) {
             HStack(spacing: 10) {
                 Text("\(speedSettings.wpm)")
-                    .font(.system(size: 24, weight: .semibold, design: .serif))
+                    .font(.system(.title2, design: .serif, weight: .semibold))
                     .foregroundStyle(textColor)
                     .monospacedDigit()
                 Text("words / min")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(.caption2, weight: .medium))
                     .foregroundStyle(textColor.opacity(0.55))
 
                 Spacer(minLength: 6)
@@ -816,7 +816,7 @@ struct ReaderView: View {
                         persistSpeedSettings()
                     } label: {
                         Text("\(wpm)")
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .font(.system(.caption2, design: .monospaced, weight: .semibold))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(
@@ -963,7 +963,7 @@ struct ReaderView: View {
                     ttsEngine.cycleRate()
                 } label: {
                     Text(rateLabel(for: ttsEngine.currentRate))
-                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                        .font(.system(.footnote, design: .monospaced, weight: .semibold))
                         .frame(minWidth: 44, minHeight: 44)
                         .padding(.horizontal, 8)
                         .background(
@@ -1156,7 +1156,7 @@ struct ReaderView: View {
             // While narrating, replace the indicator with the snippet being
             // read. Skip controls live in the next row.
             Text(ttsEngine.currentText.replacingOccurrences(of: "\n", with: " "))
-                .font(.system(size: 13, weight: .regular, design: .serif))
+                .font(.system(.footnote, design: .serif, weight: .regular))
                 .foregroundStyle(textColor.opacity(0.92))
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -1165,12 +1165,12 @@ struct ReaderView: View {
             switch settings.progressIndicator {
             case .timeLeft:
                 Text(timeLeftText())
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced, weight: .medium))
                     .foregroundStyle(textColor.opacity(0.55))
                     .frame(maxWidth: .infinity, alignment: .leading)
             case .pageCount:
                 Text(pageCountText())
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced, weight: .medium))
                     .foregroundStyle(textColor.opacity(0.55))
                     .frame(maxWidth: .infinity, alignment: .leading)
             case .progressBar:
@@ -1322,7 +1322,7 @@ private struct ModeTabPill: View {
                         Image(systemName: tab.systemImage)
                             .font(.system(size: 12, weight: .semibold))
                         Text(tab.label)
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(.footnote, weight: .semibold))
                     }
                     .frame(maxWidth: .infinity, minHeight: 38)
                     .foregroundStyle(

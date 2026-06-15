@@ -26,6 +26,5 @@
     <polyline points="240,456 270,430 300,456"/>
   </g>
 
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Michael E. Gerber</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

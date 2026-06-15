@@ -10,6 +10,5 @@
   <circle cx="242" cy="446" r="7" fill="#0E7C96"/>
   <circle cx="158" cy="446" r="7" fill="#0E7C96"/>
   <circle cx="131" cy="366" r="7" fill="#0E7C96"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Ray Dalio</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

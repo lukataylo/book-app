@@ -8,6 +8,5 @@
   <polyline points="110,470 170,338 205,384 252,312 330,470" fill="none" stroke="#2447C2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <line x1="252" y1="312" x2="252" y2="276" stroke="#2447C2" stroke-width="7" stroke-linecap="round"/>
   <polygon points="252,276 286,284 252,292" fill="#2447C2"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Angela Duckworth</text>
   <rect x="0" y="576" width="400" height="24" fill="#2447C2"/>
 </svg>

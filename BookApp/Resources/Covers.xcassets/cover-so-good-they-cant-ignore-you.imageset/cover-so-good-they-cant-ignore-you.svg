@@ -10,6 +10,5 @@
     <line x1="250" y1="330" x2="200" y2="365" stroke-width="5"/>
     <line x1="200" y1="365" x2="200" y2="475" stroke-width="5"/>
   </g>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Cal Newport</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

@@ -9,6 +9,5 @@
     <circle cx="200" cy="385" r="30"/>
   </g>
   <circle cx="200" cy="385" r="14" fill="#0E7C96"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Simon Sinek</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

@@ -12,6 +12,5 @@
 <circle cx="168" cy="352" r="5" fill="#C92A21"/>
 <circle cx="232" cy="352" r="5" fill="#C92A21"/>
 <circle cx="200" cy="476" r="8" fill="#C92A21"/>
-<text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Greg McKeown</text>
 <rect x="0" y="576" width="400" height="24" fill="#C92A21"/>
 </svg>

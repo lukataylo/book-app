@@ -8,6 +8,5 @@
   <line x1="186" y1="380" x2="276" y2="380" stroke="#0E7C96" stroke-width="7" stroke-linecap="round"/>
   <polyline points="252,360 280,380 252,400" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
   <rect x="296" y="350" width="60" height="60" fill="#0E7C96"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#2B2620" opacity="0.7">Peter Thiel</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>

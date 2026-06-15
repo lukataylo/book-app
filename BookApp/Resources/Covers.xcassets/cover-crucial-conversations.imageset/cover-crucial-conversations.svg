@@ -10,6 +10,5 @@
   <circle cx="178" cy="368" r="6" fill="#0E7C96"/>
   <ellipse cx="252" cy="418" rx="60" ry="42" fill="none" stroke="#0E7C96" stroke-width="7"/>
   <polyline points="280,452 298,486 252,456" fill="none" stroke="#0E7C96" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="556" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="#2B2620" opacity="0.7">Kerry Patterson et al.</text>
   <rect x="0" y="576" width="400" height="24" fill="#0E7C96"/>
 </svg>
