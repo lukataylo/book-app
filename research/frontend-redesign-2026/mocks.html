@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BookApp — Main-UI redesign options (2026)</title>
+<style>
+  :root{
+    /* app tokens, from BookApp/Design/Theme.swift + CoverArt.swift */
+    --bg:#ffffff; --surface:#f5f5f4; --ink:#0a0a0a; --sec:#6b7280;
+    --divider:#e5e5e5; --shadow:rgba(0,0,0,.18);
+    --paper:#f7f3eb; --cover-ink:#2b2620;
+    /* CoverArt category tints */
+    --c-self:#c92a21; --c-psych:#2447c2; --c-biz:#0e7c96;
+    --c-sci:#0b7f58; --c-hist:#8f4a12; --c-phil:#6b3fc9;
+    /* KnowledgeCard tints */
+    --k-principle:#6d28d9; --k-model:#1d4ed8; --k-habit:#047857;
+    --k-insight:#c2410c; --k-warning:#b91c1c; --k-practice:#0e7490;
+    --serif:"New York","Iowan Old Style",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#ececec;color:var(--ink);font:14px/1.45 var(--sans);
+    -webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+
+  header.page{padding:34px 40px 6px;max-width:1180px;}
+  header.page .kick{font:600 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--sec);}
+  header.page h1{margin:10px 0 8px;font:700 30px/1.05 var(--serif);letter-spacing:-.01em;}
+  header.page p{margin:0;color:#3a3a3c;max-width:820px;font-size:15px;}
+  .legend{display:flex;gap:10px 22px;flex-wrap:wrap;padding:16px 40px 4px;color:var(--sec);font-size:12.5px;max-width:1180px;}
+  .legend b{color:var(--ink);}
+
+  .band{padding:30px 40px 2px;max-width:1180px;}
+  .band .tag{display:inline-block;font:700 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+    padding:5px 9px;border-radius:6px;background:var(--ink);color:#fff;margin-bottom:10px;}
+  .band .tag.rec{background:#0b7f58;}
+  .band .tag.base{background:#9ca3af;}
+  .band h2{margin:0 0 4px;font:600 21px/1.2 var(--serif);}
+  .band .sub{color:var(--sec);margin:0;max-width:760px;font-size:14px;}
+
+  .row{display:flex;gap:40px;flex-wrap:wrap;padding:16px 40px 8px;align-items:flex-start;max-width:1180px;}
+  .col{width:300px;}
+  .cap{font-weight:700;margin:14px 2px 3px;font-size:13.5px;}
+  .note{color:var(--sec);font-size:12px;margin:2px;line-height:1.5;}
+  .note .api{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:#374151;
+    background:#eef0f2;border-radius:4px;padding:1px 5px;}
+
+  /* phone shell */
+  .phone{width:300px;height:640px;border:10px solid #0d0d0d;border-radius:46px;background:var(--bg);
+    position:relative;overflow:hidden;box-shadow:0 18px 46px rgba(0,0,0,.18);}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:96px;height:26px;
+    background:#0d0d0d;border-radius:16px;z-index:40;}
+  .screen{position:absolute;inset:0;padding:52px 16px 66px;overflow:hidden;display:flex;flex-direction:column;}
+  .screen.flush{padding:52px 0 66px;}
+  .scroll{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:16px;}
+
+  /* type */
+  .hero-greet{font-size:13px;color:var(--sec);}
+  .hero-title{font:700 24px/1.12 var(--serif);letter-spacing:-.01em;margin-top:3px;}
+  .sec-title{font:600 18px/1.15 var(--serif);}
+  .sec-title.sm{font-size:16px;}
+  .eyebrow{font:700 10.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--sec);}
+  .muted{color:var(--sec);} .tiny{font-size:11px;} .xtiny{font-size:10px;}
+  .serif{font-family:var(--serif);}
+
+  /* search */
+  .search{display:flex;align-items:center;gap:8px;padding:9px 13px;border:.5px solid var(--divider);
+    border-radius:14px;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);color:var(--sec);font-size:12.5px;
+    box-shadow:0 6px 16px rgba(0,0,0,.05);}
+
+  /* glass card */
+  .glass{background:rgba(255,255,255,.62);backdrop-filter:blur(14px);border:.5px solid var(--divider);
+    border-radius:20px;box-shadow:0 8px 16px rgba(0,0,0,.06);}
+  .glass.m{border-radius:14px;}
+
+  /* generated cover (mimics GeneratedCoverView) */
+  .cover{position:relative;border-radius:8px;overflow:hidden;background:var(--paper);flex:0 0 auto;
+    box-shadow:0 6px 12px var(--shadow);display:flex;flex-direction:column;}
+  .cover .eb{font:600 6px/1.1 var(--sans);letter-spacing:.06em;color:rgba(43,38,32,.55);
+    padding:10px 9px 0;}
+  .cover .ct{font:600 12.5px/1.05 var(--serif);color:var(--cover-ink);padding:3px 9px 0;}
+  .cover .glyph{flex:1;display:flex;align-items:center;justify-content:center;}
+  .cover .glyph svg{width:52%;height:52%;transform:rotate(-4deg);}
+  .cover .au{font:500 6.5px/1 var(--sans);color:rgba(43,38,32,.72);padding:0 9px 5px;}
+  .cover .foot{height:6px;}
+  .cover.tall{width:98px;height:147px;}
+  .cover.tall .ct{font-size:13px;}
+  .cover.sm{width:56px;height:84px;}
+  .cover.sm .ct{font-size:8.5px;padding:2px 6px 0;} .cover.sm .eb{padding:6px 6px 0;font-size:4.5px;}
+  .cover.sm .au{display:none;}
+  .cover.big{width:120px;height:180px;}
+
+  /* category / knowledge chips */
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;
+    font:600 11px/1 var(--sans);border:.5px solid var(--divider);color:var(--sec);white-space:nowrap;background:#fff;}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .kchip{display:inline-flex;padding:4px 9px;border-radius:20px;font:700 9.5px/1 var(--sans);
+    letter-spacing:.09em;text-transform:uppercase;}
+  .k-principle{color:var(--k-principle);background:rgba(109,40,217,.12);}
+  .k-model{color:var(--k-model);background:rgba(29,78,216,.12);}
+  .k-habit{color:var(--k-habit);background:rgba(4,120,87,.12);}
+  .k-insight{color:var(--k-insight);background:rgba(194,65,12,.12);}
+  .k-practice{color:var(--k-practice);background:rgba(14,116,144,.12);}
+
+  /* buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:14px;
+    background:var(--ink);color:#fff;font:600 13.5px/1 var(--sans);}
+  .btn.ghost{background:var(--surface);color:var(--ink);border:.5px solid var(--divider);}
+
+  /* horizontal shelf */
+  .shelf{display:flex;gap:14px;overflow:hidden;padding:6px 0 2px;}
+  .shelf .item{width:98px;flex:0 0 auto;}
+  .shelf .item .ct2{font:600 11px/1.15 var(--serif);margin:6px 1px 0;}
+  .shelf .item .au2{font-size:10px;color:var(--sec);margin:1px;}
+  .shelf .item .rt{font-size:9.5px;color:var(--sec);opacity:.85;margin:1px;}
+
+  /* progress */
+  .track{height:3px;border-radius:3px;background:var(--divider);overflow:hidden;}
+  .track > i{display:block;height:100%;background:var(--ink);}
+  .flame{color:#f59e0b;font-weight:800;}
+  .badge{background:#dc2626;color:#fff;border-radius:20px;font:800 11px/1 var(--sans);padding:4px 8px;min-width:20px;text-align:center;}
+
+  /* tab bar */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:56px;border-top:.5px solid var(--divider);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(18px);display:flex;justify-content:space-around;
+    align-items:center;z-index:30;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:#b8b8bd;font:600 9px/1 var(--sans);}
+  .tab .ic{font-size:17px;line-height:1;} .tab.on{color:var(--ink);}
+
+  /* dashboard tiles */
+  .tile{padding:14px;display:flex;gap:12px;align-items:center;}
+  .tile .lead{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    font-size:18px;background:var(--surface);flex:0 0 auto;}
+  .tile .grow{flex:1;min-width:0;}
+  .tile .tt{font:600 14px/1.15 var(--sans);}
+  .tile .ts{font-size:11.5px;color:var(--sec);margin-top:2px;}
+  .ring{width:40px;height:40px;border-radius:50%;flex:0 0 auto;
+    background:conic-gradient(var(--ink) var(--p,60%),var(--divider) 0);
+    display:flex;align-items:center;justify-content:center;}
+  .ring i{width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+    font:700 9px/1 var(--sans);font-style:normal;}
+
+  /* editorial feed */
+  .cell{border-radius:18px;overflow:hidden;position:relative;}
+  .pickhero{padding:16px;display:flex;gap:14px;align-items:flex-end;min-height:150px;
+    background:linear-gradient(180deg,#faf7f0,#f0ece2);border:.5px solid var(--divider);}
+
+  /* learning path */
+  .path{flex:1;position:relative;overflow:hidden;padding:6px 0 0;}
+  .plabel{align-self:center;font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--sec);
+    text-align:center;margin:6px 0;}
+  .pnode{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;position:relative;z-index:2;border:.5px solid var(--divider);background:#fff;}
+  .pnode.done{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .pnode.cur{background:#fff;color:var(--ink);box-shadow:0 0 0 5px rgba(10,10,10,.08);border:1.5px solid var(--ink);}
+  .pnode.lock{color:#c7c7cc;}
+  .pnode.round{border-radius:50%;}
+  .pconn{width:2px;height:22px;background:var(--divider);margin:0 auto;}
+  .prow{display:flex;align-items:center;justify-content:center;gap:12px;}
+  .pmeta{font-size:11px;color:var(--sec);}
+
+  /* ============ transition demos ============ */
+  .demos{display:flex;gap:40px;flex-wrap:wrap;padding:16px 40px 30px;max-width:1180px;align-items:flex-start;}
+  .demo{width:300px;}
+  .stage{width:300px;height:400px;border:10px solid #0d0d0d;border-radius:40px;background:var(--bg);
+    position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.16);}
+  .stage .lbl{position:absolute;top:14px;left:0;right:0;text-align:center;font:600 11px/1 var(--sans);
+    color:var(--sec);z-index:5;}
+
+  /* demo 1: cover -> reader zoom */
+  .zc{position:absolute;left:34px;top:150px;width:64px;height:96px;z-index:3;
+    transform-origin:center;animation:zoomcover 4.2s ease-in-out infinite;}
+  @keyframes zoomcover{
+    0%,18%{transform:translate(0,0) scale(1);opacity:1;border-radius:8px;}
+    46%,72%{transform:translate(80px,-40px) scale(2.7);opacity:1;border-radius:8px;}
+    82%,100%{transform:translate(0,0) scale(1);opacity:1;border-radius:8px;}
+  }
+  .zreader{position:absolute;inset:14px;border-radius:26px;background:#fff;border:.5px solid var(--divider);
+    padding:22px 18px;opacity:0;z-index:2;animation:zreader 4.2s ease-in-out infinite;}
+  @keyframes zreader{0%,26%{opacity:0} 46%,72%{opacity:1} 80%,100%{opacity:0}}
+  .zreader .l{height:8px;border-radius:4px;background:var(--surface);margin:9px 0;}
+
+  /* demo 2: deck tile -> card deck (matchedGeometry) */
+  .dtile{position:absolute;left:110px;top:150px;width:120px;height:130px;z-index:3;
+    animation:dtile 4.6s ease-in-out infinite;}
+  @keyframes dtile{
+    0%,16%{transform:translate(0,0) scale(1);opacity:1;}
+    44%,74%{transform:translate(-56px,2px) scale(2.05);opacity:1;}
+    86%,100%{transform:translate(0,0) scale(1);opacity:1;}
+  }
+  .kface{position:absolute;inset:0;border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:7px;}
+  .kface .l{height:7px;border-radius:4px;background:rgba(255,255,255,.55);}
+
+  /* demo 3: streak numericText roll */
+  .roll{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+  .rollnum{font:800 66px/1 var(--serif);overflow:hidden;height:70px;}
+  .rollnum span{display:block;animation:roll 4s steps(1) infinite;}
+  @keyframes roll{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-70px)}
+    50%,70%{transform:translateY(-140px)}75%,100%{transform:translateY(-210px)}}
+  .flamebig{font-size:34px;animation:pop 4s ease-in-out infinite;}
+  @keyframes pop{0%,20%,25%,100%{transform:scale(1)}22%{transform:scale(1.35)}}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <div class="kick">Front-end redesign · main UI options</div>
+  <h1>Four home screens for BookApp, side by side</h1>
+  <p>Rendered in the app's <b>real</b> design language — editorial black-and-white, New York serif
+  titles, paper "Idea-Glyph" covers, hairline glass cards — so you can judge the look, not just the layout.
+  Column&nbsp;1 is today's shelf home (the baseline). Columns&nbsp;2–4 are three different
+  information-architecture philosophies. Transition animations to sub-screens are demoed live at the bottom.</p>
+</header>
+<div class="legend">
+  <span><b>Baseline</b> — shelf / library (what ships today)</span>
+  <span><b>Option 1</b> — "Today" dashboard (retention-first) ✦ recommended</span>
+  <span><b>Option 2</b> — editorial discovery feed (Blinkist DNA)</span>
+  <span><b>Option 4</b> — editorial learning path (Duolingo DNA, made adult)</span>
+</div>
+
+<div class="row">
+
+  <!-- ============================ BASELINE ============================ -->
+  <div class="col">
+    <div class="band" style="padding:0 0 12px;"><span class="tag base">Baseline · ships today</span></div>
+    <div class="phone"><div class="island"></div>
+      <div class="screen">
+        <div class="scroll">
+          <div>
+            <div class="hero-greet">Hi Luka,</div>
+            <div class="hero-title">Sharpen your mind with great books.</div>
+          </div>
+          <div class="search">🔍 Search books, themes, learnings…</div>
+          <div class="glass m tile" style="padding:11px;">
+            <div class="cover sm"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Atomic Habits</div><div class="glyph"></div><div class="foot" style="background:var(--c-self)"></div></div>
+            <div class="grow">
+              <div class="eyebrow">Continue reading</div>
+              <div class="serif" style="font-weight:600;font-size:14px;margin:3px 0;">Atomic Habits</div>
+              <div class="tiny muted">64% complete · James Clear</div>
+            </div>
+            <div style="color:#c7c7cc">›</div>
+          </div>
+          <div>
+            <div class="sec-title">Self-improvement</div>
+            <div class="shelf">
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Atomic Habits</div><div class="glyph"></div><div class="au">James Clear</div><div class="foot" style="background:var(--c-self)"></div></div><div class="ct2">Atomic Habits</div><div class="au2">James Clear</div><div class="rt">3–15 min</div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Deep Work</div><div class="glyph"></div><div class="au">Cal Newport</div><div class="foot" style="background:var(--c-self)"></div></div><div class="ct2">Deep Work</div><div class="au2">Cal Newport</div><div class="rt">3–14 min</div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">The One Thing</div><div class="glyph"></div><div class="au">G. Keller</div><div class="foot" style="background:var(--c-self)"></div></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-title">Psychology</div>
+            <div class="shelf">
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Thinking, Fast and Slow</div><div class="glyph"></div><div class="au">D. Kahneman</div><div class="foot" style="background:var(--c-psych)"></div></div><div class="ct2">Thinking, Fast…</div><div class="au2">D. Kahneman</div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Influence</div><div class="glyph"></div><div class="au">R. Cialdini</div><div class="foot" style="background:var(--c-psych)"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ic">📖</span>Read</div>
+        <div class="tab"><span class="ic">🗂</span>Remember</div>
+        <div class="tab"><span class="ic">🔖</span>Saved</div>
+        <div class="tab"><span class="ic">✓</span>Act</div>
+        <div class="tab"><span class="ic">⚙</span>Settings</div>
+      </div>
+    </div>
+    <div class="cap">Shelf / library home</div>
+    <div class="note">Greeting → search → cover carousels. Beautiful, but a pure browsing surface — nothing tells the
+      user what to do <i>today</i>, and the retention engine you already built (due reviews, streaks, plans) is buried in tabs.
+      <b>Weakest archetype for a retention app.</b></div>
+  </div>
+
+  <!-- ============================ OPTION 1 ============================ -->
+  <div class="col">
+    <div class="band" style="padding:0 0 12px;"><span class="tag rec">Option 1 · recommended</span></div>
+    <div class="phone"><div class="island"></div>
+      <div class="screen">
+        <div class="scroll">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="hero-greet">Wednesday, 1 July</div>
+              <div class="hero-title">Today</div>
+            </div>
+            <div class="glass m" style="display:flex;align-items:center;gap:5px;padding:7px 11px;">
+              <span class="flame">🔥</span><b style="font-size:14px;">7</b>
+            </div>
+          </div>
+
+          <!-- due review -->
+          <div class="glass tile">
+            <div class="lead" style="background:rgba(109,40,217,.1);color:var(--k-principle)">🧠</div>
+            <div class="grow">
+              <div class="tt">Daily Review</div>
+              <div class="ts">12 cards due · ~4 min</div>
+            </div>
+            <div class="badge">12</div>
+          </div>
+
+          <!-- continue -->
+          <div class="glass tile">
+            <div class="cover sm"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Atomic Habits</div><div class="glyph"></div><div class="foot" style="background:var(--c-self)"></div></div>
+            <div class="grow">
+              <div class="eyebrow">Continue</div>
+              <div class="serif" style="font-weight:600;font-size:13.5px;margin:2px 0 5px;">Atomic Habits</div>
+              <div class="track"><i style="width:64%"></i></div>
+            </div>
+          </div>
+
+          <!-- today's act step -->
+          <div class="glass tile">
+            <div class="lead" style="background:rgba(4,120,87,.1);color:var(--k-habit)">✓</div>
+            <div class="grow">
+              <div class="eyebrow" style="color:var(--k-habit)">Act · Day 4 of 14</div>
+              <div class="tt" style="font-size:13px;margin-top:2px;">Stack a new habit onto your morning coffee</div>
+              <div class="ts">from Atomic Habits</div>
+            </div>
+          </div>
+
+          <!-- daily pick -->
+          <div>
+            <div class="eyebrow" style="margin:2px 2px 8px;">Big idea of the day</div>
+            <div class="glass" style="padding:15px;">
+              <span class="kchip k-model">Mental Model</span>
+              <div class="serif" style="font-weight:700;font-size:16px;line-height:1.25;margin:9px 0 5px;">
+                The map is not the territory.</div>
+              <div class="tiny muted" style="line-height:1.5;">Your model of a thing is always a simplification —
+                confuse the two and you optimise the wrong thing. From <b>The Great Mental Models</b>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ic">◎</span>Today</div>
+        <div class="tab"><span class="ic">📖</span>Browse</div>
+        <div class="tab"><span class="ic">🗂</span>Remember</div>
+        <div class="tab"><span class="ic">✓</span>Act</div>
+        <div class="tab"><span class="ic">⚙</span>You</div>
+      </div>
+    </div>
+    <div class="cap">"Today" dashboard — bounded &amp; completable</div>
+    <div class="note">Leads with the loop you already built: due <b>Review</b>, <b>Continue</b>, today's <b>Act</b> step,
+      one editorial pick. Answers "what now?" the moment the app opens. Shelf demotes to a <b>Browse</b> tab.
+      Reuses <span class="api">MemoryStore.dueAndWaiting</span> &amp; streak state — mostly recomposition.
+      <br><b>Transition:</b> each tile <span class="api">.matchedTransitionSource</span> → <span class="api">.navigationTransition(.zoom)</span> (demo ①).</div>
+  </div>
+
+  <!-- ============================ OPTION 2 ============================ -->
+  <div class="col">
+    <div class="band" style="padding:0 0 12px;"><span class="tag">Option 2</span></div>
+    <div class="phone"><div class="island"></div>
+      <div class="screen">
+        <div class="scroll">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div><div class="hero-greet">Good evening, Luka</div><div class="hero-title">Discover</div></div>
+            <div class="glass m" style="padding:7px 11px;"><span class="flame">🔥</span> <b style="font-size:14px;">7</b></div>
+          </div>
+          <div class="search">🔍 Search 80 summaries…</div>
+
+          <!-- daily hero pick -->
+          <div class="cell">
+            <div class="pickhero">
+              <div class="cover big" style="width:92px;height:138px;"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Sapiens</div><div class="glyph"></div><div class="au">Y. N. Harari</div><div class="foot" style="background:var(--c-hist)"></div></div>
+              <div>
+                <div class="eyebrow">Today's pick</div>
+                <div class="serif" style="font-weight:700;font-size:19px;line-height:1.1;margin:5px 0;">Sapiens</div>
+                <div class="tiny muted">Why one human species out of six now runs the planet.</div>
+                <div class="chip" style="margin-top:9px;background:var(--ink);color:#fff;border-color:var(--ink);">▶ 15 min · Read now</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- editorial block -->
+          <div>
+            <div class="sec-title sm">Read in 15 minutes</div>
+            <div class="shelf">
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Deep Work</div><div class="glyph"></div><div class="au">Cal Newport</div><div class="foot" style="background:var(--c-self)"></div></div><div class="rt" style="margin-top:6px;">14 min</div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Why We Sleep</div><div class="glyph"></div><div class="au">M. Walker</div><div class="foot" style="background:var(--c-sci)"></div></div><div class="rt" style="margin-top:6px;">12 min</div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Meditations</div><div class="glyph"></div><div class="au">M. Aurelius</div><div class="foot" style="background:var(--c-phil)"></div></div></div>
+            </div>
+          </div>
+
+          <!-- if you liked -->
+          <div>
+            <div class="sec-title sm">If you liked <span class="serif" style="font-style:italic">Atomic Habits</span></div>
+            <div class="shelf">
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">Tiny Habits</div><div class="glyph"></div><div class="au">BJ Fogg</div><div class="foot" style="background:var(--c-self)"></div></div></div>
+              <div class="item"><div class="cover tall"><div class="eb">THE BIG IDEAS IN</div><div class="ct">The Power of Habit</div><div class="glyph"></div><div class="au">C. Duhigg</div><div class="foot" style="background:var(--c-self)"></div></div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <span class="chip on">Productivity</span><span class="chip">Psychology</span><span class="chip">Money</span><span class="chip">Health</span>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ic">✦</span>Discover</div>
+        <div class="tab"><span class="ic">🗂</span>Remember</div>
+        <div class="tab"><span class="ic">🔖</span>Saved</div>
+        <div class="tab"><span class="ic">✓</span>Act</div>
+        <div class="tab"><span class="ic">⚙</span>You</div>
+      </div>
+    </div>
+    <div class="cap">Editorial discovery feed</div>
+    <div class="note">Keeps discovery as the front door but replaces flat shelves with a <b>daily hero pick</b> +
+      curated magazine blocks ("Read in 15 min", "If you liked…"). Kills choice-paralysis; still consumption-weighted.
+      <br><b>Transition:</b> hero pick zooms into detail; carousels use <span class="api">.scrollTransition</span> so off-centre covers scale/dim (demo ②).</div>
+  </div>
+
+  <!-- ============================ OPTION 4 ============================ -->
+  <div class="col">
+    <div class="band" style="padding:0 0 12px;"><span class="tag">Option 4</span></div>
+    <div class="phone"><div class="island"></div>
+      <div class="screen flush">
+        <div style="padding:0 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="serif" style="font-weight:700;font-size:20px;">Atomic Habits</div>
+          <div class="glass m" style="padding:6px 10px;"><span class="flame">🔥</span> <b>7</b></div>
+        </div>
+        <div style="padding:0 16px;" class="tiny muted">Your path through the book · 6 of 11</div>
+
+        <div class="path">
+          <div class="plabel">Read</div>
+          <div class="prow"><div class="pnode done round">📖</div></div>
+          <div class="pconn"></div>
+          <div class="prow" style="transform:translateX(-40px)"><div class="pnode done round">✓</div></div>
+          <div class="pconn" style="transform:translateX(-20px)"></div>
+          <div class="plabel">Remember</div>
+          <div class="prow" style="transform:translateX(38px)"><div class="pnode done round">✓</div></div>
+          <div class="pconn" style="transform:translateX(19px)"></div>
+          <div class="prow"><div class="pnode cur round">▶</div></div>
+          <div class="pmeta" style="text-align:center;margin:5px 0;">Card 4 · <span class="serif" style="font-style:italic">The 2-minute rule</span></div>
+          <div class="pconn" style="transform:translateX(-19px)"></div>
+          <div class="prow" style="transform:translateX(-38px)"><div class="pnode lock round">🔒</div></div>
+          <div class="pconn"></div>
+          <div class="plabel">Act · 14-day plan</div>
+          <div class="prow"><div class="pnode">✓</div></div>
+        </div>
+
+        <div style="padding:0 16px;">
+          <div class="btn">Continue · The 2-minute rule</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ic">◈</span>Journey</div>
+        <div class="tab"><span class="ic">🧠</span>Review</div>
+        <div class="tab"><span class="ic">📖</span>Browse</div>
+        <div class="tab"><span class="ic">⚙</span>You</div>
+      </div>
+    </div>
+    <div class="cap">Editorial learning path</div>
+    <div class="note">Renders <b>Read → Remember → Act</b> as one spatial journey per book; a single glowing "next" node.
+      Stickiest archetype — but the design bet is keeping it <b>serif-and-ink editorial</b>, not Duolingo-cute
+      (ink nodes, printed-almanac feel, no cartoon mascot). Highest build effort; new path renderer + node state.
+      <br><b>Transition:</b> node → lesson zoom; completion = restrained <span class="api">KeyframeAnimator</span> seal stamp (demo ③).</div>
+  </div>
+
+</div>
+
+<!-- ============================ TRANSITION DEMOS ============================ -->
+<div class="band">
+  <span class="tag">Transitions to sub-UIs · live</span>
+  <h2>The three signature motions</h2>
+  <p class="sub">Looping approximations of the real SwiftUI transitions. All are one-modifier native APIs on your
+  iOS 18 target (Liquid Glass polish comes free on iOS 26).</p>
+</div>
+<div class="demos">
+
+  <!-- demo 1 -->
+  <div class="demo">
+    <div class="stage">
+      <div class="lbl">① Cover → Reader (zoom)</div>
+      <div class="zreader">
+        <div class="serif" style="font-weight:700;font-size:15px;">Atomic Habits</div>
+        <div class="l" style="width:100%"></div><div class="l" style="width:96%"></div>
+        <div class="l" style="width:98%"></div><div class="l" style="width:60%"></div>
+      </div>
+      <div class="zc cover" style="width:64px;height:96px;">
+        <div class="eb">THE BIG IDEAS IN</div><div class="ct">Atomic Habits</div><div class="glyph"></div>
+        <div class="foot" style="background:var(--c-self)"></div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:10px;">The tapped cover expands from its exact grid frame into the reader,
+      with a spring bounce; swipe-back shrinks it home. Interruptible.
+      <br><span class="api">.matchedTransitionSource(id:in:)</span> + <span class="api">.navigationTransition(.zoom(sourceID:in:))</span> · iOS 18</div>
+  </div>
+
+  <!-- demo 2 -->
+  <div class="demo">
+    <div class="stage">
+      <div class="lbl">② Deck tile → Card deck</div>
+      <div class="dtile glass" style="border-radius:18px;background:rgba(255,255,255,.62);">
+        <div class="kface">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="kchip k-habit">Habit</span><span class="tiny muted">12</span>
+          </div>
+          <div style="flex:1"></div>
+          <div class="serif" style="font-weight:600;font-size:12px;">Atomic Habits</div>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:10px;">The stacked-deck tile morphs up into the full-screen swipeable card,
+      its category chip and title carried across (no hard cut). A segmented top progress bar makes the deck "feel like a story."
+      <br><span class="api">matchedGeometryEffect</span> / zoom nav · <span class="api">TabView(.page)</span> + <span class="api">.scrollTransition</span></div>
+  </div>
+
+  <!-- demo 3 -->
+  <div class="demo">
+    <div class="stage">
+      <div class="lbl">③ Streak &amp; counters (numericText)</div>
+      <div class="roll">
+        <div class="flamebig">🔥</div>
+        <div class="rollnum"><span>6<br>7<br>8<br>9</span></div>
+        <div class="tiny muted">day streak</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:10px;">Streak, pages-read and XP totals roll like an odometer instead of
+      snapping; the flame gives a single restrained bounce on increment. Success haptic only — never on undo.
+      <br><span class="api">.contentTransition(.numericText())</span> + <span class="api">.symbolEffect(.bounce)</span> · iOS 16/17</div>
+  </div>
+</div>
+
+<div style="padding:6px 40px 48px;color:var(--sec);font-size:12.5px;max-width:900px;">
+  <b>How to read these:</b> the four phones are alternative <i>home screens</i>; the three stages are the
+  <i>transitions</i> that carry you into sub-screens. My recommendation is <b>Option 1</b> (Today dashboard) as the new
+  home, with the Option 5 zoom transitions applied app-wide, keeping the current shelf as a <b>Browse</b> tab — highest
+  retention payoff for medium effort, since the data already exists. <b>Option 4</b> is the higher-ceiling, higher-risk
+  bet if you want to go all-in on stickiness. Tell me which to take to a working SwiftUI prototype and I'll build it on
+  <code>claude/frontend-ui-redesign-7e6lh6</code>.
+</div>
+
+</body>
+</html>
