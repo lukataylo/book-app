@@ -360,3 +360,148 @@ Ratings volume/velocity is the strongest App Store ranking input a free app cont
 The listing already promises Mac sync via CloudKit; a Catalyst/native macOS target makes it real, adds the Mac App Store's far-less-crowded Books category as a discovery channel, and captures the desk context where people actually process highlights and plan their day. Meaningful port effort (reader layout, menus, keyboard) for a solo dev and the Mac Books market is small — worthwhile, but last among twenty.
 
 **Top 3 rationale:** #1 (Share Extension) converts the whole OS into the app's intake funnel and multiplies content supply; #2 (App Intents/Siri) buys permanent OS-level discovery plus automation-driven recurring moments at low cost; #3 (shareable cards) is the only idea where existing users *manufacture* new users daily — and #14's App Clip and #19's review prompts compound it. Common thread: the architecture (App Group snapshot, pack loader, LLM router, ShareCoordinator, existing engines) means every top-10 idea is days-to-weeks of solo work, not a platform rebuild.
+
+
+---
+
+# Part II — Summary Space Deep Dive (Blinkist-adjacent)
+
+*Second research pass (July 2026): a web-researched market teardown of the
+book-summary space, followed by 20 BookApp-specific plays for winning it.*
+
+**Synthesis.** The market's own numbers tell the strategy: the summary itself is
+now free (users openly churn to ChatGPT; ~half of Blinkist's newer summaries are
+AI-detected), so the defensible layer has moved to habit/retention,
+personalization, rights, and trust. Meanwhile every incumbent carries content,
+audio, and cloud-inference COGS that force a subscription — and their loudest
+review complaint is billing dark patterns. BookApp's no-backend, on-device,
+BYO-key architecture means zero marginal cost per user, which unlocks the one
+move no incumbent can follow: honest one-time pricing. Combined play: one-time
+catalog unlock (#1) + "Act" positioning (#2) + new-release radar as the only
+recurring layer (#3), flanked by free audio (#4) and the billing-trust wedge the
+whole market has forfeited. Prerequisite: the counsel sign-off and do-now items
+in `docs/content-legal-review.md`.
+
+### Market teardown: the Blinkist-adjacent summary space (mid-2026)
+
+#### Landscape table
+
+| Player | Model | Price | Positioning | Weakness |
+|---|---|---|---|---|
+| **Blinkist** (Go1) | Consumer sub + B2B via [Go1 acquisition, ~€200M, 2023](https://sifted.eu/articles/german-edtech-startup-blinkist-acquired-news); [41M users, library-distribution deals](https://www.owler.com/company/blinkist) | [~$15.99/mo, $99.99/yr; Pro ~$174.99/yr](https://makeheadway.com/blog/blinkist-cost/) | Category incumbent, ~7,500 titles, [Pro adds AI summaries of your own PDFs/podcasts/YouTube](https://satoristudio.net/blinkist-review/) | [AI detected in ~50% of summaries](https://originality.ai/blog/ai-content-on-blinkist), quality perceived as mechanical; [trial-to-annual-charge complaints dominate reviews](https://www.littlealmanack.com/p/blinkist-review); revenue estimates as low as [$15M](https://www.owler.com/company/blinkist) suggest consumer stagnation post-acquisition |
+| **Headway** (Headway Inc, Kyiv) | Consumer sub, ad-machine growth ([7B ad impressions, 46M new users in 2024](https://en.wikipedia.org/wiki/Headway_(app))) | ~$89.99/yr (quiz-gated pricing) | [#1 most-downloaded summary app, 50M+ downloads](https://makeheadway.com/); Forbes-estimated [$160M company revenue, $720M valuation, NYSE IPO ambitions](https://en.wikipedia.org/wiki/Headway_(app)); US >50% of revenue | Shallow 10–15 min summaries; [quiz/email-wall funnel friction](https://www.littlealmanack.com/p/headway-app-review); content SEO farm tactics (its blog "reviews" every rival); mobile net revenue (~[$1.3M/mo](https://app.sensortower.com/overview/1457185832?country=US)) implies heavy paid-acquisition dependence |
+| **Shortform** | Consumer sub | [$24/mo, ~$197/yr (promos to $99.99)](https://www.shortform.com/pricing) | Premium depth: chapter-level guides, counterpoints, exercises — ["study guides, not summaries"](https://calmevo.com/shortform-review/) | Expensive for casual users; [charges-after-cancel reports](https://www.thinkimpact.com/shortform-review/); text-heavy, weaker mobile/audio experience |
+| **getAbstract** | B2B-first (150+ Fortune 500), individual $299/yr | [$299/yr individual, $99 student; enterprise quoted](https://todaytesting.com/getabstract-review/) | Pivoted to ["verified, rights-cleared knowledge for enterprise AI"](https://www.getabstract.com/en/) — 100K+ pieces, 850+ publishers, 8 languages, feeds Copilot/Gemini/RAG | Dated consumer UX; consumer price uncompetitive; utilitarian summaries |
+| **Imprint** | Consumer sub | [$87.49–124.99/yr](https://nibble-app.com/blog/imprint-review) | Visual/cards-first micro-lessons, [Google App of the Year](https://makeheadway.com/blog/imprint-app-review/); ~[300k downloads/$400k per mo](https://app.sensortower.com/overview/1482780647?country=US) | [Trustpilot 1.9, Google Play 3.1](https://nibble-app.com/blog/imprint-app-review/) — billing/cancellation complaints; visuals sacrifice depth; hard paywall |
+| **Deepstash** | Freemium consumer | [$12.99/mo / ~$89.99/yr](https://resources.oreateai.com/resources/the-real-monthly-cost-of-deepstash-pro-and-its-actual-value) | Social idea-cards feed (200-word cards, stashes) | [Free tier can't save/organize; unauthorized-charge and bug complaints](https://makeheadway.com/blog/deepstash-review/); ideas feel disconnected from source books |
+| **Instaread** | Consumer sub + lifetime | [$8.99/mo, $89.99/yr, $299.99 lifetime](https://iapplist.com/storyshots-review/) | Rare fiction coverage plus nonfiction | Small differentiation, low brand awareness |
+| **StoryShots** | Freemium + one-time | [Free core; $29.99/yr, $59.99 lifetime](https://makeheadway.com/blog/storyshots-review/) | Budget play: free text/audio/video summaries | Indie-scale polish and library; monetization ceiling |
+| **Uptime** | Free (VC-backed, [raised $16M](https://techcrunch.com/2021/02/10/uptime/)) | Free | ["Knowledge hacks" from 8,000+ books, courses, documentaries](https://uptime.app/) | No visible revenue model; [audio quality criticized](https://iapplist.com/uptime-review/); low momentum |
+| **Bookey / 12min** | Consumer subs | ~$60–90/yr | Retention add-ons (quizzes, mind maps); [12min serves English/Spanish/Portuguese](https://makeheadway.com/blog/best-free-audiobook-summary-apps-worldwide/) | Me-too libraries; limited English-market traction |
+| **Snackz.ai** | AI-native freemium (Berlin) | Freemium | [First fully AI-generated summary library, publisher-friendly positioning, 100+ new books/mo](https://www.snackz.ai/blog/revolutionizing-reading-with-snackz-ai-the-ai-powered-book-summary-app) | Unproven quality/trust; tiny brand |
+| **BeFreed** | AI-native consumer sub (SF) | [$12.99/mo / $89.99/yr, free 1/day](https://www.befreed.ai/pricing) | [Personalized AI podcasts, adaptive flashcards, video from books/papers/talks](https://aichief.com/ai-education-tools/befreed-ai/); aggressive comparison-SEO | Depends on generic AI output; no licensed content moat |
+| **MentorPocket** | — | — | Could not verify existence in current app-store/press coverage — likely defunct or too small to register | — |
+
+#### AI-disruption state of play
+
+- **Commoditization is real at the low end.** The recurring user question is now ["why pay for Blinkist when ChatGPT summarizes for free?"](https://www.quora.com/Does-Blinkist-use-Chatgpt-to-come-up-with-book-summaries); users comparing outputs [find them "surprisingly similar"](https://www.indiehackers.com/post/book-summaries-generated-by-chatgpt-bdac66fcdc), and reviewers report [canceling in favor of AI tools](https://medium.com/illumination/3-ai-apps-i-will-be-renewing-and-ditching-in-2025-as-a-growth-minded-professional-808a1fc8b937).
+- **Incumbents quietly went AI themselves** — [Originality.AI detected AI in ~half of Blinkist's newer summaries](https://originality.ai/blog/ai-content-on-blinkist), eroding the "human-crafted quality" justification for the price, while Blinkist's official line is that its [curated pipeline beats raw GPT output](https://support.blinkist.com/en/articles/10033451-how-does-blinkist-ai-compare-to-other-ais-like-gpt).
+- **Responses cluster in three strategies:** (1) *depth/curation* (Shortform's expert guides and exercises); (2) *personalization & format* (Blinkist Pro's summarize-your-own-content, [BeFreed's personalized podcasts/flashcards](https://www.befreed.ai/blog/befreed-best-micro-learning-app-2026-for-personalized-lifelong-learning), Imprint's visuals); (3) *trust/rights as product* ([getAbstract selling "verified, rights-cleared knowledge" into enterprise AI stacks](https://www.getabstract.com/en/)).
+- The defensible layer has shifted from "the summary" (now free) to **habit, retention, personalization, and rights** — the summary itself is table stakes.
+
+#### Where the money is
+
+- **Consumer growth-marketing machines still print money** — [Headway Inc's Forbes-estimated $160M revenue](https://en.wikipedia.org/wiki/Headway_(app)) — but it is an ads-arbitrage business (7B impressions/yr), not an organic-love business; the sustainable consumer price point is **~$90–100/yr**, with $15–25/mo holding only for depth (Shortform) and $299/yr only for B2B-grade brands ([getAbstract](https://todaytesting.com/getabstract-review/)).
+- **B2B/L&D is the durable pool:** getAbstract's Fortune-500 base and LMS integrations, Blinkist being bought explicitly to be [Go1's mobile/enterprise-learning arm](https://techcrunch.com/2023/05/08/go1-snaps-up-speed-reading-app-blinkist-to-expand-in-enterprise-learning/), and the [microlearning platform market growing ~11–13% CAGR to $10–34B by 2034-35](https://www.fortunebusinessinsights.com/micro-learning-platform-market-105993).
+- **New B2B frontier: content-for-AI.** getAbstract now sells its summaries as a [token-efficient (120k→4k tokens), IP-safe knowledge layer for Copilot/Gemini/agents](https://www.getabstract.com/en/) — a signal that licensed condensed knowledge has enterprise value beyond human reading.
+- **Lifetime/one-time pricing** (StoryShots $59.99, Instaread $299.99) exists but is a small-player conversion tactic, not where revenue concentrates.
+
+#### Legal posture notes
+
+- Incumbents mostly do **not** rely on naked fair use: [getAbstract licenses from 600–850+ publishers](https://www.quora.com/Why-arent-summary-services-Blinkist-and-getAbstract-sued-for-copyright-infringement-Arent-they-stealing-value-from-the-original-authors-publishers), and Blinkist similarly secures rights/maintains publisher relationships; independent original-language summaries of *ideas* are [generally considered lawful if they copy no substantial expression](https://1minutebook.com/are-book-summaries-legal/), but the line is untested case-by-case — no major summary-app lawsuit has surfaced.
+- The [Anthropic $1.5B authors settlement (Sept 2025)](https://authorsguild.org/advocacy/artificial-intelligence/what-authors-need-to-know-about-the-anthropic-settlement/) reset the environment: Judge Alsup held training on *legally acquired* books is fair use but piracy is not, and the industry is [shifting hard toward direct licensing](https://www.ropesgray.com/en/insights/alerts/2025/09/anthropics-landmark-copyright-settlement-implications-for-ai-developers-and-enterprise-users). Practical implications for BookApp: (1) clean-room summaries written from ideas, in original prose, with no substantial quoted text and clear "unofficial companion" framing are the defensible pattern; (2) never ingest pirated texts; user-imported books processed on-device for personal use is a far safer posture than serving derivative content of copyrighted books from a server; (3) avoid implying publisher affiliation via titles/covers.
+
+#### Exploitable gaps for BookApp
+
+1. **Retention → action is claimed, never delivered.** Everyone gestures at "apply what you learn"; only Shortform has exercises and nobody schedules real-world behavior — BookApp's FSRS cards + 14-day plans exported to Calendar/Reminders is a genuinely unoccupied "Act" position ([Readwise proves the retention demand](https://readwise.io/) but stops at highlights).
+2. **Billing-trust vacuum.** The single loudest complaint across [Blinkist](https://www.littlealmanack.com/p/blinkist-review), [Imprint](https://nibble-app.com/blog/imprint-review), [Deepstash](https://makeheadway.com/blog/deepstash-review/), and [Shortform](https://www.thinkimpact.com/shortform-review/) is trial-to-charge dark patterns — a free/honest-pricing app can weaponize this in App Store positioning and reviews.
+3. **BYO-book elasticity.** Blinkist Pro charges ~$175/yr for summarize-your-own-content; BookApp does it on-device with the user's own Claude key at zero marginal cost — undercut the highest-margin incumbent feature.
+4. **Privacy/on-device as differentiation.** No major player offers local AI + CloudKit-only sync; post-Anthropic-settlement, "your books never leave your device" is both a legal and a marketing asset.
+5. **Fiction and niche titles.** [Almost no app covers fiction (Instaread is the lone partial exception)](https://isbndb.com/blog/book-summary-websites-apps/) and ["none of the more niche books were available"](https://www.thinkimpact.com/book-summary-websites/) — user-imported elastic compression sidesteps the licensing/catalog problem entirely.
+6. **Non-English languages.** Catalogs are overwhelmingly English; [12min's ES/PT support is the notable exception](https://makeheadway.com/blog/best-free-audiobook-summary-apps-worldwide/) and getAbstract tops out at 8 languages — on-device generation makes any-language summaries nearly free.
+7. **Depth-on-demand.** The market forces a binary choice: 15-min Blinks vs Shortform's $197/yr deep guides; BookApp's compress/expand slider serves both users with one product.
+8. **Cards-first learning without the paywall rage.** [Imprint validated visual micro-cards (Google App of the Year)](https://makeheadway.com/blog/imprint-app-review/) but its 1.9 Trustpilot shows execution is beatable; swipeable FSRS cards capture the same demand.
+9. **Quality trust vs AI slop.** Users are churning because [incumbent summaries now read as machine-generated](https://originality.ai/blog/ai-content-on-blinkist); transparent human-curated "Big Ideas" editions plus visible sourcing can own the "not slop" position that Blinkist forfeited.
+10. **Audio without licensing costs.** On-device TTS of summaries + imported books gives Headway-style audio-first consumption with zero content-hosting or royalty burden.
+11. **Students/textbooks.** [College students resort to scattered free sites for textbook summaries](https://booksrun.com/blog/6-ways-to-find-book-summaries-for-college-students/); import-your-own-PDF + cards + spaced repetition is effectively a study tool no summary app ships.
+12. **Future B2B optionality via "knowledge layer."** [getAbstract's enterprise-AI pivot](https://www.getabstract.com/en/) shows condensed, rights-clean knowledge sells to L&D and AI teams; BookApp's clean-room editions could later license as a small-catalog, IP-safe corpus without building a backend today.
+
+### 20 plays for the summary space
+
+Scored with the solo-business rubric (pain / timing / distribution / monetisation / competition / AI-durability / founder-leverage, /70). Ranked best-first. Structural asset behind everything: BookApp has **zero marginal cost per user** (no backend, bundled JSON catalog, on-device TTS/AI, BYO Claude key), while every incumbent carries content-hosting, audio-production and cloud-inference COGS that force a subscription.
+
+---
+
+**⭐ 1. "Own it forever" — the anti-subscription Blinkist. (55/70)**
+One-time purchase (~$39.99, or free + $29.99 catalog unlock) for the full 80→300-title catalog, cards, plans, audio — positioned explicitly as "Blinkist without the £60/yr". Targets the enormous churn cohort of Blinkist/Headway cancellers who search "Blinkist alternative one time purchase" (pure ASO pull). Blinkist structurally cannot copy this — its content licensing, audio production and server costs *require* recurring revenue; BookApp's bundled SummaryPacks and system-voice TTS cost nothing per user. Survives AI substitution because the buyer is paying for a curated, legally-vetted, editorially consistent catalog plus a retention system, not for text generation. Feasibility: a StoreKit paywall on `SummaryPackLoader` — days of work.
+
+**⭐ 2. The Act layer — "the only summary app you actually *do*." (53/70)**
+Reposition entirely around the knowing-doing gap: "Blinkist tells you about Atomic Habits; BookApp puts it in your calendar." Target self-improvement buyers who've read 40 summaries and changed nothing — every incumbent stops at consumption (Headway gamifies *reading*, not *doing*). AI-alone fails here because the value is the closed loop: curated 14-day plans → Calendar/Reminders export → check-offs → FSRS review of what you practiced — an accountability system, not text. Feasibility: `ActionItem`, `PlannerService` and the 760 shipped plan steps already exist; the work is marketing copy, ASO ("implementation plan", "book challenge"), and paid "Challenge Pack" IAPs (e.g. "30-day Deep Work implementation", $9.99).
+
+**⭐ 3. New-release radar — the only subscription worth charging for. (53/70)**
+Keep the back-catalog free forever; charge ~$29/yr for "every major non-fiction release, clean-room summarized + carded + planned within 7 days of publication," delivered as update-shipped packs (the per-slug idempotent loader already supports this). Targets professionals who need to *sound current* (the getAbstract/Blinkist "new releases" shelf is their real retention driver). ChatGPT can't kill it: models haven't ingested a book published last Tuesday, and the clean-room editorial pipeline plus curation of *which* releases matter is the product. Feasibility: the content pipeline exists; this is a weekly content-ops cadence one founder + Claude can run, and it's the one genuinely recurring value in the whole space.
+
+**4. Free audio flank — Blinkist's moat given away. (52/70)**
+Audio is Blinkist's #1 subscription driver and biggest COGS (studio narration, streaming). BookApp's on-device `AVSpeechSynthesizer` with premium system voices makes the *entire* catalog a free, offline audiobook library with word-level highlighting — ASO around "free book summaries audio / offline" and commuter positioning. AI-alone doesn't ship an offline lock-screen audio experience over a vetted catalog. Feasibility: 100% shipped today; this is purely a positioning/ASO play that funnels into plays #1–3.
+
+**5. The memory guarantee — sell measurable retention, not reading. (52/70)**
+Promise: "Recall 80% of a book's key ideas 90 days later — we'll show you the number." Incumbents report vanity metrics (books "finished"); BookApp's FSRS scheduler over 945 curated cards can compute and display an honest retention score per book, with a refund-backed guarantee on the unlock. Targets the "I read summaries but remember nothing" complaint that fills every Blinkist review thread. AI-durable because the moat is the user's accumulated FSRS state — months of personal review history no chatbot can substitute. Feasibility: FSRS ships; needs a retention-score view and quiz-mode grading.
+
+**6. Vertical curriculum packs — tiny market × high WTP. (51/70)**
+Sell curated tracks as one-time IAPs: "The First-Time Manager's 12" ($14.99), "The Founder's 15", "The New Parent's 8", "The Salesperson's 10" — each a sequenced set of summaries + merged 30-day plan + combined card deck. Exploits the skill's tiny-niche rule: a new engineering manager will pay $15 tonight; incumbents sell undifferentiated all-you-can-eat. Survives AI because the value is expert sequencing over a legally-clean catalog plus the integrated plan, and each vertical is its own ASO keyword surface. Feasibility: a `Collection` wrapper over existing packs + StoreKit.
+
+**7. Elastic depth — the Shortform killer at zero price. (50/70)**
+Every summary resizes: 2-min gist → 15-min standard → 45-min deep edition. Shortform charges $197/yr for one fixed depth; Blinkist for another; BookApp does *all depths per user* — curated deep editions as paid pack upgrades, or free on-demand via the user's own key/on-device model. AI-alone can expand text but not from a clean-room, attributed, editorially consistent base with cards and plans attached. Feasibility: `BookVariant` elastic-length is the app's founding tech, already pointed at summaries.
+
+**8. Highlights → lifetime deck: eat Readwise's lunch. (50/70)**
+Import Kindle/Readwise/Apple Books highlights and fold them into the same FSRS review queue as catalog cards — one unified "everything I've ever read" memory system, on-device, one-time price vs Readwise's $60/yr subscription. Targets the heavy-reader corpus crowd (r/kindle, r/ObsidianMD). Strongest AI-durability in the list: a multi-year personal review corpus with scheduling state is unforkable by a chatbot. Feasibility: parse the Kindle clippings/Readwise export formats into `KnowledgeCard` — the review engine is done.
+
+**9. Author-licensed "Official Big Ideas" editions. (49/70)**
+Offer mid-list non-fiction authors a free deal: an official, author-approved summary edition with a badge and buy-the-book link, in exchange for the license and the author promoting the app to their list. Converts the legal risk (docs/content-legal-review.md's medium items) into an exclusivity moat no incumbent has (Blinkist licenses nothing) and free distribution via author audiences. AI can't generate an *endorsed* edition. Feasibility: BD-heavy for a solo founder (hence the score), but zero engineering beyond a badge field.
+
+**10. Goal-to-curriculum: "get better at negotiation" as a product. (48/70)**
+User states a goal; the app assembles a track from the catalog (relevant summaries, merged card deck, sequenced 30-day plan on the calendar) — on-device or via their Claude key. Exploits the incumbents' browse-only discovery; this is Duolingo-style directed learning over books. Grounding in the curated catalog + FSRS + Calendar export is what raw ChatGPT lacks. Feasibility: `LLMRouter` + existing pack metadata; a selection/sequencing prompt, not new infrastructure.
+
+**11. Book club in a CloudKit share. (48/70)**
+A host picks a title; members join via `CKShare` — shared reading progress, a shared deck, a shared 14-day plan with everyone's check-offs visible. Corporate book clubs and church/parent groups pay a $19.99 host unlock. No incumbent does group accountability (Deepstash is broadcast-social, not club-social); virality is built in (every club invites 5–12 installs). AI-durable via the social loop. Feasibility: real work (CloudKit sharing on the existing models) but no backend needed — the only social play that preserves the no-backend ethos.
+
+**12. Micro-B2B: the 10-seat L&D bundle getAbstract won't sell. (47/70)**
+getAbstract starts at enterprise pricing; Blinkist Business is a clunky afterthought. Sell managers of small teams a volume bundle (Apple Business Manager custom app or promo-code batch, ~$299/team/yr) around assigned titles + the Act plan as lightweight L&D with visible completion. The accountability artifact (exported plans, check-off screenshots) is what the buyer pays for, not summaries. Feasibility: mostly packaging/licensing; deeper reporting would eventually pressure the no-backend stance — score reflects that.
+
+**13. The "pre-read" affiliate flywheel. (47/70)**
+Lean into the legal posture: BookApp is the *front door* to books, not their replacement — every summary ends in a Bookshop/Amazon affiliate buy link, TBR integration, "read the summary before you commit £20 and 10 hours." Monetises the free tier (affiliate cuts), *strengthens* the fair-use market-substitution defence, and gives publishers a reason to like you (unique vs every incumbent, who all substitute). Feasibility: affiliate links in the existing attribution footer — a day of work; scores lower on monetisation ceiling.
+
+**14. The Blinkist switcher kit. (46/70)**
+A one-tap importer: paste your Blinkist library/history export, get every matching title mapped to catalog editions, your saves converted to cards, plus a lapsed-subscriber landing offer ("your £60/yr → £30 once"). Classic switching-cost destroyer aimed at the single largest pool of proven summary buyers; timed ASO/Reddit pushes around Blinkist price rises. AI-durability rides on plays #1/#5. Feasibility: a matching screen over existing models.
+
+**15. Language arbitrage — the Spanish/Portuguese/Hindi catalog. (46/70)**
+Clean-room summaries are generated prose, so localizing 80 packs via the Claude pipeline (+ native-speaker editorial pass) is cheap; incumbents' catalogs are English-first (Blinkist's exception is German). Whole App Store markets have no serious summary app; system TTS voices cover the audio for free. Survives AI because it's the same catalog/retention moat, just in an uncontested store. Feasibility: pipeline re-run + localized `SummaryPacks` folders; editorial QA is the real cost.
+
+**16. Cards as ads — the Deepstash counter-play. (45/70)**
+Make every knowledge card exportable as a beautiful, attributed share image (gradient card + "via BookApp" + buy-the-book credit) with one-tap share to social/iMessage; each shared card is an organic ad Deepstash charges for the privilege of creating. Pure distribution compounder for plays #1–6 rather than standalone revenue — score reflects that. AI-durable only in aggregate (brand + funnel). Feasibility: `ImageRenderer` over the existing card views; days.
+
+**17. The private-brain edition for regulated professionals. (45/70)**
+Target lawyers, clinicians, finance — people who *cannot* paste documents into ChatGPT or Blinkist-style clouds: import confidential PDFs, get on-device summaries/cards/plans, "nothing ever leaves the device" as an auditable claim. No incumbent can make this claim (all are server-side); it's a premium one-time price ($79+) per the value-pricing rule. Feasibility: shipped architecture *is* the product; the work is a compliance-toned landing page and vertical ASO. Narrow reach caps distribution.
+
+**18. License the pipeline — SummaryPacks as a white-label format. (44/70)**
+Sell the clean-room generation pipeline + legal framing + pack schema (summary/cards/plan JSON, the `SummaryPackTests` compliance suite) to coaches, newsletter writers and niche publishers who want "their own Blinkist" — $2–5k per catalog build or a rev-share. Founder-leverage play: the asset is the vetted process, which AI-alone doesn't ship with a legal review regime attached. Feasibility: productizing internal tooling; it's a services-shaped business, hence the score.
+
+**19. Creator decks — a marketplace for implementation, not summaries. (43/70)**
+Let vetted creators (productivity YouTubers, executive coaches) publish paid card decks and 14/30-day plans built on catalog titles ("Ali Abdaal's Deep Work protocol"), 70/30 split. Exploits Deepstash's weakness (user-generated noise, no commerce) with curated, monetized expertise; creators bring their own audiences. Strong in theory, but review/payments/discovery strain the no-backend, solo-founder constraints — hence the score. Feasibility: pack format supports it today; the marketplace plumbing doesn't.
+
+**20. The calm one — anti-Headway by design. (42/70)**
+Brand play: no streak-shaming, no confetti, no dark-pattern paywalls, no notification spam — "the summary app for adults," monochrome editorial design (already the app's design language), one honest price. Targets the vocal cohort burned by Headway's aggressive ads and Blinkist's cancellation flows; wins App Store reviews and press, not direct revenue. AI-durability and monetisation are borrowed from whichever pricing play it wraps — it's a multiplier on #1, weakest as a standalone.
+
+---
+
+**Portfolio note:** the plays compound rather than compete. The structural winner is #1 (one-time purchase — the one thing no COGS-carrying incumbent can follow) as the pricing spine, #2 (Act) as the differentiated positioning, #3 (new-release radar) as the only honest recurring layer, with #4, #14 and #16 as free distribution flanks. Prerequisite for all of it: complete the counsel sign-off and the do-now mitigations in `docs/content-legal-review.md` (attribution placement, author names on covers, style presets) before putting money behind any of these.
