@@ -34,6 +34,34 @@ The four lenses converge on a handful of themes:
   will pay £299–£25k/yr for. The accountability workflow, channel certification
   and audit trail survive the AI-substitution test; the summary alone doesn't.
 
+## Pay-focused shortlist
+
+The strongest willingness-to-pay ideas across all four lenses, ranked. Pattern:
+nobody pays for summaries — they pay for **accountability surfaces** (did my
+franchisee/client/rep actually do it), **channel certification** (grant
+assessors, compliance regimes), or **confidentiality posture** (no-backend +
+BYO-key). Those are what "just ask ChatGPT" can't substitute.
+
+| # | Idea | Who pays | What they're paying for | Price | Score |
+|---|------|----------|------------------------|-------|-------|
+| 1 | **ReadAccess** — dyslexia/ADHD reading accommodation | UK government (Access to Work / DSA grants), not the user | Certified assistive tool: word-synced TTS, RSVP pacing, compression, plain-prose restyle | £299/licence | 62/70 |
+| 2 | **FranchiseFirst14** — ops manual → franchisee onboarding | Franchisors (5–500 units) | Audit trail that unit 47 completed onboarding; brand consistency | £2,990/yr + £49/franchisee | 59/70 |
+| 3 | **CoachAssign** — assigned books clients actually do | Executive coaches (60k+ ICF members) | Visibility into client follow-through between sessions; retainer retention | £79/mo or £999/yr | 58/70 |
+| 4 | **SermonForge** — theology books → sermon material | Pastors / churches | Weekly Sunday deadline relief; proven four-figure WTP niche (Logos) | £199/yr pastor, £599/yr church | 57/70 |
+| 5 | **CramShift** — own textbook → exam countdown plan | USMLE/bar/CFA candidates | Passing vs. a $1,000+ retake; they already pay $500–$3,000 for prep | £149/exam campaign | 56/70 |
+| 6 | **BoardroomBrief** — firm reading programs, zero data leaves the estate | L&D at law firms, banks, consultancies | The CISO-passable deployment (on-device + firm's own API key) that getAbstract can't offer | £5k–£25k/yr per firm | 56/70 |
+| 7 | **QuotaReader** — sales book → daily rep drills | Sales enablement leads | Manager-visible reinforcement after every kickoff book assignment | £49/rep/yr, 20-seat min | 55/70 |
+| 8 | **CompanionKit** — branded companion app per book | Non-fiction authors (via launch agencies) | A shipped launch asset; authors already spend $2k–$20k on launches | £2,500 setup + £99/mo | 55/70 |
+| 9 | **CPD ReadLog** — reading → compliant CPD records | UK solicitors/accountants | Regulatory deadline relief; reading telemetry as evidence | £149/yr | 54/70 |
+| 10 | **ScoutCoverage** — manuscript coverage overnight | Film/TV story departments | Replaces $80–$150/report human readers; confidentiality via no-backend | £79/report or £999/mo | 52/70 |
+| 11 | **PackWorks** — license the 80 legally-QA'd summary packs | App builders, coaching platforms, newsletters | The clean-room editorial/legal regime, not the summaries themselves | £999/yr + £99/title | 52/70 |
+| 12 | **GhostVoice** — expand interviews into voice-true chapters | Ghostwriters ($25k–$80k/manuscript) | Their production bottleneck + NDA-safe BYO-key privacy | £1,499/yr | 50/70 |
+
+Consumer-side paid features (in-app, lower ticket, zero sales effort):
+**Goal Decks** (L1#10, 51/70) as the obvious Plus-tier feature; **Lapse Repair**
+(L1#9, 52/70) as a credit-metered transform; **CompsCrusher** (L2#10, 53/70)
+at £149 per qualifying exam.
+
 **Consensus first builds** (cheap, compounding, repeatedly flagged across lenses):
 lock-screen/home widget for due cards (L1#1, L4#5), Share Extension import
 (L4#1, L1#14), teach-back grading (L1#2), Kindle/Readwise highlights import
