@@ -1,5 +1,10 @@
 # Summary Writing-Quality Eval — Definitive Results
 
+**Superseded by [`eval-results-v2.md`](./eval-results-v2.md) (2026-07-13):** the shipped text has
+since changed — every one of the 8 summaries below was substantially rewritten, and the catalog
+mean rose from 19.6/30 to 26.5/30. Kept here as the historical baseline the rewrites were scored
+against; read `eval-results-v2.md` for current numbers.
+
 **Date:** 2026-06-15
 **Scope:** The 8 shipped `summary_short` fields (the reader-facing hook shown before the full summary), scored against an absolute rubric and diagnosed against human-written benchmarks.
 **Inputs:** `BookApp/Resources/SummaryPacks/<slug>.json` (`summary_short`); `research/summary-eval/human/<slug>.md`; rubrics `ai-tells.md` + `engaging-summaries.md`.
