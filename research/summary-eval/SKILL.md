@@ -7,6 +7,18 @@ human editor wrote them, not a model. Distilled from a human-benchmark dataset
 (`eval-results.md`). Rules are ordered by leverage — the eval proved these are
 the failures in our catalog.
 
+**Scope note:** this file covers *voice* — the `summary_short`/`summary` catalog
+fields, generated from editorial knowledge of a book rather than by chunking its
+full text. For **full-length transformations of complete book text**
+(`TransformationEngine`'s compress/expand pipeline) there's a second, orthogonal
+failure mode this file doesn't cover: chunked long-context generation losing
+content from the *middle* of the book. See [`mid-book-fidelity.md`](./mid-book-fidelity.md)
+(generator pipeline + eval) and [`long-context-summarization.md`](./long-context-summarization.md)
+(the underlying research), benchmarked against [`human-fulltext/`](./human-fulltext/).
+Also see [`claude-tells.md`](./claude-tells.md), a delta on `ai-tells.md` specifically
+for what's documented as Claude-specific (vs. generic LLM) writing signature —
+read it alongside `ai-tells.md`, not instead of it.
+
 ## The 6 rules that matter most (eval-driven, mandatory)
 
 1. **Never close by advertising our own longer summary.** 8/8 of our packs end with
