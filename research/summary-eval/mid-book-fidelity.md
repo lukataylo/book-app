@@ -148,6 +148,15 @@ got dropped; the human-benchmark comparison catches *how* the middle is written 
 (cooler register, causal adjacency, entity continuity), which a fact-presence check alone won't
 surface.
 
+**Runnable harness.** [`scripts/mid-book-eval.py`](../../scripts/mid-book-eval.py) implements
+this protocol (`facts` → `score` → `report`, or `run` for one-shot), reusing
+`seed-transform.py`'s Claude-call/Keychain helpers. It's validated end-to-end against a real,
+public-domain full-length book in
+[`mid-book-eval-demo/`](./mid-book-eval-demo/README.md) — two candidate Crime and Punishment
+summaries (one with the classic beginning/end-heavy shape, one that preserves the middle's three
+parallel plot threads) score `positional_recall_gap` of 0.15 (FAIL) and 1.00 (PASS)
+respectively, confirming the metric actually discriminates the failure mode it's meant to catch.
+
 ---
 
 ## 5. What this file does not cover

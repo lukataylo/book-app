@@ -1,0 +1,92 @@
+[
+  {
+    "fact": "Raskolnikov murders the pawnbroker Alyona Ivanovna and, when she returns unexpectedly, her half-sister Lizaveta, both with an axe.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "first"
+  },
+  {
+    "fact": "The morning after the murder, Raskolnikov receives a summons to appear at the district police superintendent's office at half-past nine.",
+    "reflected": 0,
+    "reason": "not mentioned; only vague 'wanders in a feverish daze'",
+    "third": "first"
+  },
+  {
+    "fact": "Marmeladov, a drunken former civil servant, tells Raskolnikov in a tavern that his daughter Sonya has been forced into prostitution to feed the family.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "first"
+  },
+  {
+    "fact": "Marmeladov is fatally trampled by a carriage in the street; Raskolnikov gives his last money to the family to pay for the funeral.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "first"
+  },
+  {
+    "fact": "Raskolnikov's mother Pulcheria Alexandrovna writes describing Dunya's engagement to Luzhin and her earlier ordeal with Svidrigailov, her former employer.",
+    "reflected": 0.5,
+    "reason": "engagement mentioned, Svidrigailov ordeal omitted",
+    "third": "first"
+  },
+  {
+    "fact": "Svidrigailov tells Raskolnikov that the ghost of his dead wife, Marfa Petrovna, has visited him three times since her burial.",
+    "reflected": 0,
+    "reason": "Svidrigailov entirely absent from summary",
+    "third": "middle"
+  },
+  {
+    "fact": "The examining magistrate Porfiry Petrovich conducts a psychological cat-and-mouse interrogation of Raskolnikov, implying suspicion without ever directly accusing him.",
+    "reflected": 0.5,
+    "reason": "only vague 'suspicion mounts... net of investigation tightens', no named magistrate or scene",
+    "third": "middle"
+  },
+  {
+    "fact": "Luzhin secretly plants a 100-rouble note in Sonya's pocket at the Marmeladov memorial dinner, then publicly accuses her of theft, as revenge on Raskolnikov for turning the family against him.",
+    "reflected": 0,
+    "reason": "not mentioned",
+    "third": "middle"
+  },
+  {
+    "fact": "Svidrigailov reveals that he overheard Raskolnikov's confession to Sonya through the wall of the adjoining room, since he has been renting the room next door.",
+    "reflected": 0,
+    "reason": "not mentioned",
+    "third": "middle"
+  },
+  {
+    "fact": "Svidrigailov offers Dunya 10,000 roubles to break off her engagement to Luzhin; enraged, she refuses and orders him out.",
+    "reflected": 0,
+    "reason": "not mentioned",
+    "third": "middle"
+  },
+  {
+    "fact": "Svidrigailov gives Sonya 3,000 roubles before his death, funding her eventual journey to Siberia with Raskolnikov.",
+    "reflected": 0,
+    "reason": "not mentioned",
+    "third": "last"
+  },
+  {
+    "fact": "Svidrigailov commits suicide by shooting himself, after a night of disturbing dreams, in a public place shortly before dawn.",
+    "reflected": 0,
+    "reason": "Svidrigailov's fate never addressed",
+    "third": "last"
+  },
+  {
+    "fact": "Raskolnikov confesses to the murders at the police station after first going to Sonya and kissing the ground at the Hay Market crossroads, per her earlier instruction.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "last"
+  },
+  {
+    "fact": "Raskolnikov is sentenced to eight years of penal servitude in Siberia; Sonya follows him there.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "last"
+  },
+  {
+    "fact": "In the Epilogue, Raskolnikov has a fever dream about a plague of self-righteous ideological \"trichinae\" that turns people against each other, shortly before his spiritual turn toward Sonya and the Gospels.",
+    "reflected": 1,
+    "reason": "explicit",
+    "third": "last"
+  }
+]
