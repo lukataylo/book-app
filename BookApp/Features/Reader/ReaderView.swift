@@ -717,32 +717,34 @@ struct ReaderView: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 8) {
-                // Three-tab mode pill — always visible. Each tab switches the
-                // reader into Read / Speed / Listen and triggers the right
-                // side-effect (start/stop TTS, start the speed ticker, etc.).
-                ModeTabPill(mode: $mode, isDark: isDark)
-                    .padding(.horizontal, 18)
-                    .onChange(of: mode) { _, newMode in
-                        applyModeChange(to: newMode, viewModel: viewModel)
-                    }
-
-                // Speed and Listen modes need their own full-width row of
-                // controls. Read mode doesn't — its progress indicator gets
-                // tucked inline with the secondary row below to save height.
+                // Speed and Listen each reveal their own full-width transport
+                // strip directly above the main bar. Read mode shows none — its
+                // progress indicator tucks inline into the bar below to save
+                // height.
                 if mode != .read {
                     modeControls(viewModel: viewModel, isDark: isDark)
                         .padding(.horizontal, 18)
                         .frame(minHeight: 44)
                 }
 
-                // Compact secondary row. In Read mode the leading slot is the
-                // progress indicator; in Speed / Listen it's a Spacer.
-                HStack(spacing: 14) {
+                // Single main control bar. Speed (bolt) and Listen (headphones)
+                // live here as inline toggles rather than a separate mode pill:
+                // tapping one reveals that mode's strip above and lights the
+                // icon; tapping the lit icon collapses back to plain reading.
+                // In Read mode the leading slot is the progress indicator; in
+                // Speed / Listen it's a Spacer.
+                HStack(spacing: 8) {
                     if mode == .read {
                         progressRegion(isPlaying: false)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
                         Spacer(minLength: 0)
+                    }
+                    ModeToggleButton(mode: .speed, isActive: mode == .speed, isDark: isDark) {
+                        toggleMode(.speed)
+                    }
+                    ModeToggleButton(mode: .listen, isActive: mode == .listen, isDark: isDark) {
+                        toggleMode(.listen)
                     }
                     IconBarButton(
                         systemImage: "textformat.size",
@@ -774,6 +776,9 @@ struct ReaderView: View {
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, 2)
+                .onChange(of: mode) { _, newMode in
+                    applyModeChange(to: newMode, viewModel: viewModel)
+                }
             }
             .padding(.bottom, 4)
             .background(bg)
@@ -981,8 +986,18 @@ struct ReaderView: View {
         }
     }
 
-    /// Side-effects of the user changing the active mode tab. Keeps the
-    /// engine state and any sub-sheet in sync with the pill's selection.
+    /// Toggle an inline mode icon: tapping the lit one returns to plain
+    /// reading, tapping the other switches into it. Re-tapping the active
+    /// icon never re-fires the selection haptic against the same mode.
+    private func toggleMode(_ target: ReaderMode) {
+        #if canImport(UIKit)
+        UISelectionFeedbackGenerator().selectionChanged()
+        #endif
+        mode = (mode == target) ? .read : target
+    }
+
+    /// Side-effects of the user changing the active mode. Keeps the engine
+    /// state and any sub-sheet in sync with the selected mode.
     private func applyModeChange(to newMode: ReaderMode, viewModel: ReaderViewModel) {
         switch newMode {
         case .read:
@@ -1298,58 +1313,38 @@ enum ReaderMode: String, CaseIterable, Hashable {
     static let listenScrollAnchor: UnitPoint = .top
 }
 
-/// Three-segment selectable pill — Apple Books-style "Read / Listen" extended
-/// with a Speed segment in the middle. Selected segment fills with the inverse
-/// of the page background; the others stay outlined.
-private struct ModeTabPill: View {
-    @Binding var mode: ReaderMode
+/// Inline round-icon toggle for Speed / Listen in the main control bar. When
+/// active it fills with the inverse of the page background — mirroring the old
+/// mode pill's selected segment — so the lit icon reads as "this mode is on".
+private struct ModeToggleButton: View {
+    let mode: ReaderMode
+    let isActive: Bool
     let isDark: Bool
+    let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(ReaderMode.allCases, id: \.self) { tab in
-                Button {
-                    if mode != tab {
-                        #if canImport(UIKit)
-                        // Apple's tab-style selection feedback. Nothing
-                        // fires when the user re-taps the active tab.
-                        UISelectionFeedbackGenerator().selectionChanged()
-                        #endif
-                    }
-                    mode = tab
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 12, weight: .semibold))
-                        Text(tab.label)
-                            .font(.system(.footnote, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 38)
-                    .foregroundStyle(
-                        mode == tab
-                            ? (isDark ? Color.black : Color.white)
-                            : (isDark ? Color.white.opacity(0.7) : Color.black.opacity(0.6))
-                    )
-                    .background(
-                        ZStack {
-                            if mode == tab {
-                                Capsule().fill(isDark ? Color.white : Color.black)
-                            }
+        Button(action: action) {
+            Image(systemName: mode.systemImage)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(
+                    isActive
+                        ? (isDark ? Color.black : Color.white)
+                        : (isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.78))
+                )
+                .frame(width: 44, height: 44)
+                .background(
+                    ZStack {
+                        if isActive {
+                            Circle().fill(isDark ? Color.white : Color.black)
                         }
-                    )
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(tab.label) mode")
-                .accessibilityAddTraits(mode == tab ? [.isSelected, .isButton] : .isButton)
-                .accessibilityIdentifier("reader.mode.\(tab.rawValue)")
-            }
+                    }
+                )
+                .contentShape(Circle())
         }
-        .padding(3)
-        .background(
-            Capsule()
-                .stroke(isDark ? Color.white.opacity(0.18) : Color.black.opacity(0.12), lineWidth: 0.5)
-        )
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(mode.label) mode")
+        .accessibilityAddTraits(isActive ? [.isSelected, .isButton] : .isButton)
+        .accessibilityIdentifier("reader.mode.\(mode.rawValue)")
     }
 }
 
