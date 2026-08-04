@@ -30,8 +30,8 @@
 ```
 BookApp turns every book on your shelf into a tool that bends around your time.
 
-Read, Remember, Act
-Start with the big ideas: original 15-minute summaries of major non-fiction, written as idea-level companions with full attribution. Turn any book into a deck of swipeable knowledge cards — one idea per card — and save the keepers. Then put the book to work: a 14-day action plan per title, checkable in-app or exported straight to your Calendar (write-only) and Reminders.
+Start with the big ideas
+Original 15-minute summaries of public-domain classics, written as idea-level companions with full attribution. Read the summary, keep what matters, and every reading feature works on it — reader, audio, speed reading, transformations.
 
 Compress or expand
 Have an hour, but the book takes ten? Compress it to a 20-page summary that keeps the author's voice and every key idea. Or take a five-page essay and expand it to a full chapter when you want to go deeper. Compression and expansion run on Apple's on-device intelligence when possible, and on a cloud AI model (Anthropic) when the text is long or the task is hard — you always see the model and the cost before anything runs.
@@ -46,7 +46,7 @@ Re-style
 Make a dense academic chapter read more like a spare, literary essay. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
 
 Key learnings
-Pull 5 to 15 key learnings from any book in seconds. Edit, star, export to Markdown or JSON. Quiz yourself with auto-generated flashcards.
+Pull 5 to 15 key learnings from any book in seconds. Edit, star, export to Markdown or JSON. Everything you keep — learnings and highlights alike — lands in the Saved tab, searchable across your whole library.
 
 Your library, in iCloud
 Your shelf, your reading position, your annotations, your transformations — all sync across iPhone, iPad and Mac. Books live in your iCloud Drive so they're yours, not ours.
@@ -68,7 +68,7 @@ BookApp is free. No subscription, no in-app purchases, no ads, no telemetry. Clo
 ## Keywords (100 chars, comma-separated, no spaces)
 
 ```
-epub,ebook,reader,audiobook,tts,speed-reading,summary,books,flashcard,compress,book-notes,transform
+epub,ebook,reader,audiobook,tts,speed-reading,summary,books,highlights,compress,book-notes,transform
 ```
 
 (99 chars)
@@ -98,7 +98,7 @@ epub,ebook,reader,audiobook,tts,speed-reading,summary,books,flashcard,compress,b
 
 **Free.** No in-app purchases, no subscriptions, no ads.
 
-All core features (the bundled summaries, reader, on-device TTS, speed reading, key-learnings extraction, spaced-repetition review, and on-device AI transformations on supported hardware) are free and require no payment and no key. Optional cloud transformations use the user's own Anthropic API key and are billed directly by Anthropic — the app never marks up or collects any cloud cost.
+All core features (the bundled summaries, reader, on-device TTS, speed reading, key-learnings extraction, and on-device AI transformations on supported hardware) are free and require no payment and no key. Optional cloud transformations use the user's own Anthropic API key and are billed directly by Anthropic — the app never marks up or collects any cloud cost.
 
 ## What's New (4000 chars per version)
 
@@ -153,11 +153,10 @@ Anthropic API key.
 CORE FEATURES WORK WITH NO KEY — PLEASE TEST THESE FIRST
 The app is fully usable with no API key and no payment. Without entering
 any key the reviewer can:
-  - Read the 80 bundled book summaries.
+  - Read the bundled public-domain book summaries.
   - Use the reader (EPUB/PDF import, fonts, themes, margins).
   - Use on-device text-to-speech with word-level highlighting.
-  - Use the spaced-repetition review of saved knowledge cards and key
-    learnings.
+  - Extract key learnings and highlights, kept in the Saved tab.
   - Use speed-reading (paragraph/word, single-word, RSVP modes).
 None of these features require a key, an account, or a purchase. We ask
 that the reviewer test these first to confirm the app delivers value
@@ -199,7 +198,8 @@ environment with capabilities not offered by apps such as Blinkist or
 Headway:
   - Import and read the user's own EPUB and PDF files.
   - Word-level highlighting synced to on-device text-to-speech.
-  - Spaced-repetition review built from extracted learnings and cards.
+  - Elastic length: the same book read as a 3-minute gist, a 15-minute
+    summary, or in full.
   - On-device AI transformations (compress / expand / re-style) that run
     locally on supported hardware with no cloud round-trip.
 

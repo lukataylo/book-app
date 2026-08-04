@@ -11,8 +11,6 @@ struct SettingsView: View {
     @State private var testingOnDevice: Bool = false
     @StateObject private var stats = ReadingStats.shared
 
-    // Daily Review preferences live on the single StreakState record.
-    @State private var streak: StreakState?
     @State private var confirmReset = false
     @State private var resetDone = false
 
@@ -45,47 +43,6 @@ struct SettingsView: View {
                         Spacer()
                         Text(formatMinutes(stats.minutesAllTime))
                             .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                if let streak {
-                    @Bindable var streak = streak
-                    Section("Daily Review") {
-                        Stepper(value: $streak.dailyLimit, in: 5...50, step: 5) {
-                            HStack {
-                                Text("Cards per day")
-                                Spacer()
-                                Text("\(streak.dailyLimit)").foregroundStyle(.secondary).monospacedDigit()
-                            }
-                        }
-                        .onChange(of: streak.dailyLimit) { save() }
-
-                        Toggle("Daily reminder", isOn: Binding(
-                            get: { streak.remindersEnabled },
-                            set: { on in
-                                streak.remindersEnabled = on
-                                save()
-                                Task { await applyReminder(enabled: on, minute: streak.reminderMinuteOfDay) }
-                            }
-                        ))
-
-                        if streak.remindersEnabled {
-                            DatePicker(
-                                "Time",
-                                selection: Binding(
-                                    get: { dateFromMinute(streak.reminderMinuteOfDay) },
-                                    set: { newDate in
-                                        streak.reminderMinuteOfDay = minuteFromDate(newDate)
-                                        save()
-                                        NotificationScheduler.scheduleDailyReview(minuteOfDay: streak.reminderMinuteOfDay)
-                                    }
-                                ),
-                                displayedComponents: .hourAndMinute
-                            )
-                        }
-                        Text("One gentle nudge a day when cards are due. No account, no server; scheduled on this device.")
-                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -179,7 +136,7 @@ struct SettingsView: View {
                     Button("Reset all content", role: .destructive) {
                         confirmReset = true
                     }
-                    Text("Deletes every book, card, highlight, and review from this device. The starter library reloads next launch.")
+                    Text("Deletes every book, learning, and highlight from this device. The starter library reloads next launch.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -203,25 +160,15 @@ struct SettingsView: View {
             .onAppear {
                 recomputeSpend()
                 hasKey = KeychainStore.shared.read(.anthropicAPIKey) != nil
-                streak = MemoryStore(context: modelContext).streakState()
             }
             .task {
                 onDeviceStatus = await LocalProvider().availabilityReport()
-                // If the user revoked notifications in iOS Settings, the
-                // toggle would otherwise still read ON — reconcile it.
-                if let streak, streak.remindersEnabled {
-                    let status = await NotificationScheduler.authorizationStatus()
-                    if status == .denied {
-                        streak.remindersEnabled = false
-                        save()
-                    }
-                }
             }
             .alert("Reset all content?", isPresented: $confirmReset) {
                 Button("Reset", role: .destructive) { resetAllContent() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently deletes your books, saved cards, highlights, and review history on this device.")
+                Text("This permanently deletes your books, learnings, and highlights on this device.")
             }
             .alert("Content reset", isPresented: $resetDone) {
                 Button("OK", role: .cancel) {}
@@ -237,46 +184,15 @@ struct SettingsView: View {
         return "\(v) (\(b))"
     }
 
-    private func save() { try? modelContext.save() }
-
-    private func dateFromMinute(_ minute: Int) -> Date {
-        Calendar.current.date(bySettingHour: minute / 60, minute: minute % 60, second: 0, of: .now) ?? .now
-    }
-
-    private func minuteFromDate(_ date: Date) -> Int {
-        let c = Calendar.current.dateComponents([.hour, .minute], from: date)
-        return (c.hour ?? 9) * 60 + (c.minute ?? 0)
-    }
-
-    private func applyReminder(enabled: Bool, minute: Int) async {
-        if enabled {
-            let granted = await NotificationScheduler.requestAuthorization()
-            if granted {
-                NotificationScheduler.scheduleDailyReview(minuteOfDay: minute)
-            } else if let streak {
-                // Permission denied — reflect reality in the toggle.
-                streak.remindersEnabled = false
-                save()
-            }
-        } else {
-            NotificationScheduler.cancelDailyReview()
-        }
-    }
-
     /// Delete all user + catalog content and clear the seed flags so the
     /// starter library re-seeds on the next launch.
     private func resetAllContent() {
         try? modelContext.delete(model: Book.self)
-        try? modelContext.delete(model: KnowledgeCard.self)
         try? modelContext.delete(model: KeyLearning.self)
-        try? modelContext.delete(model: ActionItem.self)
         try? modelContext.delete(model: Annotation.self)
         try? modelContext.delete(model: Bookmark.self)
         try? modelContext.delete(model: ReadingProgress.self)
         try? modelContext.delete(model: BookVariant.self)
-        try? modelContext.delete(model: ReviewSession.self)
-        try? modelContext.delete(model: ReviewLog.self)
-        try? modelContext.delete(model: StreakState.self)
         try? modelContext.save()
         // Reclaim the on-disk blobs (covers, variant text, images, originals)
         // so they don't leak across resets.
@@ -285,7 +201,6 @@ struct SettingsView: View {
                     "Annotations.backfill-v1", "CoverArt.seedBackfill-v1"] {
             UserDefaults.standard.removeObject(forKey: key)
         }
-        NotificationScheduler.cancelDailyReview()
         resetDone = true
     }
 

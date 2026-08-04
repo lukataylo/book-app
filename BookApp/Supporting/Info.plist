@@ -104,9 +104,5 @@
     </array>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
-    <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-    <string>BookApp adds your book action-plan sessions to your calendar. It never reads your existing events.</string>
-    <key>NSRemindersFullAccessUsageDescription</key>
-    <string>BookApp adds your book action-plan to-dos to Reminders so you can follow the plan.</string>
 </dict>
 </plist>

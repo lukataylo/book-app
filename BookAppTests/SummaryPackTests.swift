@@ -2,15 +2,10 @@ import Foundation
 import Testing
 @testable import BookApp
 
-/// Validates every bundled summary pack — the seed content for the
-/// Read / Remember / Act experience. Catches malformed JSON, schema drift,
-/// and content-rule violations (missing attribution, empty decks/plans)
-/// before they ship.
+/// Validates every bundled summary pack — the seed content for the Read
+/// tab. Catches malformed JSON, schema drift, and content-rule violations
+/// (missing attribution, too-short summaries) before they ship.
 struct SummaryPackTests {
-
-    private static let allowedCardCategories: Set<String> = [
-        "Principle", "Mental Model", "Habit", "Insight", "Warning", "Practice"
-    ]
 
     private func loadPacks() throws -> [SummaryPack] {
         // Hosted unit tests: Bundle.main is the app bundle, where the
@@ -37,9 +32,20 @@ struct SummaryPackTests {
     @Test
     func bundleContainsTheLaunchCatalog() throws {
         let packs = try loadPacks()
-        #expect(packs.count >= 80, "launch catalog is 80 titles")
+        #expect(!packs.isEmpty, "catalog must ship at least one pack")
         #expect(Set(packs.map(\.slug)).count == packs.count, "slugs must be unique")
         #expect(Set(packs.map(\.title)).count == packs.count, "titles must be unique")
+    }
+
+    /// The catalog ships summaries of public-domain sources only — the
+    /// in-copyright titles were pulled before submission. 1930 is the US
+    /// public-domain cutoff as of 2026; re-check it when the year rolls.
+    @Test
+    func everySourceIsOutOfCopyright() throws {
+        for pack in try loadPacks() {
+            #expect(pack.sourceYear < 1930,
+                    "\(pack.slug): \(pack.sourceTitle) (\(pack.sourceYear)) is still in copyright")
+        }
     }
 
     @Test
@@ -72,38 +78,4 @@ struct SummaryPackTests {
         }
     }
 
-    @Test
-    func everyPackHasAValidCardDeck() throws {
-        for pack in try loadPacks() {
-            #expect(pack.cards.count >= 8, "\(pack.slug): needs ≥ 8 cards")
-            for card in pack.cards {
-                #expect(!card.title.isEmpty)
-                #expect(!card.body.isEmpty)
-                #expect(Self.allowedCardCategories.contains(card.category),
-                        "\(pack.slug): unknown card category \(card.category)")
-            }
-        }
-    }
-
-    @Test
-    func everyPackHasAValidActionPlan() throws {
-        for pack in try loadPacks() {
-            #expect(pack.actions.count >= 8, "\(pack.slug): needs ≥ 8 plan steps")
-            var lastDay = 0
-            for action in pack.actions {
-                #expect(!action.title.isEmpty)
-                #expect(action.day >= 1 && action.day <= 14, "\(pack.slug): day out of range")
-                #expect(action.day >= lastDay, "\(pack.slug): days must be ascending")
-                lastDay = action.day
-                let kind = ActionKind(rawValue: action.kind)
-                #expect(kind != nil, "\(pack.slug): unknown action kind \(action.kind)")
-                if kind == .event {
-                    #expect(action.durationMinutes > 0, "\(pack.slug): events need a duration")
-                }
-            }
-            let kinds = Set(pack.actions.map(\.kind))
-            #expect(kinds.contains("task") && kinds.contains("event"),
-                    "\(pack.slug): plan should mix tasks and events")
-        }
-    }
 }

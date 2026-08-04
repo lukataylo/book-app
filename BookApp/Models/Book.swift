@@ -66,12 +66,6 @@ final class Book {
     @Relationship(deleteRule: .cascade, inverse: \Bookmark.book)
     var bookmarks: [Bookmark]? = []
 
-    @Relationship(deleteRule: .cascade, inverse: \KnowledgeCard.book)
-    var knowledgeCards: [KnowledgeCard]? = []
-
-    @Relationship(deleteRule: .cascade, inverse: \ActionItem.book)
-    var actionItems: [ActionItem]? = []
-
     init(
         id: UUID = UUID(),
         title: String,

@@ -5,8 +5,9 @@ import SwiftData
 /// in …") — the Read tab's summary-first content.
 ///
 /// `BookApp/Resources/SummaryPacks/<slug>.json` contains, per title: catalog
-/// metadata, the legally-safe summary text, curated key learnings, a deck of
-/// knowledge cards (Remember tab) and a 14-day action plan (Act tab).
+/// metadata, the legally-safe summary text and curated key learnings. (The
+/// packs also carry `cards` / `actions` blocks from the shelved Remember and
+/// Act features — unknown keys, so the decoder ignores them.)
 ///
 /// Unlike `SeedBooksLoader` there is no EPUB to import: the summary IS the
 /// content, stored as the book's `.original` variant so the reader, TTS,
@@ -99,11 +100,14 @@ enum SummaryPackLoader {
         // CloudKit-synced, so a second device must not insert its own copy
         // of a summary book that already synced down.
         let books = existingBooks ?? existingSummaryBooks(context: context)
+        // Empty unless a designed cover ships for this pack — the rest fall
+        // back to the generated Idea-Glyph cover.
+        let artSlug = CoverArt.hasDesignedCover(slug: pack.slug) ? pack.slug : ""
         if let existing = books[pack.title] {
             // Upgrade path: backfill the designed-cover slug onto books
             // seeded before vector covers shipped.
-            if existing.artSlug != pack.slug {
-                existing.artSlug = pack.slug
+            if existing.artSlug != artSlug {
+                existing.artSlug = artSlug
                 try? context.save()
             }
             // Upgrade path: packs gained a short "quick take" variant after
@@ -118,7 +122,7 @@ enum SummaryPackLoader {
 
         let book = Book(title: pack.title, author: pack.sourceAuthor, format: .unknown)
         book.isSummaryEdition = true
-        book.artSlug = pack.slug
+        book.artSlug = artSlug
         book.sourceAttribution = pack.attribution
         book.readMinutesEstimate = pack.readMinutes
         book.categoryTags = pack.categories
@@ -157,29 +161,6 @@ enum SummaryPackLoader {
                 color: palette[idx % palette.count]
             )
             context.insert(annotation)
-        }
-
-        for (idx, card) in pack.cards.enumerated() {
-            context.insert(KnowledgeCard(
-                book: book,
-                title: card.title,
-                body: card.body,
-                category: card.category,
-                order: idx,
-                source: "seed"
-            ))
-        }
-
-        for (idx, action) in pack.actions.enumerated() {
-            context.insert(ActionItem(
-                book: book,
-                title: action.title,
-                detail: action.detail,
-                kind: ActionKind(rawValue: action.kind) ?? .task,
-                dayOffset: action.day,
-                durationMinutes: action.durationMinutes,
-                order: idx
-            ))
         }
 
         do {
@@ -235,25 +216,9 @@ struct SummaryPack: Decodable, Sendable {
     /// Optional so a pack without one still decodes.
     let summaryShort: String?
     let learnings: [PackLearning]
-    let cards: [PackCard]
-    let actions: [PackAction]
 
     struct PackLearning: Decodable, Sendable {
         let text: String
         let chapter: String
-    }
-
-    struct PackCard: Decodable, Sendable {
-        let title: String
-        let body: String
-        let category: String
-    }
-
-    struct PackAction: Decodable, Sendable {
-        let title: String
-        let detail: String
-        let kind: String
-        let day: Int
-        let durationMinutes: Int
     }
 }

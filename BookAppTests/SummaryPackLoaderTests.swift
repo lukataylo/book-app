@@ -3,8 +3,8 @@ import Testing
 import SwiftData
 @testable import BookApp
 
-/// Seeding contract for the summary catalog: a pack produces the full
-/// Read/Remember/Act graph, and seeding is idempotent even when the
+/// Seeding contract for the summary catalog: a pack produces the book,
+/// its variants and learnings, and seeding is idempotent even when the
 /// UserDefaults flag is lost (the CloudKit duplicate guard).
 @MainActor
 struct SummaryPackLoaderTests {
@@ -22,9 +22,7 @@ struct SummaryPackLoaderTests {
             attribution: "An original summary of the ideas in Testing by A. Author (2020). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
             summary: "Intro.\n\n# One\n\nBody paragraph.",
             summaryShort: "A quick gist paragraph.",
-            learnings: [.init(text: "A learning.", chapter: "One")],
-            cards: [.init(title: "A Card", body: "A body.", category: "Insight")],
-            actions: [.init(title: "Do a thing", detail: "How.", kind: "event", day: 2, durationMinutes: 30)]
+            learnings: [.init(text: "A learning.", chapter: "One")]
         )
     }
 
@@ -53,12 +51,7 @@ struct SummaryPackLoaderTests {
         #expect(quickTake?.kind == .compressed)
         #expect(quickTake?.contentText.contains("A quick gist paragraph.") == true)
         #expect(book.keyLearnings?.count == 1)
-        #expect(book.knowledgeCards?.count == 1)
-        #expect(book.actionItems?.count == 1)
-        let action = try #require(book.actionItems?.first)
-        #expect(action.kind == .event)
-        #expect(action.dayOffset == 2)
-        #expect(action.durationMinutes == 30)
+        #expect(book.annotations?.count == 1)
     }
 
     @Test
@@ -73,7 +66,7 @@ struct SummaryPackLoaderTests {
 
         let books = try context.fetch(FetchDescriptor<Book>())
         #expect(books.count == 1)
-        #expect(books.first?.knowledgeCards?.count == 1)
+        #expect(books.first?.keyLearnings?.count == 1)
         // The duplicate pass must not double the quick-take variant either.
         let quickTakes = (books.first?.variants ?? []).filter { $0.label == SummaryPackLoader.quickTakeLabel }
         #expect(quickTakes.count == 1)
@@ -92,7 +85,7 @@ struct SummaryPackLoaderTests {
             categories: pack.categories, themes: pack.themes,
             readMinutes: pack.readMinutes, attribution: pack.attribution,
             summary: pack.summary, summaryShort: nil,
-            learnings: pack.learnings, cards: pack.cards, actions: pack.actions
+            learnings: pack.learnings
         )
         #expect(SummaryPackLoader.seed(pack: pack, context: context))
         var books = try context.fetch(FetchDescriptor<Book>())

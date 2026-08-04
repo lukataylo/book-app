@@ -20,8 +20,6 @@ struct BookDetailView: View {
     private enum Destination: Hashable {
         case reader(UUID)         // variant id
         case transform(UUID)      // source variant id
-        case cards                // knowledge-card deck (Remember)
-        case plan                 // action plan (Act)
     }
     @State private var route: Destination?
     @State private var showLearnings = false
@@ -71,10 +69,6 @@ struct BookDetailView: View {
                 if let v = (book.variants ?? []).first(where: { $0.id == id }) {
                     TransformationStudioView(book: book, sourceVariant: v)
                 }
-            case .cards:
-                CardDeckView(book: book)
-            case .plan:
-                ActionPlanView(book: book)
             }
         }
         .sheet(isPresented: $showLearnings) {
@@ -260,26 +254,6 @@ struct BookDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 0) {
-            if !(book.knowledgeCards ?? []).isEmpty {
-                Button {
-                    route = .cards
-                } label: {
-                    actionRow(title: "Remember",
-                              subtitle: "\(book.knowledgeCards?.count ?? 0) knowledge cards")
-                }
-                .buttonStyle(.plain)
-                Divider().background(Theme.Palette.divider)
-            }
-            if !(book.actionItems ?? []).isEmpty {
-                Button {
-                    route = .plan
-                } label: {
-                    actionRow(title: "Act",
-                              subtitle: "14-day plan · \(book.actionItems?.filter(\.completed).count ?? 0)/\(book.actionItems?.count ?? 0) done")
-                }
-                .buttonStyle(.plain)
-                Divider().background(Theme.Palette.divider)
-            }
             Button {
                 showLearnings = true
             } label: {

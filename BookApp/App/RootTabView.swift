@@ -5,10 +5,10 @@ struct RootTabView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selection: Tab = .read
 
-    // Read → Remember → Act is the product's core loop (learn it, keep it,
-    // live it). Saved collects everything kept (cards, learnings,
-    // highlights); Search moved into the Read tab's toolbar.
-    enum Tab: Hashable { case read, remember, saved, act, settings }
+    // Read → Saved is the product's core loop (read it, keep it). Saved
+    // collects the learnings and highlights kept out of a book; Search
+    // moved into the Read tab's toolbar.
+    enum Tab: Hashable { case read, saved, settings }
 
     var body: some View {
         TabView(selection: $selection) {
@@ -16,17 +16,9 @@ struct RootTabView: View {
                 .tabItem { Label("Read", systemImage: "book.fill") }
                 .tag(Tab.read)
 
-            RememberView()
-                .tabItem { Label("Remember", systemImage: "square.stack.fill") }
-                .tag(Tab.remember)
-
             SavedView()
                 .tabItem { Label("Saved", systemImage: "bookmark.fill") }
                 .tag(Tab.saved)
-
-            ActView()
-                .tabItem { Label("Act", systemImage: "checklist") }
-                .tag(Tab.act)
 
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }

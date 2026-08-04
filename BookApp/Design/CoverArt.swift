@@ -47,6 +47,18 @@ enum CoverArt {
         book.artSlug.isEmpty ? nil : "cover-\(book.artSlug)"
     }
 
+    /// Whether a designed cover actually ships for this slug. Probed once at
+    /// seed time (never per render) so a pack can ship without bespoke art
+    /// and fall back to the generated Idea-Glyph cover instead of an empty
+    /// `Image(_:)`.
+    static func hasDesignedCover(slug: String) -> Bool {
+        #if canImport(UIKit)
+        return UIImage(named: "cover-\(slug)") != nil
+        #else
+        return false
+        #endif
+    }
+
     /// Stable seed for per-title variation. `hashValue` is randomized per
     /// launch, so covers would shuffle on every run — djb2 instead.
     static func seed(_ s: String) -> UInt64 {
@@ -300,12 +312,8 @@ private struct IdeaGlyph: View {
     ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 16) {
             ForEach([
-                ("The Big Ideas in Atomic Habits", "James Clear", ["Self-improvement"]),
-                ("The Big Ideas in Thinking, Fast and Slow", "Daniel Kahneman", ["Psychology"]),
-                ("The Big Ideas in Zero to One", "Peter Thiel", ["Business"]),
-                ("The Big Ideas in Why We Sleep", "Matthew Walker", ["Science"]),
-                ("The Big Ideas in Sapiens", "Yuval Noah Harari", ["History"]),
-                ("The Big Ideas in Meditations", "Marcus Aurelius", ["Philosophy"])
+                ("The Big Ideas in Meditations", "Marcus Aurelius", ["Philosophy"]),
+                ("The Big Ideas in Letters from a Stoic", "Seneca", ["Philosophy"])
             ], id: \.0) { item in
                 GeneratedCoverView(title: item.0, author: item.1, categories: item.2)
                     .frame(width: 120, height: 180)
