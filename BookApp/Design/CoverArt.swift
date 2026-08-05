@@ -70,6 +70,106 @@ enum CoverArt {
     }
 }
 
+/// The designed cover: a Penguin-style typographic frame around the book's
+/// flat illustration. The category tint is the jacket ground, the art sits
+/// in an inset panel, and the type is drawn in SwiftUI rather than baked
+/// into the asset — so it stays crisp at every size, can be localised, and
+/// can be restyled across the whole catalog without regenerating 28 images.
+///
+/// Metrics are proportional to the cover width, like type on a printed
+/// jacket. Dynamic Type is served by the card's caption underneath.
+struct DesignedCoverView: View {
+    let assetName: String
+    let title: String
+    let author: String
+    let categories: [String]
+
+    init(book: Book, assetName: String) {
+        self.assetName = assetName
+        self.title = book.title
+        self.author = book.author
+        self.categories = book.categoryTags
+    }
+
+    private static let eyebrowPrefix = "The Big Ideas in "
+
+    private var eyebrow: String? {
+        title.hasPrefix(Self.eyebrowPrefix) ? "THE BIG IDEAS IN" : nil
+    }
+
+    private var displayTitle: String {
+        title.hasPrefix(Self.eyebrowPrefix)
+            ? String(title.dropFirst(Self.eyebrowPrefix.count))
+            : title
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            let margin = w * 0.075
+            let tint = CoverArt.tint(for: categories)
+
+            ZStack {
+                tint
+                VStack(alignment: .leading, spacing: 0) {
+                    // Type block sits on the tint, Penguin Classics fashion:
+                    // series line, title, author, then the art below.
+                    VStack(alignment: .leading, spacing: h * 0.008) {
+                        if let eyebrow {
+                            Text(eyebrow)
+                                .font(.system(size: w * 0.045, weight: .semibold))
+                                .tracking(w * 0.011)
+                                .foregroundStyle(CoverArt.paper.opacity(0.65))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        Text(displayTitle)
+                            .font(.system(size: w * 0.092, weight: .bold, design: .serif))
+                            .foregroundStyle(CoverArt.paper)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.55)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if !author.isEmpty {
+                            Text(author.uppercased())
+                                .font(.system(size: w * 0.042, weight: .medium))
+                                .tracking(w * 0.006)
+                                .foregroundStyle(CoverArt.paper.opacity(0.7))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                                .padding(.top, h * 0.008)
+                        }
+                    }
+                    // Fixed type block: the title shrinks to fit rather than
+                    // pushing the art down, so every jacket in the catalog
+                    // shares one grid — the series look depends on the art
+                    // panel landing in the same place on all 28.
+                    .frame(width: w - margin * 2, height: h * 0.33, alignment: .topLeading)
+                    .padding(.horizontal, margin)
+                    .padding(.top, margin * 0.9)
+
+                    // `.fill` + clip trims the long edge — the illustrations
+                    // are authored 2:3 and the panel is squarer — rather
+                    // than letterboxing the art inside its own frame.
+                    Color.clear
+                        .frame(width: w - margin * 2, height: h * 0.555)
+                        .overlay(
+                            Image(assetName)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        )
+                        .clipped()
+                        .padding(.horizontal, margin)
+
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        .clipped()
+    }
+}
+
 /// The full generated cover: eyebrow + title + glyph + author + foot bar.
 /// Sized by its container; all metrics are proportional to the cover
 /// width, like type on a printed jacket (the scalable title/author live

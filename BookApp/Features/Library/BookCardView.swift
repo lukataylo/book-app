@@ -43,7 +43,11 @@ struct BookCardView: View {
             .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 4)
             if showsTitle {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(book.title)
+                    // The jacket already carries the series line, so the
+                    // caption drops the "The Big Ideas in" prefix — it cost
+                    // both available lines and truncated the one word that
+                    // distinguishes the book.
+                    Text(Self.captionTitle(book.title))
                         .font(Typography.cardTitle)
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(2)
@@ -67,6 +71,13 @@ struct BookCardView: View {
         // instead of the title twice plus an asset filename.
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
+    }
+
+    /// Catalog titles all read "The Big Ideas in X"; the shelf caption shows
+    /// X. The full title is kept for VoiceOver and everywhere else.
+    static func captionTitle(_ title: String) -> String {
+        let prefix = "The Big Ideas in "
+        return title.hasPrefix(prefix) ? String(title.dropFirst(prefix.count)) : title
     }
 
     private var accessibilityLabel: String {

@@ -23,9 +23,7 @@ struct BookCoverView: View {
     private var cover: some View {
         #if canImport(UIKit)
         if let asset = CoverArt.designedAssetName(for: book) {
-            Image(asset)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+            DesignedCoverView(book: book, assetName: asset)
         } else if !book.coverFilename.isEmpty {
             CachedCoverImage(bookID: book.id, source: .file(BookStore.shared.coverURL(bookID: book.id))) {
                 GeneratedCoverView(book: book)
