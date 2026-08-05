@@ -1,43 +1,17 @@
 import SwiftUI
 import SwiftData
 
-/// Saved tab — everything the user chose to keep, in one place under one
-/// navigation identity: the Learnings list and Bookmarks gallery as
-/// segments. One NavigationStack owns the bar; the segmented control lives
-/// pinned beneath the title so switching segments never tears down
-/// navigation or search state oddly.
+/// Saved tab — the highlights and bookmarks kept out of a book, in one
+/// place. Previously a segmented control over Learnings and Highlights;
+/// learnings were retired because highlighting is the same gesture with a
+/// better home, and two sibling views each declaring their own
+/// `.searchable` on one NavigationStack was a genuine source of instability.
 struct SavedView: View {
-    private enum Segment: String, CaseIterable, Identifiable {
-        case learnings  = "Learnings"
-        case highlights = "Highlights"
-        var id: String { rawValue }
-    }
-
-    @State private var segment: Segment = .learnings
-
     var body: some View {
         NavigationStack {
-            Group {
-                switch segment {
-                case .learnings:
-                    LearningsListView()
-                case .highlights:
-                    BookmarksGalleryView()
-                }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                Picker("Saved content", selection: $segment) {
-                    ForEach(Segment.allCases) { s in
-                        Text(s.rawValue).tag(s)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, Theme.Spacing.l)
-                .padding(.vertical, Theme.Spacing.s)
-                .background(Theme.Palette.appBackground)
-            }
-            .navigationTitle("Saved")
-            .background(Theme.Palette.appBackground.ignoresSafeArea())
+            BookmarksGalleryView()
+                .navigationTitle("Saved")
+                .background(Theme.Palette.appBackground.ignoresSafeArea())
         }
     }
 }

@@ -19,10 +19,16 @@ import SwiftData
 enum SummaryPackLoader {
 
     private static let resourceFolder = "SummaryPacks"
-    // v2: re-runs the per-pack pass for users seeded before vector covers
-    // shipped, so the existing-book branch backfills `artSlug`. The
-    // content-by-title guard prevents any duplicate inserts.
-    private static let loadedSlugsKey = "SummaryPacks.loadedSlugs-v2"
+    // Bumping this key re-runs the per-pack pass over books that are
+    // already seeded, which is the only way the existing-book branch ever
+    // executes — `pending` filters loaded slugs out before anything else
+    // runs. Bump it whenever a pack gains something that has to reach
+    // existing installs: a designed cover, a quick take, a re-style.
+    //
+    // v3: designed covers now ship for all 28 titles, so every already-
+    // seeded book needs its `artSlug` backfilled and its bundled
+    // re-styles attached. The content-by-title guard prevents duplicates.
+    private static let loadedSlugsKey = "SummaryPacks.loadedSlugs-v3"
 
     static func runIfNeeded(modelContext: ModelContext) async {
         guard let folderURL = bundledFolderURL() else { return }

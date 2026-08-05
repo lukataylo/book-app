@@ -88,7 +88,7 @@ final class TTSEngine: NSObject {
     @ObservationIgnored
     private nonisolated(unsafe) var observers: [NSObjectProtocol] = []
     // Now-playing metadata for lock-screen / control-centre.
-    private var nowPlayingTitle: String = "BookApp"
+    private var nowPlayingTitle: String = "Epigrapha"
     private var nowPlayingAuthor: String = ""
     private var nowPlayingCoverData: Data?
 
@@ -605,7 +605,7 @@ final class TTSEngine: NSObject {
     private func updateNowPlaying() {
         var info: [String: Any] = [
             MPMediaItemPropertyTitle: nowPlayingTitle,
-            MPMediaItemPropertyArtist: nowPlayingAuthor.isEmpty ? "BookApp" : nowPlayingAuthor,
+            MPMediaItemPropertyArtist: nowPlayingAuthor.isEmpty ? "Epigrapha" : nowPlayingAuthor,
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
         #if canImport(UIKit)

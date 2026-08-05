@@ -1,4 +1,4 @@
-# App Store listing — BookApp
+# App Store listing — Epigrapha
 
 > All copy ready to paste into App Store Connect. 30/170/4000/100 character
 > limits called out next to each field. Keywords are deliberately conservative
@@ -9,7 +9,7 @@
 
 ## Name (30 chars)
 
-`BookApp — Read, Listen, Adapt`
+`Epigrapha — Read, Listen, Adapt`
 
 (28 chars)
 
@@ -28,7 +28,7 @@
 ## Description (4000 chars)
 
 ```
-BookApp turns every book on your shelf into a tool that bends around your time.
+Epigrapha turns every book on your shelf into a tool that bends around your time.
 
 Start with the big ideas
 Original 15-minute summaries of public-domain classics, written as idea-level companions with full attribution. Read the summary, keep what matters, and every reading feature works on it — reader, audio, speed reading, transformations.
@@ -57,12 +57,12 @@ Built around great typography
 New York for titles, San Francisco for chrome, your choice of font and theme for the page itself. Sepia, light, dark and true black. Margins, line spacing, paragraph gaps — all tunable.
 
 Privacy
-The cloud AI is accessed with your own Anthropic API key, which lives in your Keychain. Cloud transformations send the source text to the Anthropic API only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to BookApp.
+The cloud AI is accessed with your own Anthropic API key, which lives in your Keychain. Cloud transformations send the source text to the Anthropic API only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to Epigrapha.
 
 Supported formats
 EPUB and PDF, native. MOBI on the roadmap.
 
-BookApp is free. No subscription, no in-app purchases, no ads, no telemetry. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
+Epigrapha is free. No subscription, no in-app purchases, no ads, no telemetry. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
 ```
 
 (~2,300 chars — well under limit)
@@ -141,13 +141,13 @@ Gutenberg content (e.g. *Pride and Prejudice*, *Walden*, *Meditations*).
 
 ## In-app purchase
 
-None. The app is free with no in-app purchases. (A future "BookApp+" tier is only an idea and is not part of this submission.)
+None. The app is free with no in-app purchases. (A future "Epigrapha+" tier is only an idea and is not part of this submission.)
 
 ## Review notes (private to App Review)
 
 ```
 SUMMARY
-BookApp is a free personal reading tool. There is no backend and we host
+Epigrapha is a free personal reading tool. There is no backend and we host
 nothing. Most features run entirely on-device; advanced book
 transformations can optionally run in the cloud via the user's own
 Anthropic API key.
@@ -195,7 +195,7 @@ is no account to create, there is no account to delete, so the
 account-deletion requirement does not apply.
 
 DIFFERENTIATION (Guideline 4.3(b))
-BookApp is not a generic summary catalogue. It is a full reading
+Epigrapha is not a generic summary catalogue. It is a full reading
 environment with capabilities not offered by apps such as Blinkist or
 Headway:
   - Import and read the user's own EPUB and PDF files.

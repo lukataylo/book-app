@@ -26,7 +26,7 @@ struct BookAppApp: App {
             self.containerError = nil
         } else {
             self.container = nil
-            self.containerError = "BookApp couldn't load its data store. Reinstalling the app usually fixes this. If the problem persists, file a bug at github.com/lukataylo/book-app/issues."
+            self.containerError = "Epigrapha couldn't load its data store. Reinstalling the app usually fixes this. If the problem persists, file a bug at github.com/lukataylo/book-app/issues."
         }
         // Subscribe to MetricKit for crash + hang diagnostics. Apple
         // delivers payloads roughly once a day; we drop them into the
@@ -64,7 +64,7 @@ private struct ContainerErrorView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(Theme.Palette.textSecondary)
-            Text("Couldn't start BookApp")
+            Text("Couldn't start Epigrapha")
                 .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             Text(message)

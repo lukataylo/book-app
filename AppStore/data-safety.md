@@ -6,11 +6,11 @@ Use these when filling out the Privacy section in App Store Connect.
 
 > **Do you or your third-party partners collect data from this app?**
 
-**No** — for everything BookApp itself handles.
+**No** — for everything Epigrapha itself handles.
 
 The requests to **Anthropic** (which you initiate explicitly) are governed
 by Anthropic's own data policy. App Store Connect treats those as
-third-party collection only if BookApp passes user-identifying data; we
+third-party collection only if Epigrapha passes user-identifying data; we
 don't pass any identifier (no name, email, account, advertising ID). What
 is sent under your own API key is the book / source text you choose to
 transform. The app does not store it, and there is no account. Declare this honestly:
@@ -29,7 +29,7 @@ only on explicit confirmation, and never stored by the app.
 
 ## Privacy practices summary (the nutrition-label result)
 
-- **Data Not Collected** by BookApp.
+- **Data Not Collected** by Epigrapha.
 - **Data Not Linked to You**: User content (book/source text passed to Anthropic when you choose).
 - **Third party**: Anthropic only, under the user's own API key, not stored by the app.
 - No tracking. No account.
@@ -41,7 +41,7 @@ only on explicit confirmation, and never stored by the app.
 - Books you import (stay local + iCloud private DB).
 - Reading position, highlights and key learnings (stay local + iCloud
   private DB).
-- Anthropic API key (Keychain, never transmitted to BookApp).
+- Anthropic API key (Keychain, never transmitted to Epigrapha).
 - Voice / typography / margin preferences (Keychain + iCloud private DB).
 
 ### What data leaves the device?

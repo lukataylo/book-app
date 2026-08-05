@@ -2,8 +2,8 @@
 
 *Last updated: 2026-05-05*
 
-BookApp is a single-developer app that runs entirely on your device and in
-your iCloud account. There is no BookApp server.
+Epigrapha is a single-developer app that runs entirely on your device and in
+your iCloud account. There is no Epigrapha server.
 
 ## What we don't collect
 
@@ -41,11 +41,11 @@ Exactly what is sent, and when:
 
 The request is made under **your own Anthropic API key** and
 is processed by Anthropic per their published data-handling policy:
-<https://www.anthropic.com/privacy>. **BookApp does not store this data and
+<https://www.anthropic.com/privacy>. **Epigrapha does not store this data and
 never receives a copy** — the request goes directly from your device to
 Anthropic.
 
-You can use BookApp without sending anything to Anthropic — every cloud
+You can use Epigrapha without sending anything to Anthropic — every cloud
 request requires explicit confirmation, and the on-device features
 (reader, TTS, speed reading, key-learnings
 extraction and on-device transformations on Apple Intelligence devices)
@@ -55,12 +55,12 @@ tracking** of any kind.
 ## Audiobook playback (TTS)
 
 Text-to-speech uses Apple's `AVSpeechSynthesizer`. Voices run on-device.
-Premium voices are downloaded directly from Apple, not BookApp. No audio
+Premium voices are downloaded directly from Apple, not Epigrapha. No audio
 data leaves your device.
 
 ## Children
 
-BookApp is rated 4+. We do not knowingly collect any data from anyone of
+Epigrapha is rated 4+. We do not knowingly collect any data from anyone of
 any age, because we do not collect data.
 
 ## Contact

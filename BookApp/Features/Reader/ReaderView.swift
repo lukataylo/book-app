@@ -565,19 +565,6 @@ struct ReaderView: View {
         }
     }
 
-    private func saveLearning(text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let learning = KeyLearning(
-            book: book,
-            text: String(trimmed.prefix(500)),
-            chapterRef: currentChapterTitle(),
-            userEdited: true
-        )
-        modelContext.insert(learning)
-        deferredSave()
-        showToast("Saved to learnings")
-    }
-
     private func saveAnnotation(text: String) {
         let annotation = Annotation(
             book: book,

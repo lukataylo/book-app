@@ -22,21 +22,26 @@ struct BookDetailView: View {
         case transform(UUID)      // source variant id
     }
     @State private var route: Destination?
-    @State private var showLearnings = false
     @State private var originalProgress: Double = 0
+    /// First two paragraphs of the summary, used as jacket copy. Derived
+    /// rather than authored: the summaries already open with a hook and a
+    /// through-line, which is exactly what a blurb is for.
+    @State private var blurb: String = ""
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.l) {
+                // Order follows the decision a reader actually makes:
+                // what is this (hero) -> is it for me (blurb) -> start
+                // (CTA) -> how long have I got (lengths) -> the small print.
                 hero
-                if !categoryRow.isEmpty {
-                    categoriesRow
+                if !blurb.isEmpty {
+                    blurbSection
                 }
                 continueButton
                 variantsSection
-                actionsSection
-                if let learnings = book.keyLearnings, !learnings.isEmpty {
-                    learningsPreview(learnings)
+                if !categoryRow.isEmpty {
+                    categoriesRow
                 }
                 if book.isSummaryEdition, !book.sourceAttribution.isEmpty {
                     attributionFooter
@@ -71,16 +76,13 @@ struct BookDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showLearnings) {
-            BookLearningsView(book: book)
-                .presentationDetents([.medium, .large])
-        }
         .task {
             // Read progress once when the screen appears — was running on
             // every render via the body's computed-property call, hitting
             // SwiftData each frame.
             if let original = book.originalVariant {
                 originalProgress = currentProgress(for: original)
+                blurb = Self.openingParagraphs(of: await original.loadText())
             }
         }
     }
@@ -92,26 +94,29 @@ struct BookDetailView: View {
             HStack(alignment: .top, spacing: Theme.Spacing.l) {
                 cover
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(book.title)
+                    // The jacket sets the series line, so the page leads
+                    // with the book's own name rather than repeating
+                    // "The Big Ideas in" at title size.
+                    if book.title != displayTitle {
+                        Text("THE BIG IDEAS IN")
+                            .font(.system(.caption2, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(Theme.Palette.textSecondary)
+                    }
+                    Text(displayTitle)
                         .font(.system(.title2, design: .serif, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .lineLimit(4)
                     Text(book.author)
                         .font(.system(.subheadline))
                         .foregroundStyle(Theme.Palette.textSecondary)
-                    if book.totalPagesEstimate > 0 {
-                        Text("\(book.totalPagesEstimate) pages · \(formatWords(book.totalWordsEstimate))")
+                    if book.readMinutesEstimate > 0 {
+                        // Minutes, not pages: these are summaries, and "4
+                        // pages" reads as a defect rather than a feature.
+                        Text("3–\(book.readMinutesEstimate) min read")
                             .font(.system(.caption, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
-                            .padding(.top, 4)
-                    }
-                    if book.isSummaryEdition {
-                        // Surface the independence/non-affiliation up front, next
-                        // to the title + author (not just in the closing footer).
-                        Label("Independent summary · not affiliated with the author or publisher", systemImage: "info.circle")
-                            .font(.system(.caption2, weight: .medium))
-                            .foregroundStyle(Theme.Palette.textSecondary)
-                            .padding(.top, 6)
+                            .padding(.top, 2)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -126,6 +131,14 @@ struct BookDetailView: View {
             .frame(width: 110, height: 165)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.s, style: .continuous))
             .shadow(color: Theme.Palette.bookShadow, radius: 8, x: 0, y: 5)
+    }
+
+    private static let seriesPrefix = "The Big Ideas in "
+
+    private var displayTitle: String {
+        book.title.hasPrefix(Self.seriesPrefix)
+            ? String(book.title.dropFirst(Self.seriesPrefix.count))
+            : book.title
     }
 
     private var categoryRow: [String] { book.categoryTags + book.detectedThemes.prefix(3) }
@@ -187,7 +200,7 @@ struct BookDetailView: View {
 
     private var variantsSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-            Text("Variants")
+            Text("Read it your way")
                 .font(.system(.title3, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             VStack(spacing: 0) {
@@ -237,6 +250,11 @@ struct BookDetailView: View {
     }
 
     private func metadataLine(for v: BookVariant) -> String {
+        // Bundled re-styles ship with the app, so "10 seconds ago" is both
+        // wrong and baffling — describe the voice instead.
+        if v.kind == .styled, v.modelUsed.isEmpty, !v.styleReference.isEmpty {
+            return v.styleReference
+        }
         var parts: [String] = []
         if v.targetPages > 0 { parts.append("\(v.targetPages) pages") }
         if !v.modelUsed.isEmpty {
@@ -250,52 +268,7 @@ struct BookDetailView: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: - Actions
-
-    private var actionsSection: some View {
-        VStack(spacing: 0) {
-            Button {
-                showLearnings = true
-            } label: {
-                actionRow(title: "Key learnings",
-                          subtitle: book.keyLearnings?.isEmpty == false
-                            ? "\(book.keyLearnings?.count ?? 0) saved" : "Auto-extract key takeaways")
-            }
-            .buttonStyle(.plain)
-            Divider().background(Theme.Palette.divider)
-            Button {
-                if let original = book.originalVariant { route = .transform(original.id) }
-            } label: {
-                actionRow(title: "Transform",
-                          subtitle: "Compress, expand, restyle, or omit themes")
-            }
-            .buttonStyle(.plain)
-        }
-        .background(Theme.Palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
-    }
-
-    private func actionRow(title: String, subtitle: String) -> some View {
-        HStack(spacing: Theme.Spacing.m) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(.subheadline, weight: .medium))
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                Text(subtitle)
-                    .font(.system(.caption2))
-                    .foregroundStyle(Theme.Palette.textSecondary)
-            }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.system(.caption, weight: .semibold))
-                .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
-        }
-        .padding(.horizontal, Theme.Spacing.m)
-        .padding(.vertical, 14)
-        .contentShape(Rectangle())
-    }
-
-    // MARK: - Attribution (summary editions)
+    // MARK: - Attribution
 
     private var attributionFooter: some View {
         Text(book.sourceAttribution)
@@ -309,29 +282,26 @@ struct BookDetailView: View {
             )
     }
 
-    // MARK: - Learnings preview
+    // MARK: - Blurb
 
-    @ViewBuilder
-    private func learningsPreview(_ learnings: [KeyLearning]) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-            Text("Recent learnings")
-                .font(.system(.title3, design: .serif, weight: .semibold))
-                .foregroundStyle(Theme.Palette.textPrimary)
-            VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-                ForEach(Array(learnings.prefix(3))) { l in
-                    HStack(alignment: .top, spacing: 10) {
-                        Circle()
-                            .fill(Theme.Palette.textSecondary.opacity(0.4))
-                            .frame(width: 5, height: 5)
-                            .padding(.top, 8)
-                        Text(l.text)
-                            .font(.system(.subheadline))
-                            .foregroundStyle(Theme.Palette.textPrimary)
-                            .lineLimit(3)
-                    }
-                }
-            }
-        }
+    private var blurbSection: some View {
+        Text(blurb)
+            .font(.system(.subheadline))
+            .foregroundStyle(Theme.Palette.textPrimary.opacity(0.85))
+            .lineSpacing(3)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// The first two body paragraphs, skipping markdown headings and the
+    /// trailing attribution. Returns "" when the text has no prose yet, so
+    /// the caller can omit the section entirely.
+    static func openingParagraphs(of text: String, limit: Int = 2) -> String {
+        text
+            .components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && !$0.hasPrefix("#") }
+            .prefix(limit)
+            .joined(separator: "\n\n")
     }
 
     // MARK: - Helpers

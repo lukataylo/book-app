@@ -16,6 +16,7 @@ struct LibraryView: View {
     @State private var importErrorMessage: String?
     @State private var deleteCandidate: Book?
     @State private var editingBook: Book?
+    @State private var headline = LibraryView.headlines.randomElement() ?? "Read less. Understand more."
 
     @FocusState private var searchFocused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -229,12 +230,32 @@ struct LibraryView: View {
 
     // MARK: - Subviews
 
+    /// Rotating hero line. Picked once per Library appearance rather than
+    /// per body pass — `body` re-runs on every keystroke in the search
+    /// field, and a headline that reshuffles as you type is a bug.
+    static let headlines = [
+        "Read less. Understand more.",
+        "Borrow a better mind.",
+        "Big ideas, small hours.",
+        "Ideas that outlived their authors.",
+        "Steal from the greats.",
+        "Old books. New advantage.",
+        "Think above your weight.",
+        "Centuries of thinking, condensed.",
+        "Read what still matters.",
+        "Arrive at better questions.",
+        "Great minds, fewer pages.",
+        "A library that argues back.",
+        "Shortcuts to hard-won wisdom.",
+        "Sharper by the chapter."
+    ]
+
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(greetingName.isEmpty ? "Welcome." : "Hi \(greetingName),")
                 .font(.system(.body, weight: .regular))
                 .foregroundStyle(Theme.Palette.textSecondary)
-            Text("Sharpen your mind with great books.")
+            Text(headline)
                 .font(.system(.largeTitle, design: .serif, weight: .bold))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .multilineTextAlignment(.leading)

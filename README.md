@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="BookApp/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="120" alt="BookApp" />
+<img src="BookApp/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="120" alt="Epigrapha" />
 
-# BookApp
+# Epigrapha
 
 **Books that bend to your time.**
 
@@ -21,7 +21,7 @@ Listen on-device. Speed-read at 1,000 wpm. Re-style any book to read like anothe
 
 ## What it does
 
-Most reading apps assume you have time for the whole book. BookApp doesn't.
+Most reading apps assume you have time for the whole book. Epigrapha doesn't.
 
 **Read · Save** — the core loop:
 

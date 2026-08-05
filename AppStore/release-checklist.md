@@ -1,6 +1,6 @@
 # Release checklist
 
-A walk-through for shipping BookApp to the App Store. Roughly in order.
+A walk-through for shipping Epigrapha to the App Store. Roughly in order.
 
 ## Identity
 
@@ -40,7 +40,7 @@ A walk-through for shipping BookApp to the App Store. Roughly in order.
 - [ ] Pricing: **Free** (no in-app purchases, no subscriptions).
 - [ ] Build: archive in Xcode (Product → Archive), upload, attach to the
       App Store record.
-- [ ] Export Compliance: BookApp uses the system's HTTPS only (URLSession
+- [ ] Export Compliance: Epigrapha uses the system's HTTPS only (URLSession
       to Anthropic + CloudKit). Standard ATS — declare "uses standard
       encryption", no extra paperwork.
 
