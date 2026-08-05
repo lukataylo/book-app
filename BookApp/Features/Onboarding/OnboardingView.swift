@@ -33,7 +33,7 @@ struct OnboardingView: View {
         Panel(
             symbol: "bookmark.fill",
             title: "Keep what matters",
-            blurb: "Highlight as you read and pull out the key learnings. Everything you keep lands in the Saved tab, searchable across your whole library."
+            blurb: "Highlight anything worth keeping as you read. It lands in the Saved tab, searchable across your whole library."
         ),
         Panel(
             symbol: "headphones",

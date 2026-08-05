@@ -13,7 +13,6 @@ struct SummaryPackLoaderTests {
         SummaryPack(
             slug: slug,
             title: "The Big Ideas in Testing",
-            sourceTitle: "Testing",
             sourceAuthor: "A. Author",
             sourceYear: 2020,
             categories: ["Science"],
@@ -51,7 +50,6 @@ struct SummaryPackLoaderTests {
         #expect(quickTake != nil)
         #expect(quickTake?.kind == .compressed)
         #expect(quickTake?.contentText.contains("A quick gist paragraph.") == true)
-        #expect(book.keyLearnings?.count == 1)
         #expect(book.annotations?.count == 1)
         // Bundled comic re-style attaches as its own .styled variant.
         let styled = (book.variants ?? []).filter { $0.kind == .styled }
@@ -71,7 +69,7 @@ struct SummaryPackLoaderTests {
 
         let books = try context.fetch(FetchDescriptor<Book>())
         #expect(books.count == 1)
-        #expect(books.first?.keyLearnings?.count == 1)
+        #expect(books.first?.annotations?.count == 1)
         // The duplicate pass must not double the quick-take variant either.
         let quickTakes = (books.first?.variants ?? []).filter { $0.label == SummaryPackLoader.quickTakeLabel }
         #expect(quickTakes.count == 1)
@@ -87,7 +85,7 @@ struct SummaryPackLoaderTests {
         // Seed a pack from before the quick-take tier shipped…
         var pack = makePack()
         pack = SummaryPack(
-            slug: pack.slug, title: pack.title, sourceTitle: pack.sourceTitle,
+            slug: pack.slug, title: pack.title,
             sourceAuthor: pack.sourceAuthor, sourceYear: pack.sourceYear,
             categories: pack.categories, themes: pack.themes,
             readMinutes: pack.readMinutes, attribution: pack.attribution,

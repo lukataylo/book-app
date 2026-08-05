@@ -30,8 +30,14 @@ settings:
     # includes Local.xcconfig (gitignored). See Local.xcconfig.example.
 
 packages:
-  Readium:
-    url: https://github.com/readium/swift-toolkit
+  # Only ZIPFoundation is used, to unzip EPUB containers. This is
+  # Readium's fork of it, depended on directly — the full swift-toolkit
+  # used to be linked for this one module and dragged in GCDWebServer,
+  # CryptoSwift, SwiftSoup, DifferenceKit, SQLite.swift, Zip and Fuzi
+  # with it. Nothing in the app ever imported ReadiumShared, Streamer or
+  # Navigator; see EPUBParser, which says so itself.
+  ReadiumZIPFoundation:
+    url: https://github.com/readium/ZIPFoundation.git
     from: "3.0.0"
   # MLXSwift is opt-in. Add it after running:
   #   xcodebuild -downloadComponent MetalToolchain
@@ -70,12 +76,8 @@ targets:
       # the same file in its target).
       - path: BookAppWidget/WidgetSnapshot.swift
     dependencies:
-      - package: Readium
-        product: ReadiumShared
-      - package: Readium
-        product: ReadiumStreamer
-      - package: Readium
-        product: ReadiumNavigator
+      - package: ReadiumZIPFoundation
+        product: ReadiumZIPFoundation
       - target: BookAppWidget
       # - package: MLXSwift
       #   product: MLXLLM

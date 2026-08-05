@@ -200,7 +200,7 @@ struct LibraryView: View {
                     .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
             }
             .padding(Theme.Spacing.s)
-            .glassCard(cornerRadius: Theme.Radius.m)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Theme.Radius.m, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -268,7 +268,7 @@ struct LibraryView: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Theme.Palette.textSecondary)
-            TextField("Search books, themes, learnings…", text: $searchText)
+            TextField("Search books, themes, authors…", text: $searchText)
                 .textFieldStyle(.plain)
                 .focused($searchFocused)
                 .submitLabel(.done)

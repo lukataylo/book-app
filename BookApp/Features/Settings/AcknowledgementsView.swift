@@ -12,16 +12,12 @@ struct AcknowledgementsView: View {
             }
 
             Section("Public-domain classics") {
-                Text("The Republic (Plato), The Prince (Machiavelli), and Beyond Good and Evil (Nietzsche) are in the public domain, sourced from Project Gutenberg.")
+                Text("Every title in the catalog is a summary of a work that is out of copyright. The summaries themselves are original writing.")
                     .font(.callout)
             }
 
             Section("Open source") {
-                license("Readium Swift Toolkit", "BSD-3-Clause")
-                license("SwiftSoup", "MIT")
-                license("CryptoSwift", "Attribution")
-                license("ZIPFoundation", "MIT")
-                license("GCDWebServer", "BSD-3-Clause")
+                license("ZIPFoundation (Readium fork)", "MIT")
                 Text("Full license texts are available in each project's repository.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

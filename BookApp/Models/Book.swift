@@ -35,7 +35,6 @@ final class Book {
     var detectedThemes: [String] = []
     var importedAt: Date = Date.now
     var lastOpenedAt: Date?
-    var rating: Int = 0
     var notes: String = ""
     /// True for catalog titles that ship as original BookApp summaries
     /// ("The Big Ideas in …") rather than user-imported files.
@@ -53,9 +52,6 @@ final class Book {
 
     @Relationship(deleteRule: .cascade, inverse: \BookVariant.book)
     var variants: [BookVariant]? = []
-
-    @Relationship(deleteRule: .cascade, inverse: \KeyLearning.book)
-    var keyLearnings: [KeyLearning]? = []
 
     @Relationship(deleteRule: .cascade, inverse: \Annotation.book)
     var annotations: [Annotation]? = []
@@ -90,10 +86,6 @@ final class Book {
 
     var originalVariant: BookVariant? {
         variants?.first { $0.kind == .original }
-    }
-
-    var nonOriginalVariants: [BookVariant] {
-        (variants ?? []).filter { $0.kind != .original }
     }
 
     /// Cover image bytes for synchronous consumers (e.g. Now-Playing

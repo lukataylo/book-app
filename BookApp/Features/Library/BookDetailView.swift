@@ -19,7 +19,6 @@ struct BookDetailView: View {
 
     private enum Destination: Hashable {
         case reader(UUID)         // variant id
-        case transform(UUID)      // source variant id
     }
     @State private var route: Destination?
     @State private var originalProgress: Double = 0
@@ -69,10 +68,6 @@ struct BookDetailView: View {
                     } else {
                         ReaderView(book: book, variant: v)
                     }
-                }
-            case .transform(let id):
-                if let v = (book.variants ?? []).first(where: { $0.id == id }) {
-                    TransformationStudioView(book: book, sourceVariant: v)
                 }
             }
         }

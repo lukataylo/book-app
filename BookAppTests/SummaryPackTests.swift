@@ -44,7 +44,7 @@ struct SummaryPackTests {
     func everySourceIsOutOfCopyright() throws {
         for pack in try loadPacks() {
             #expect(pack.sourceYear < 1930,
-                    "\(pack.slug): \(pack.sourceTitle) (\(pack.sourceYear)) is still in copyright")
+                    "\(pack.slug) (\(pack.sourceYear)) is still in copyright")
         }
     }
 

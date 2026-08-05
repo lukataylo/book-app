@@ -1,13 +1,14 @@
 import Foundation
 import SwiftData
 
-/// Loads the bundled catalog of original BookApp summaries ("The Big Ideas
+/// Loads the bundled catalog of original Epigrapha summaries ("The Big Ideas
 /// in …") — the Read tab's summary-first content.
 ///
 /// `BookApp/Resources/SummaryPacks/<slug>.json` contains, per title: catalog
-/// metadata, the legally-safe summary text and curated key learnings. (The
-/// packs also carry `cards` / `actions` blocks from the shelved Remember and
-/// Act features — unknown keys, so the decoder ignores them.)
+/// metadata, the summary text, curated passages seeded as highlights, and
+/// any bundled comic re-styles. (Packs also carry `cards` / `actions`
+/// blocks from the shelved Remember and Act features — unknown keys, so
+/// the decoder ignores them.)
 ///
 /// Unlike `SeedBooksLoader` there is no EPUB to import: the summary IS the
 /// content, stored as the book's `.original` variant so the reader, TTS,
@@ -168,12 +169,10 @@ enum SummaryPackLoader {
             insertQuickTake(gist, attribution: pack.attribution, book: book, context: context)
         }
 
-        // Curated learnings — mirrored as Annotations so the highlights
-        // gallery is populated, matching SeedBooksLoader's behaviour.
+        // Curated passages seed the highlights gallery, so a fresh install
+        // has a populated Saved tab.
         let palette: [AnnotationColor] = [.yellow, .blue, .pink, .green, .purple]
         for (idx, entry) in pack.learnings.enumerated() {
-            let learning = KeyLearning(book: book, text: entry.text, chapterRef: entry.chapter)
-            context.insert(learning)
             let annotation = Annotation(
                 book: book,
                 variantID: nil,
@@ -241,7 +240,6 @@ enum SummaryPackLoader {
 struct SummaryPack: Decodable, Sendable {
     let slug: String
     let title: String
-    let sourceTitle: String
     let sourceAuthor: String
     let sourceYear: Int
     let categories: [String]

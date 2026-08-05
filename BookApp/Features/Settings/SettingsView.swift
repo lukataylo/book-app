@@ -117,7 +117,7 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                             .textSelection(.enabled)
                     }
-                    Text("On-device handles short tasks (auto-categorisation, brief learnings). Whole-book compression and re-style need a Claude API key; the on-device context window is too small.")
+                    Text("On-device handles short tasks (auto-categorisation, short rewrites). Whole-book compression and re-style need a Claude API key; the on-device context window is too small.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -136,7 +136,7 @@ struct SettingsView: View {
                     Button("Reset all content", role: .destructive) {
                         confirmReset = true
                     }
-                    Text("Deletes every book, learning, and highlight from this device. The starter library reloads next launch.")
+                    Text("Deletes every book and highlight from this device. The starter library reloads next launch.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -168,7 +168,7 @@ struct SettingsView: View {
                 Button("Reset", role: .destructive) { resetAllContent() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently deletes your books, learnings, and highlights on this device.")
+                Text("This permanently deletes your books and highlights on this device.")
             }
             .alert("Content reset", isPresented: $resetDone) {
                 Button("OK", role: .cancel) {}
@@ -188,7 +188,6 @@ struct SettingsView: View {
     /// starter library re-seeds on the next launch.
     private func resetAllContent() {
         try? modelContext.delete(model: Book.self)
-        try? modelContext.delete(model: KeyLearning.self)
         try? modelContext.delete(model: Annotation.self)
         try? modelContext.delete(model: Bookmark.self)
         try? modelContext.delete(model: ReadingProgress.self)
@@ -198,7 +197,7 @@ struct SettingsView: View {
         // so they don't leak across resets.
         BookStore.shared.deleteAllBookFiles()
         for key in ["SummaryPacks.loadedSlugs-v2", "SeedBooks.completed-v1",
-                    "Annotations.backfill-v1", "CoverArt.seedBackfill-v1"] {
+                    "CoverArt.seedBackfill-v1"] {
             UserDefaults.standard.removeObject(forKey: key)
         }
         resetDone = true

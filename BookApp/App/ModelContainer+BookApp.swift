@@ -7,7 +7,6 @@ extension ModelContainer {
     static let bookAppSchema = Schema([
             Book.self,
             BookVariant.self,
-            KeyLearning.self,
             Annotation.self,
             ReadingProgress.self,
             Bookmark.self,

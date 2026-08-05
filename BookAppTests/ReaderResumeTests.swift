@@ -12,7 +12,7 @@ struct ReaderResumeTests {
 
     private func makeContainer() throws -> ModelContainer {
         let schema = Schema([
-            Book.self, BookVariant.self, KeyLearning.self,
+            Book.self, BookVariant.self,
             Annotation.self, ReadingProgress.self, Bookmark.self,
             ReaderSettings.self, TTSSettings.self, SpeedReaderSettings.self
         ])

@@ -31,7 +31,7 @@ struct StoreRecoveryTests {
         let url = tempStoreURL()
         defer { try? FileManager.default.removeItem(at: url) }
 
-        let old = Schema([Book.self, BookVariant.self, KeyLearning.self,
+        let old = Schema([Book.self, BookVariant.self,
                           Annotation.self, ReadingProgress.self, Bookmark.self,
                           ReaderSettings.self, TTSSettings.self,
                           SpeedReaderSettings.self, RetiredModel.self])
