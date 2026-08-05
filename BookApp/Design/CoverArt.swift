@@ -34,10 +34,12 @@ enum CoverArt {
         return Color(hex: "475569")
     }
 
-    /// Asset name of this book's designed vector cover (`Covers.xcassets`),
-    /// or `nil` when none ships — callers then fall back to the generated
-    /// Idea-Glyph cover. The SVGs are authored at a true 2:3 ratio, so they
-    /// fill the 2:3 card frame exactly and never crop.
+    /// Asset name of this book's designed cover (`Covers.xcassets`), or
+    /// `nil` when none ships — callers then fall back to the generated
+    /// Idea-Glyph cover. The art is authored at a true 2:3 ratio, so it
+    /// fills the 2:3 card frame exactly and never crops. The covers carry
+    /// no typography: the title and author are set beneath the card by
+    /// `BookCardView`, so the artwork stays full-bleed.
     ///
     /// `artSlug` is only ever set (by the loaders / backfill) for books whose
     /// cover actually ships in the catalog, so we trust it rather than probing
