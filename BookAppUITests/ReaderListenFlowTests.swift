@@ -35,10 +35,10 @@ final class ReaderListenFlowTests: XCTestCase {
         XCTAssert(searchField.waitForExistence(timeout: 15),
                   "Library search field didn't render")
         searchField.tap()
-        searchField.typeText("Atomic Habits")
+        searchField.typeText("Art of War")
 
         let resultCard = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS[c] %@", "The Big Ideas in Atomic Habits")
+            NSPredicate(format: "label CONTAINS[c] %@", "Art of War")
         ).firstMatch
         XCTAssert(resultCard.waitForExistence(timeout: 20),
                   "Search didn't surface the seeded catalog title")

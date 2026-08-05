@@ -47,8 +47,8 @@ Six books ship with a comic re-style already made, no key required: The Art of W
 
 Make a dense academic chapter read more like a spare, literary essay. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
 
-Key learnings
-Pull 5 to 15 key learnings from any book in seconds. Edit, star, export to Markdown or JSON. Everything you keep — learnings and highlights alike — lands in the Saved tab, searchable across your whole library.
+Keep what matters
+Highlight anything worth remembering as you read. It lands in the Saved tab, and one search covers your whole library — books, authors, themes and every passage you kept.
 
 Your library, in iCloud
 Your shelf, your reading position, your annotations, your transformations — all sync across iPhone, iPad and Mac. Books live in your iCloud Drive so they're yours, not ours.
@@ -60,7 +60,7 @@ Privacy
 The cloud AI is accessed with your own Anthropic API key, which lives in your Keychain. Cloud transformations send the source text to the Anthropic API only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to Epigrapha.
 
 Supported formats
-EPUB and PDF, native. MOBI on the roadmap.
+EPUB, PDF and MOBI.
 
 Epigrapha is free. No subscription, no in-app purchases, no ads, no telemetry. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
 ```
@@ -100,7 +100,7 @@ epub,ebook,reader,audiobook,tts,speed-reading,summary,books,highlights,compress,
 
 **Free.** No in-app purchases, no subscriptions, no ads.
 
-All core features (the bundled summaries, reader, on-device TTS, speed reading, key-learnings extraction, and on-device AI transformations on supported hardware) are free and require no payment and no key. Optional cloud transformations use the user's own Anthropic API key and are billed directly by Anthropic — the app never marks up or collects any cloud cost.
+All core features (the bundled summaries, reader, on-device TTS, speed reading, highlights, search, and on-device AI transformations on supported hardware) are free and require no payment and no key. Optional cloud transformations use the user's own Anthropic API key and are billed directly by Anthropic — the app never marks up or collects any cloud cost.
 
 ## What's New (4000 chars per version)
 
@@ -113,7 +113,7 @@ Hello.
 - Listen: on-device TTS with word-level highlighting.
 - Speed read: three modes from 150 to 1,200 wpm.
 - Transform: compress, expand, re-style, omit themes.
-- Learnings: extract, edit, export.
+- Highlights: keep passages, search them across every book.
 - Sync: every book and every transformation across all your Apple devices.
 ```
 
@@ -158,7 +158,7 @@ any key the reviewer can:
   - Read the bundled public-domain book summaries, and the six comic re-styles that ship with them.
   - Use the reader (EPUB/PDF import, fonts, themes, margins).
   - Use on-device text-to-speech with word-level highlighting.
-  - Extract key learnings and highlights, kept in the Saved tab.
+  - Highlight passages and find them again from the Search tab.
   - Use speed-reading (paragraph/word, single-word, RSVP modes).
 None of these features require a key, an account, or a purchase. We ask
 that the reviewer test these first to confirm the app delivers value

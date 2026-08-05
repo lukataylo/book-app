@@ -4,12 +4,11 @@ A walk-through for shipping Epigrapha to the App Store. Roughly in order.
 
 ## Identity
 
-- [ ] Bundle ID: change `com.bookapp.app` in `project.yml` to a unique ID
-      under your team (e.g. `com.lukataylo.bookapp`). Re-run `xcodegen`.
-- [ ] iCloud container: rename `iCloud.com.bookapp.app` to match (in
-      `project.yml`, `Info.plist`, and `BookApp.entitlements`). Provision
-      the new container in Apple Developer → Identifiers → iCloud
-      Containers.
+- [x] Bundle ID: `com.lukataylor.bookapp`. Note this is unchanged from
+      before the rename to Epigrapha — the id is not user-visible, and
+      moving it would invalidate provisioning and the CloudKit container.
+- [x] iCloud container: `iCloud.com.lukataylor.bookapp`. Provision it in
+      Apple Developer → Identifiers → iCloud Containers if not already.
 - [ ] App ID: enable iCloud, CloudKit, and Background Modes (Audio) in
       the Apple Developer portal.
 - [ ] Provisioning profiles: create dev + distribution provisioning
@@ -19,12 +18,17 @@ A walk-through for shipping Epigrapha to the App Store. Roughly in order.
 
 ## Marketing assets
 
-- [ ] App icon: already at
-      `BookApp/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png`.
-      Re-run `python3 scripts/generate-icon.py` if you want to tweak.
-- [ ] Five iPhone 6.7" screenshots (1290×2796) — see
-      `AppStore/listing.md → Screenshots brief`.
-- [ ] Five iPhone 6.1" screenshots (1170×2532) — same compositions.
+- [x] App icon: open book, gold on near-black, at
+      `BookApp/Resources/Assets.xcassets/AppIcon.appiconset/`. Default,
+      dark and tinted variants all present.
+- [x] Three iPhone 6.9" screenshots (1290×2796) in
+      `AppStore/screenshots/`. One illustration spans all three panels, so
+      keep their order. Regenerate with
+      `xcodebuild test -only-testing:BookAppUITests/StoreShotTests`, and
+      **erase the simulator first** — a stale store will put in-copyright
+      titles in the shelf.
+- [ ] iPhone 6.1" screenshots (1170×2532) — optional; App Store Connect
+      will scale the 6.9" set if omitted.
 - [ ] (optional) Five iPad 13" screenshots (2048×2732).
 - [ ] App Preview video — 30s walk-through, optional.
 
@@ -32,8 +36,11 @@ A walk-through for shipping Epigrapha to the App Store. Roughly in order.
 
 - [ ] Create the app record with the bundle ID.
 - [ ] Paste in `AppStore/listing.md`'s name, subtitle, description, keywords.
-- [ ] Privacy URL: link to `AppStore/privacy.md` hosted on GitHub Pages or
-      similar (the App Store wants a public URL).
+- [ ] Privacy URL: **BLOCKER — https://lukataylo.github.io/book-app/privacy
+      currently returns 404.** App Review rejects a dead privacy URL.
+      Publish `AppStore/privacy.md` to GitHub Pages (or anywhere public)
+      before submitting, and update the link in Settings → About, which
+      points at the same dead URL.
 - [ ] Privacy nutrition: see `AppStore/data-safety.md`.
 - [ ] Age rating: 4+.
 - [ ] Category: Books / Productivity.
