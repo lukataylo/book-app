@@ -43,6 +43,8 @@ Speed read
 Three modes — paragraph + word highlight, single-word focus, and Spritz-style RSVP — at any pace from 150 to 1,200 words per minute. Pause at punctuation, jump back a sentence, hand it off to TTS when you've found a passage worth hearing.
 
 Re-style
+Six books ship with a comic re-style already made, no key required: The Art of War staged as Shakespeare, Adam Smith explained by a pirate, Darwin narrated as a nature documentary, Machiavelli as a corporate all-hands memo, Marcus Aurelius as a group chat, Thoreau as a lifestyle blog. Then make your own.
+
 Make a dense academic chapter read more like a spare, literary essay. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
 
 Key learnings
@@ -153,7 +155,7 @@ Anthropic API key.
 CORE FEATURES WORK WITH NO KEY — PLEASE TEST THESE FIRST
 The app is fully usable with no API key and no payment. Without entering
 any key the reviewer can:
-  - Read the bundled public-domain book summaries.
+  - Read the bundled public-domain book summaries, and the six comic re-styles that ship with them.
   - Use the reader (EPUB/PDF import, fonts, themes, margins).
   - Use on-device text-to-speech with word-level highlighting.
   - Extract key learnings and highlights, kept in the Saved tab.

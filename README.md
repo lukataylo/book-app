@@ -33,6 +33,11 @@ Most reading apps assume you have time for the whole book. BookApp doesn't.
 
 And the original toolkit applies to all of it:
 
+- **Re-style.** Rewrite a book in another voice — staged as Shakespeare, narrated
+  as a nature documentary, filed as a corporate memo. Six re-styles ship
+  pre-generated so the trick works on a fresh install with no API key. Voices are
+  public-domain authors and genre registers only; naming a living author invites
+  right-of-publicity claims.
 - **Elastic length.** Compress a 400-page treatise into a 20-page summary that keeps the author's voice. Or expand a five-page essay into a chapter. The model preserves tone, structure and key arguments.
 - **Listen on-device.** Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken; the page flips itself.
 - **Speed-read three ways.** Paragraph + word highlighting, single-word focus, or Spritz-style RSVP at any pace from 150 to 1,200 wpm.

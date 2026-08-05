@@ -1,0 +1,63 @@
+{
+  "slug": "the-principles-of-scientific-management",
+  "title": "The Big Ideas in The Principles of Scientific Management",
+  "source_title": "The Principles of Scientific Management",
+  "source_author": "Frederick Winslow Taylor",
+  "source_year": 1911,
+  "categories": [
+    "Business",
+    "History"
+  ],
+  "themes": [
+    "Management",
+    "Productivity",
+    "Work",
+    "Measurement"
+  ],
+  "read_minutes": 15,
+  "attribution": "An original summary of the ideas in The Principles of Scientific Management by Frederick Winslow Taylor (1911). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
+  "summary": "Every meeting about productivity you have ever sat in is downstream of this thin, strange book. Taylor's argument is that management is not a matter of judgment, experience or personality but a subject with discoverable laws, and that the way to find them is to measure work with a stopwatch instead of asking anyone what they think.\n\nHe is also, by a wide margin, the most consequential management writer nobody defends. The methods went everywhere. The name became an insult.\n\n# Soldiering, and why workers were right\n\nTaylor's starting problem is that workers deliberately under-produce, a practice he calls soldiering. What makes his account interesting is that he does not treat it as laziness. He identifies the incentive precisely: when a worker's output rises, management historically responds by cutting the piece rate, so the worker ends up doing more for the same money. Producing at full capacity is therefore irrational, and every experienced hand knows it.\n\nHis conclusion — that the problem is the system rather than the character of the men — is the first genuinely modern management thought in the book. He also blames managers for the deeper failure: all the knowledge about how work is done sits in the heads of individual workers, is learned by watching whoever sat there before, and is nowhere written down. Nobody knows what a fair day's work actually is, so every negotiation is a bluff.\n\n# Taking the knowledge out of the worker's head\n\nThe method follows. Break each job into elementary motions. Time each one. Discard the unnecessary ones and the slow ones. Reassemble the best sequence into a single prescribed procedure, write it down, and teach it.\n\nThe result, on Taylor's own accounts, was enormous: he reports pig-iron handling rising from twelve and a half tons a day to forty-seven, with the men paid substantially more. Modern researchers who have gone back to his records find the numbers dressed up, the anecdotes composited and the failures omitted. The magnitude of the underlying gain is still real; the reported figures are not evidence of anything.\n\nWhat he is really doing is transferring knowledge from the worker to the organisation. That transfer is the whole story, and it explains both the productivity boom and the century of resentment: it makes the firm capable and the individual replaceable, in a single operation.\n\n# The four principles, and the third one nobody quotes\n\nTaylor states four duties for management. Develop a science for each element of work, replacing rule of thumb. Scientifically select and train the worker, rather than leaving them to pick it up. Cooperate with the workers to ensure the work is done according to the method. And divide the work so that management takes over the planning, which was formerly left to the workers.\n\nThe third is where the theory and the practice diverged fatally. Taylor genuinely believed the gains should be shared, that wages should rise with output, and that his system would end the conflict between labour and capital by making the pie large enough to stop arguing over. Firms adopted the stopwatch and the standardised procedure with enthusiasm, and adopted the wage increase and the cooperation rather less. The system that got implemented was his fourth principle without his third.\n\n# The functional foreman, and the org chart nobody wanted\n\nBuried in the middle is a structural proposal that failed completely and is worth knowing about because the failure is instructive. Taylor wanted to abolish the single foreman and replace him with eight specialists, each responsible for one dimension of a worker's job: one for speed, one for repairs, one for inspection, one for discipline, one for routing, and so on. A worker would answer to all eight.\n\nThe logic is consistent with everything else he believed. No individual can be expert at every aspect of a job, so splitting supervision by function should raise the quality of each decision. The practice was a disaster. Workers received contradictory instructions, nobody owned an outcome, and firms that tried it quietly reverted.\n\nWhat went wrong is the thing his whole system is blind to. Coordination is itself work, and pushing it onto the person with the least authority does not eliminate the cost, it just moves it somewhere it cannot be measured. Every matrix organisation since has rediscovered this, usually about eighteen months after the reorganisation was announced.\n\n# What it cost\n\nThe deficits are not subtle and Taylor half-states them himself, in language that makes modern readers wince — most famously his description of the ideal pig-iron handler as a man so stupid he more nearly resembles an ox. He assumes workers have nothing to contribute beyond compliance, which contradicts the observation he started from, that all the useful knowledge lived in their heads.\n\nThe deeper cost is the split between thinking and doing. Once planning belongs to a separate department, the person performing the work is structurally prevented from improving it, and the organisation loses the improvements they would have found. Later manufacturing systems built around continuous improvement from the line are, in effect, a correction of exactly this error — keeping Taylor's measurement and reversing his allocation of judgment.\n\n# Where it still runs\n\nThe framework never disappeared; it migrated. Warehouse pick rates, call-centre handle times, delivery route optimisation and platform work of every kind are Taylorism with better instruments, and the stopwatch is now the device the worker is already holding.\n\nIt also migrated into knowledge work, where it fits worst. Measuring elementary motions works when the output is a moved ton of iron. It fails when the output is a decision, because the measurable proxies — tickets closed, lines written, calls handled — are gameable and only loosely connected to value. Every organisation that has ever ranked engineers by commit count has rediscovered soldiering, from the other end.\n\n# The honest verdict\n\nTaylor was right that work could be studied instead of guessed at, and that the alternative to measurement is not freedom but arbitrary authority based on whoever shouts. That is a real contribution and it survived him.\n\nHe was wrong that the people doing the work have nothing to contribute to how it is done, and that error was expensive enough to define the century of management theory that followed — most of which can be read as an argument with a stopwatch.",
+  "summary_short": "Every meeting you have ever sat in about productivity is downstream of this thin, strange book. Taylor's claim is that management has discoverable laws, and the way to find them is a stopwatch rather than an opinion. He is the most consequential management writer nobody defends: the methods went everywhere, the name became an insult.\n\nHis starting problem is that workers deliberately under-produce, and his account of why is better than his reputation suggests. When output rises, management historically cuts the piece rate, so the worker does more for the same money. Producing at capacity is irrational and every experienced hand knows it. The problem is the system, not the character of the men.\n\nHe also blames managers for the deeper failure: the knowledge of how work is actually done lives in individual heads, learned by watching whoever sat there before and written down nowhere. Nobody knows what a fair day's work is, so every negotiation is a bluff.\n\nThe method follows. Break the job into elementary motions, time each, discard the slow ones, reassemble the best sequence, write it down and teach it. What he is really doing is moving knowledge out of the worker and into the organisation — which explains both the productivity boom and the century of resentment, because it makes the firm capable and the individual replaceable in one operation.\n\nHe believed the gains should be shared and wages should rise with output. Firms adopted the stopwatch enthusiastically and the wage increase rather less. The system that got implemented was his fourth principle without his third.",
+  "learnings": [
+    {
+      "text": "Workers under-produce rationally rather than lazily: raising output historically triggered a cut in the piece rate, so full effort was punished.",
+      "chapter": "Soldiering is a response"
+    },
+    {
+      "text": "Taylor's first modern insight is that the problem lies in the system rather than in the character of the workers.",
+      "chapter": "Blaming the design"
+    },
+    {
+      "text": "Knowledge of how work is actually done lived in individual heads and was written down nowhere, so nobody could say what a fair day's output was.",
+      "chapter": "Undocumented knowledge"
+    },
+    {
+      "text": "The method is decomposition: break a job into elementary motions, time them, discard the unnecessary, then reassemble and teach the best sequence.",
+      "chapter": "The stopwatch method"
+    },
+    {
+      "text": "The real operation is transferring knowledge from the worker to the organisation, which makes the firm capable and the individual replaceable at the same time.",
+      "chapter": "Where the knowledge goes"
+    },
+    {
+      "text": "His reported productivity figures were dressed up and composited, though the underlying gains from method standardisation were genuine.",
+      "chapter": "Treating the numbers carefully"
+    },
+    {
+      "text": "Taylor intended wages to rise with output and considered shared gains essential, but firms adopted the measurement without the profit-sharing.",
+      "chapter": "The principle that got dropped"
+    },
+    {
+      "text": "Separating planning from doing structurally prevents the person performing the work from improving it, forfeiting the improvements they would have found.",
+      "chapter": "The split that cost most"
+    },
+    {
+      "text": "Later continuous-improvement systems keep Taylor's measurement and reverse his allocation of judgment, treating the line worker as a source of method.",
+      "chapter": "The correction"
+    },
+    {
+      "text": "Applied to knowledge work the framework fails, because measurable proxies like tickets closed or lines written are gameable and only loosely tied to value.",
+      "chapter": "Where it breaks"
+    }
+  ]
+}

@@ -65,11 +65,28 @@ struct TransformationStudioView: View {
     // productizing "rewrite in the style of <named author>" invites
     // right-of-publicity / false-endorsement claims (see content-legal-review).
     // Users can still type any reference of their own in the free field.
+    // Two families, both safe. Registers describe a tone and name nobody.
+    // Voices name long-dead authors and genre conventions, which carry no
+    // right-of-publicity risk and are where the fun actually is — "as
+    // staged by Shakespeare" is the feature people show their friends.
     private let suggestedAuthors = [
+        // Registers
         "Spare and literary", "Warm and narrative",
         "Punchy and direct", "Academic and precise", "Vivid and sensory",
-        "Plain and clear", "Conversational", "Playful and witty",
-        "Lyrical", "Journalistic"
+        "Plain and clear", "Conversational", "Journalistic",
+        // Voices
+        "Staged as a Shakespearean drama",
+        "Narrated as a nature documentary",
+        "Told as a sea shanty by a pirate",
+        "Written as a corporate all-hands memo",
+        "Told as a hard-boiled detective novel",
+        "Sung as an epic in the manner of Homer",
+        "Posted as a lifestyle influencer's blog",
+        "Delivered as a stand-up set",
+        "Filed as a customer support ticket",
+        "Written as a Jane Austen drawing-room scene",
+        "Read as a King James sermon",
+        "Explained as a children's bedtime story"
     ]
 
     var body: some View {

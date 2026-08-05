@@ -22,7 +22,8 @@ struct SummaryPackLoaderTests {
             attribution: "An original summary of the ideas in Testing by A. Author (2020). Not affiliated with or endorsed by the author or publisher. If these ideas resonate, buy the full book.",
             summary: "Intro.\n\n# One\n\nBody paragraph.",
             summaryShort: "A quick gist paragraph.",
-            learnings: [.init(text: "A learning.", chapter: "One")]
+            learnings: [.init(text: "A learning.", chapter: "One")],
+            styledVariants: [.init(label: "As a limerick", style: "Told as a limerick", text: "There once was a pack from a test.")]
         )
     }
 
@@ -52,6 +53,10 @@ struct SummaryPackLoaderTests {
         #expect(quickTake?.contentText.contains("A quick gist paragraph.") == true)
         #expect(book.keyLearnings?.count == 1)
         #expect(book.annotations?.count == 1)
+        // Bundled comic re-style attaches as its own .styled variant.
+        let styled = (book.variants ?? []).filter { $0.kind == .styled }
+        #expect(styled.count == 1)
+        #expect(styled.first?.label == "As a limerick")
     }
 
     @Test
@@ -70,6 +75,8 @@ struct SummaryPackLoaderTests {
         // The duplicate pass must not double the quick-take variant either.
         let quickTakes = (books.first?.variants ?? []).filter { $0.label == SummaryPackLoader.quickTakeLabel }
         #expect(quickTakes.count == 1)
+        // …nor the bundled re-style.
+        #expect((books.first?.variants ?? []).filter { $0.kind == .styled }.count == 1)
     }
 
     @Test
@@ -85,7 +92,7 @@ struct SummaryPackLoaderTests {
             categories: pack.categories, themes: pack.themes,
             readMinutes: pack.readMinutes, attribution: pack.attribution,
             summary: pack.summary, summaryShort: nil,
-            learnings: pack.learnings
+            learnings: pack.learnings, styledVariants: pack.styledVariants
         )
         #expect(SummaryPackLoader.seed(pack: pack, context: context))
         var books = try context.fetch(FetchDescriptor<Book>())

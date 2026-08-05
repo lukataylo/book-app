@@ -117,6 +117,14 @@ enum SummaryPackLoader {
                 insertQuickTake(gist, attribution: pack.attribution, book: existing, context: context)
                 try? context.save()
             }
+            // Same upgrade path for the bundled comic re-styles: match on
+            // label so a pack that gains a voice in a later release attaches
+            // it without duplicating the ones already there.
+            let labels = Set((existing.variants ?? []).map(\.label))
+            for voice in pack.styledVariants ?? [] where !labels.contains(voice.label) {
+                insertStyled(voice, attribution: pack.attribution, book: existing, context: context)
+                try? context.save()
+            }
             return true
         }
 
@@ -143,6 +151,13 @@ enum SummaryPackLoader {
 
         // The ~3-minute "quick take" — the catalog's second length tier,
         // listed alongside the full summary in the book's variants.
+        // Bundled comic re-styles ("as staged by Shakespeare"). Pre-generated
+        // so the Transformation Studio's headline trick is visible on a fresh
+        // install with no API key and no waiting.
+        for voice in pack.styledVariants ?? [] {
+            insertStyled(voice, attribution: pack.attribution, book: book, context: context)
+        }
+
         if let gist = pack.summaryShort {
             insertQuickTake(gist, attribution: pack.attribution, book: book, context: context)
         }
@@ -188,6 +203,22 @@ enum SummaryPackLoader {
         context.insert(variant)
     }
 
+    private static func insertStyled(
+        _ voice: SummaryPack.PackStyledVariant,
+        attribution: String,
+        book: Book,
+        context: ModelContext
+    ) {
+        let variant = BookVariant(
+            book: book,
+            kind: .styled,
+            contentText: voice.text + "\n\n" + attribution,
+            styleReference: voice.style
+        )
+        variant.label = voice.label
+        context.insert(variant)
+    }
+
     private static func bundledFolderURL() -> URL? {
         if let url = Bundle.main.url(forResource: resourceFolder, withExtension: nil) {
             return url
@@ -216,9 +247,21 @@ struct SummaryPack: Decodable, Sendable {
     /// Optional so a pack without one still decodes.
     let summaryShort: String?
     let learnings: [PackLearning]
+    /// Pre-generated comic re-styles. Optional so a pack without one decodes.
+    let styledVariants: [PackStyledVariant]?
 
     struct PackLearning: Decodable, Sendable {
         let text: String
         let chapter: String
+    }
+
+    /// One bundled re-style. `style` is the voice as the Transformation
+    /// Studio would express it, so a user can regenerate or extend it.
+    /// Voices are public-domain authors or genre registers only — naming a
+    /// living author invites right-of-publicity claims (content-legal-review).
+    struct PackStyledVariant: Decodable, Sendable {
+        let label: String
+        let style: String
+        let text: String
     }
 }
