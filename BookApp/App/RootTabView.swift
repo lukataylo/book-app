@@ -6,15 +6,19 @@ struct RootTabView: View {
     @State private var selection: Tab = .read
 
     // Read → Saved is the product's core loop (read it, keep it). Saved
-    // collects the learnings and highlights kept out of a book; Search
-    // moved into the Read tab's toolbar.
-    enum Tab: Hashable { case read, saved, settings }
+    // collects the highlights kept out of a book. Search spans both,
+    // which is the one thing neither tab can do on its own.
+    enum Tab: Hashable { case read, search, saved, settings }
 
     var body: some View {
         TabView(selection: $selection) {
             LibraryView()
                 .tabItem { Label("Read", systemImage: "book.fill") }
                 .tag(Tab.read)
+
+            SearchView()
+                .tabItem { Label("Search", systemImage: "magnifyingglass") }
+                .tag(Tab.search)
 
             SavedView()
                 .tabItem { Label("Saved", systemImage: "bookmark.fill") }
