@@ -38,6 +38,11 @@ enum Theme {
         static let bookShadow    = Color.black.opacity(0.18)
         // Hairline dividers.
         static let divider       = Color(light: "E5E5E5", dark: "1F1F1F")
+        // Fill for a switched-on control. `accent` cannot be used here:
+        // it is near-white in dark mode and a UISwitch knob is always
+        // white, so an "on" toggle became a white knob on a white track
+        // and read as missing. This stays clear of white in both schemes.
+        static let controlOn     = Color(light: "0A0A0A", dark: "3B82F6")
     }
 
     // The flat-color BookSpine fallback palette retired in favor of the

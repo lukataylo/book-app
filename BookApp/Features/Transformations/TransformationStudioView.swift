@@ -18,9 +18,12 @@ struct TransformationStudioView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    // Length
+    // Length. Seeded from the book on appear rather than at init, where
+    // `book` isn't available yet — a fixed default of 20 meant opening the
+    // studio on a 6-page summary silently proposed expanding it.
     @State private var changeLength: Bool = true
     @State private var targetPages: Double = 20
+    @State private var didSeedLength = false
 
     // Style
     @State private var changeStyle: Bool = false
@@ -146,6 +149,12 @@ struct TransformationStudioView: View {
         } message: {
             Text("To perform this cloud transformation, the source text of this book will be sent to Anthropic (api.anthropic.com), using your own Anthropic API key. Local, on-device transformations never leave your device. You'll only be asked once.")
         }
+        .onAppear {
+            guard !didSeedLength else { return }
+            didSeedLength = true
+            let original = Double(max(book.totalPagesEstimate, 2))
+            targetPages = min(max(original, lengthRange.lowerBound), lengthRange.upperBound)
+        }
         .task {
             // Detect Apple Intelligence availability before chunking so the
             // chunk size matches the model the engine will pick.
@@ -199,14 +208,37 @@ struct TransformationStudioView: View {
                         .font(.system(.caption, weight: .medium))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
-                Slider(value: $targetPages,
-                       in: 10...max(20, Double(book.totalPagesEstimate) * 4),
-                       step: 5)
-                Text("Original is ~\(book.totalPagesEstimate) pages.")
+                Slider(value: $targetPages, in: lengthRange, step: lengthStep)
+                Text("Original is ~\(book.totalPagesEstimate) pages. Drag left to compress, right to expand.")
                     .font(.system(.caption2))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
         }
+    }
+
+    /// Why the button is off. "Enable at least one option" is wrong when
+    /// Length is already enabled and simply parked on the original page
+    /// count, which is now where the slider starts.
+    private func disabledLabel() -> String {
+        let lengthParked = changeLength && Int(targetPages) == book.totalPagesEstimate
+        if lengthParked && !changeStyle && !omitThemes {
+            return "Drag the slider to change the length"
+        }
+        return "Enable at least one option"
+    }
+
+    /// Spans both sides of the original so one control compresses and
+    /// expands. The floor was previously pinned at 10 pages, which meant a
+    /// short summary could only ever be made longer.
+    private var lengthRange: ClosedRange<Double> {
+        let original = max(Double(book.totalPagesEstimate), 2)
+        return max(1, (original / 4).rounded(.down))...max(original * 4, 20)
+    }
+
+    /// A step of 5 is unusable on a 6-page summary — it skips the whole
+    /// compression half of the range in one notch.
+    private var lengthStep: Double {
+        lengthRange.upperBound - lengthRange.lowerBound > 60 ? 5 : 1
     }
 
     private func lengthSummary() -> String {
@@ -553,7 +585,7 @@ struct TransformationStudioView: View {
                 if isRunning {
                     ProgressView().tint(Theme.Palette.appBackground)
                 } else {
-                    Text(canRun ? generateLabel() : "Enable at least one option")
+                    Text(canRun ? generateLabel() : disabledLabel())
                         .font(.system(.callout, weight: .semibold))
                 }
             }
@@ -769,7 +801,7 @@ private struct SectionCard<Content: View>: View {
                 Spacer()
                 Toggle("", isOn: $isOn)
                     .labelsHidden()
-                    .tint(Theme.Palette.accent)
+                    .tint(Theme.Palette.controlOn)
             }
             if isOn {
                 content()
