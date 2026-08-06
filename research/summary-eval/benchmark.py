@@ -83,7 +83,7 @@ def score(pack):
     text = pack["summary"]
     short = pack.get("summary_short") or ""
     sents = sentences(text)
-    lens = [len(s.split()) for s in sents]
+    lens = [len([w for w in s.split() if re.search(r"\w", w)]) for s in sents]
     words = sum(lens)
     low = text.lower()
 
@@ -98,6 +98,11 @@ def score(pack):
     # Rule 6 — em-dash budget, one genuine reversal per ~300 words.
     r["dashes"] = text.count("—")
     r["dash_per_300"] = round(r["dashes"] / max(words / 300, 1), 2)
+
+    # Colons are measured for the same reason. Bringing the catalog inside
+    # the em-dash budget once pushed colon density from 1.5 to 2.9 per 300
+    # words, which is the same tic wearing different punctuation.
+    r["colon_per_300"] = round(text.count(":") / max(words / 300, 1), 2)
 
     # Rule 6 — lexical fingerprints.
     r["lexical"] = sorted({m.group(0) for p in LEXICAL
@@ -139,6 +144,7 @@ def score(pack):
     if r["formulaic_close"]:                  fails.append("formulaic close")
     if r["short_per_200"] < 0.7:              fails.append("no rhythm variance")
     if r["dash_per_300"] > 1.6:               fails.append("em-dash overuse")
+    if r["colon_per_300"] > 3.0:              fails.append("colon overuse")
     if r["lexical"]:                          fails.append("lexical tells")
     if r["not_just_x"] > 1:                   fails.append("not-just-X cadence")
     if r["friction"] < 2:                     fails.append("no friction")
@@ -160,14 +166,43 @@ def main():
 
     bad = [r for r in rows if r["fails"]]
     print(f"{len(rows)} packs · {len(bad)} failing\n")
-    hdr = f"{'slug':42} {'words':>5} {'sd':>5} {'<8/200':>6} {'—/300':>6} {'frict':>5} {'sect':>4}  issues"
+    hdr = f"{'slug':42} {'words':>5} {'sd':>5} {'<8/200':>6} {'—/300':>6} {':/300':>6} {'frict':>5}  issues"
     print(hdr); print("-" * len(hdr))
     for r in sorted(rows, key=lambda x: (-len(x["fails"]), x["slug"])):
         issues = ", ".join(r["fails"]) or "-"
         if r["lexical"]:
             issues += f"  [{', '.join(r['lexical'])}]"
         print(f"{r['slug']:42} {r['words']:5} {r['sent_sd']:5} {r['short_per_200']:6} "
-              f"{r['dash_per_300']:6} {r['friction']:5} {r['sections']:4}  {issues}")
+              f"{r['dash_per_300']:6} {r['colon_per_300']:6} {r['friction']:5}  {issues}")
+
+    # Cross-pack checks. A per-pack score cannot see these: every summary
+    # can pass on its own while the catalog reads as one voice with a
+    # handful of verbal tics. "The friction" was a section heading in five
+    # packs; "worth naming" appeared in nine.
+    import collections
+    heads = collections.Counter()
+    phrases = {
+        "worth naming/stating": r"worth (naming|stating|saying)",
+        "is the part of the book": r"is the part of the book",
+        "the honest X": r"the honest (reading|verdict|answer|limit)",
+        "read it/him as": r"\bread (it|him|them|this) as\b",
+    }
+    texts = {}
+    for f in sorted(glob.glob(PACKS)):
+        pk = json.load(open(f))
+        texts[pk["slug"]] = pk["summary"]
+        for h in re.findall(r"^# (.+)$", pk["summary"], flags=re.M):
+            heads[h] += 1
+    dup = [h for h, n in heads.items() if n > 1]
+    print("\nCross-pack")
+    print(f"  duplicate headings   {dup or 'none'}")
+    firsts = collections.Counter(h.split()[0].lower() for h in heads)
+    top, n = firsts.most_common(1)[0]
+    print(f"  commonest first word '{top}' in {n}/{sum(firsts.values())} headings")
+    for label, pat in phrases.items():
+        c = sum(1 for t in texts.values() if re.search(pat, t, re.I))
+        flag = "  <-- tic" if c > 4 else ""
+        print(f"  {label:22} {c} packs{flag}")
 
     def spread(key):
         vals = [r[key] for r in rows]
