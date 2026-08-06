@@ -43,6 +43,11 @@ enum SummaryPackLoader {
             return
         }
 
+        // Runs before the `pending` early-return: a release that only
+        // *withdraws* titles adds no pending packs, so anything after that
+        // guard would never execute.
+        pruneWithdrawn(bundled: files, context: modelContext)
+
         var loaded = Set(UserDefaults.standard.stringArray(forKey: loadedSlugsKey) ?? [])
         // slug == filename for every shipped pack, so the already-loaded
         // check runs before any decode work.
@@ -84,6 +89,55 @@ enum SummaryPackLoader {
             // Keep first launch responsive while ~80 packs insert.
             await Task.yield()
         }
+    }
+
+    /// Remove catalog books whose pack no longer ships.
+    ///
+    /// The loader only ever inserted and updated, so withdrawing a title
+    /// from the bundle left it sitting on every device that had already
+    /// seeded it. That is how ~50 in-copyright summaries stayed on
+    /// installed devices after they were pulled from the repo for legal
+    /// reasons, still readable, just without new cover art.
+    ///
+    /// Only touches `isSummaryEdition` books, so anything the user
+    /// imported themselves is never in scope.
+    static func pruneWithdrawn(bundled files: [URL], context: ModelContext) {
+        let shipping = Set(files.map { $0.deletingPathExtension().lastPathComponent })
+        guard !shipping.isEmpty else { return }        // never prune on a bad read
+
+        // Match on the slug the loader stamped into `artSlug`, falling back
+        // to the title for rows seeded before that field existed.
+        let titles = Set(shipping.map { slugToTitleKey($0) })
+        let existing = (try? context.fetch(
+            FetchDescriptor<Book>(predicate: #Predicate { $0.isSummaryEdition }))) ?? []
+
+        var removed = 0
+        for book in existing {
+            let bySlug = !book.artSlug.isEmpty && shipping.contains(book.artSlug)
+            let byTitle = titles.contains(titleKey(book.title))
+            guard !bySlug, !byTitle else { continue }
+            BookStore.shared.deleteBookFolder(for: book.id)
+            context.delete(book)
+            removed += 1
+        }
+        if removed > 0 {
+            try? context.save()
+            #if DEBUG
+            print("[SummaryPacks] removed \(removed) withdrawn title(s)")
+            #endif
+        }
+    }
+
+    /// Slugs and titles have to be compared through the same normalisation,
+    /// because a book seeded before `artSlug` existed has only its title.
+    static func titleKey(_ title: String) -> String {
+        title.lowercased()
+            .replacingOccurrences(of: "the big ideas in ", with: "")
+            .filter { $0.isLetter || $0.isNumber }
+    }
+
+    static func slugToTitleKey(_ slug: String) -> String {
+        slug.replacingOccurrences(of: "-", with: "").filter { $0.isLetter || $0.isNumber }
     }
 
     /// Summary-edition books already in the store, keyed by title.

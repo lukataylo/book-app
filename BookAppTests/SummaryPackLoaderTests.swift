@@ -105,3 +105,53 @@ struct SummaryPackLoaderTests {
         #expect(quickTakes.count == 1)
     }
 }
+
+/// Withdrawing a title from the bundle has to remove it from devices that
+/// already seeded it. Without this the loader only ever grew the catalog:
+/// ~50 in-copyright summaries stayed installed and readable after being
+/// pulled from the repo, which was the whole point of pulling them.
+@MainActor
+struct SummaryPackPruneTests {
+
+    private func book(_ title: String, slug: String = "", summary: Bool = true) -> Book {
+        let b = Book(title: title, author: "A", format: .unknown)
+        b.isSummaryEdition = summary
+        b.artSlug = slug
+        return b
+    }
+
+    @Test
+    func withdrawnTitlesAreRemovedAndTheRestKept() throws {
+        let container = try ModelContainer.bookAppPreview()
+        let ctx = container.mainContext
+
+        let shipping   = book("The Big Ideas in The Art of War", slug: "the-art-of-war")
+        let withdrawn  = book("The Big Ideas in Atomic Habits", slug: "atomic-habits")
+        // Seeded before `artSlug` existed, so it can only be matched by title.
+        let legacy     = book("The Big Ideas in Dare to Lead")
+        let userImport = book("My Own EPUB", summary: false)
+        for b in [shipping, withdrawn, legacy, userImport] { ctx.insert(b) }
+        try ctx.save()
+
+        let bundled = [URL(fileURLWithPath: "/packs/the-art-of-war.json")]
+        SummaryPackLoader.pruneWithdrawn(bundled: bundled, context: ctx)
+
+        let titles = Set(try ctx.fetch(FetchDescriptor<Book>()).map(\.title))
+        #expect(titles.contains("The Big Ideas in The Art of War"))
+        #expect(titles.contains("My Own EPUB"), "user imports are never in scope")
+        #expect(!titles.contains("The Big Ideas in Atomic Habits"))
+        #expect(!titles.contains("The Big Ideas in Dare to Lead"), "matched by title, not slug")
+    }
+
+    @Test
+    func anEmptyBundleNeverPrunes() throws {
+        let container = try ModelContainer.bookAppPreview()
+        let ctx = container.mainContext
+        ctx.insert(book("The Big Ideas in The Art of War", slug: "the-art-of-war"))
+        try ctx.save()
+
+        // A failed directory read must not be read as "everything withdrawn".
+        SummaryPackLoader.pruneWithdrawn(bundled: [], context: ctx)
+        #expect(try ctx.fetch(FetchDescriptor<Book>()).count == 1)
+    }
+}
