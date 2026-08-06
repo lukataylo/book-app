@@ -107,6 +107,11 @@ struct BookmarksGalleryView: View {
                 Button { filter = f } label: {
                     Text(f.label)
                         .font(.system(.footnote, weight: .semibold))
+                        // One-word chips must never wrap: at accessibility
+                        // sizes these hyphenated into "High-lights" and
+                        // "Book-marks". Let the capsule grow instead.
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(
@@ -304,6 +309,12 @@ private struct BookmarkCard: View {
             Text(item.createdAt.formatted(.relative(presentation: .named)))
                 .font(.system(.caption2))
                 .foregroundStyle(Theme.Palette.textSecondary)
+                // "4 minutes ago" was breaking mid-word into a two-character
+                // column at accessibility sizes. Keep it whole and let the
+                // preview text beside it truncate instead — that one has
+                // an ellipsis, so losing characters there reads as intended.
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
     }
 
@@ -314,6 +325,11 @@ private struct BookmarkCard: View {
             Text(item.kind == .highlight ? "HIGHLIGHT" : "BOOKMARK")
                 .font(.system(.caption2, weight: .bold))
                 .tracking(0.8)
+                // A one-word badge must never wrap: at accessibility text
+                // sizes the capsule kept its width and broke the word as
+                // "HIGH-LIGHT". Let the pill grow instead.
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
