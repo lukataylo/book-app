@@ -55,4 +55,19 @@ enum Typography {
             return .custom(readerFont.rawValue, size: 19, relativeTo: .body)
         }
     }
+
+    /// Chapter heading for the reader body, sized against whatever the
+    /// body is currently doing.
+    ///
+    /// It used to be a fixed 26pt serif while the body scaled, so at the
+    /// larger accessibility sizes a chapter title rendered *smaller* than
+    /// the paragraph beneath it.
+    static func readerHeading(_ readerFont: ReaderFont, bodySize: CGFloat?) -> Font {
+        // 1.45x is the ratio the fixed 26pt had against the 18pt default
+        // body, kept so the design doesn't shift for existing readers.
+        guard let bodySize else {
+            return .system(.title2, design: .serif, weight: .semibold)
+        }
+        return .system(size: bodySize * 1.45, weight: .semibold, design: .serif)
+    }
 }

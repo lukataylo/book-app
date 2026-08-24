@@ -6,6 +6,8 @@ final class SpeedReaderSettings {
     var id: UUID = UUID()
     var wpm: Int = 350
     var pauseAtPunctuation: Bool = true
+    /// Extra dwell, in milliseconds, on a word ending in the given
+    /// punctuation — read by the speed reader's ticker.
     var commaPauseMS: Int = 100
     var periodPauseMS: Int = 250
 

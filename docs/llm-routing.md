@@ -1,26 +1,28 @@
 # LLM routing
 
 `LLMRouter` is the only component that decides whether a task runs
-locally or in the cloud, and which model it picks. Every caller —
-TransformationEngine, ExtractionEngine, ImportService — just hands it a
-task and gets back an `LLMResponse`. The router keeps a fallback chain
-per task type, tries each provider in order, and returns the first
-successful result.
+locally or in the cloud, and which model it picks. Callers —
+`TransformationEngine` and `ImportService` — hand it a task and get back
+an `LLMResponse`. The router keeps a fallback chain per task type, tries
+each provider in order, and returns the first successful result.
 
 ## Routing table
 
 | Task | Default chain | Notes |
 |---|---|---|
-| Auto-tag categories | Apple FM → MLX → Haiku 4.5 | Runs in background after import. Cheap. |
-| Key-learnings extraction | Apple FM → MLX → Haiku 4.5 | Stays on-device whenever possible. |
-| Quiz / flashcard generation | Apple FM → MLX → Haiku 4.5 | |
-| Compression to ≥30% length, source <50K tokens | Apple FM → MLX → Sonnet 4.6 | Local first. User can re-run with cloud if unhappy. |
-| Compression to <30% length, OR source ≥50K tokens | Sonnet 4.6 → Opus 4.7 | Cloud only — long compression needs the bigger context. |
-| Expansion ≥3× | Opus 4.7 → Sonnet 4.6 | Opus produces noticeably better long-form expansion. |
-| Expansion <3× | Sonnet 4.6 → Opus 4.7 | |
-| Style transfer ("sound like Didion") | Opus 4.7 → Sonnet 4.6 | Hardest task. Quality matters most. |
-| Theme omission | Sonnet 4.6 → Opus 4.7 | |
-| Chat with book | Sonnet 4.6 → Haiku 4.5 | Source text is prompt-cached so follow-ups are cheap. |
+| Auto-tag categories | Apple FM → Haiku 4.5 | Runs in background after import. Cheap. |
+| Short summary | Apple FM → Haiku 4.5 | Stays on-device whenever possible. |
+| Compression | Apple FM → Sonnet 5 → Opus 5 | Local first. User can re-run with cloud if unhappy. |
+| Expansion ≥3× | Apple FM → Opus 5 → Sonnet 5 | Opus produces noticeably better long-form expansion. |
+| Expansion <3× | Apple FM → Sonnet 5 → Opus 5 | |
+| Style transfer | Apple FM → Opus 5 → Sonnet 5 | Hardest task. Quality matters most. |
+| Theme omission | Apple FM → Sonnet 5 → Opus 5 | |
+| Combined (length + style + omission) | Apple FM → Opus 5 → Sonnet 5 | |
+
+Sonnet 5 and Opus 5 reject sampling parameters, so `ClaudeProvider` sends
+no `temperature`; both run adaptive thinking by default when the
+`thinking` field is absent. `temperature` still reaches the on-device
+model.
 
 ## Map-reduce for long books
 
@@ -88,18 +90,17 @@ TransformationStudio _before_ a run use list prices for the chosen model.
                       │    LLMRouter.run()     │
                       └────────────┬───────────┘
                                    │
-              ┌────────────────────┼────────────────────┐
-              ▼                    ▼                    ▼
-   ┌─────────────────┐  ┌────────────────────┐  ┌──────────────────┐
-   │  LocalProvider  │  │  LocalProvider     │  │ ClaudeProvider   │
-   │  Apple Foundation│  │  MLX (arm64 only) │  │  Anthropic API   │
-   │  Models          │  │  (canImport gate) │  │                  │
-   └────────┬─────────┘  └─────────┬─────────┘  └─────────┬────────┘
-            │                      │                       │
-   `SystemLanguageModel    Optional package, off    Needs API key in
-   .default.availability   by default — opt in      Keychain.
-   == .available`          via the build flag
-                           in project.yml
+                        ┌──────────┴──────────┐
+                        ▼                     ▼
+             ┌─────────────────┐   ┌──────────────────┐
+             │  LocalProvider  │   │  ClaudeProvider  │
+             │ Apple Foundation│   │   Anthropic API  │
+             │     Models      │   │                  │
+             └────────┬────────┘   └─────────┬────────┘
+                      │                      │
+        `SystemLanguageModel          Needs an API key
+        .default.availability         in the Keychain.
+        == .available`
 ```
 
 A request fails over down the chain on `providerUnavailable` or

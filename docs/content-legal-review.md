@@ -1,5 +1,30 @@
 # Content / IP Risk Review
 
+> **Re-scoped 2026-08-24.** This assessment was written against the
+> ~80-title catalog that included in-copyright works. That catalog is
+> gone: 28 titles ship, every one published before 1930 with expired US
+> copyright, and each now ships **the full source text** alongside the
+> summary. That change retires most of what is below.
+>
+> - **Author names on covers** (finding 2, the Medium item) — no longer a
+>   concern. The name on the cover is the author of the public-domain work
+>   the app actually contains, not a living author whose book is being
+>   summarised.
+> - **Named-author style presets** (finding 5, "the sharpest item") — done;
+>   the Studio ships descriptive registers only, and the six bundled
+>   re-styles name genres, not people.
+> - **Example-faithful packs** (`the-psychology-of-money`, `outliers`,
+>   `mans-search-for-meaning`) — those titles were withdrawn.
+> - **Market-substitute risk** — inverted. Shipping the complete work
+>   beside the summary makes it plainly a companion, not a replacement.
+> - `SeedBooksLoader` no longer exists; source text is fetched once by
+>   `scripts/fetch-full-texts.py` and seeded by `SummaryPackLoader`.
+>
+> Still open: a one-line confirmation that the specific translations
+> bundled are public domain (the fetch script names each source edition),
+> and the disclaimer-placement items, which are done in the reader and the
+> book page.
+
 _Engineering/content risk assessment to scope a conversation with IP counsel. **Not legal advice** — fair use, trademark, and publicity calls are fact-specific legal judgments a lawyer must make._
 
 ## Overall posture: LOW–MEDIUM

@@ -38,10 +38,6 @@ struct RootTabView: View {
             // Summary catalog ("The Big Ideas in …") — per-slug idempotent,
             // so packs added in an update are seeded on next launch.
             await SummaryPackLoader.runIfNeeded(modelContext: modelContext)
-            // Move legacy in-row blobs (Book.coverData,
-            // BookVariant.contentText) onto disk. Idempotent, gated by
-            // its own UserDefaults flag.
-            BlobMigration.runIfNeeded(modelContext: modelContext)
             #if DEBUG
             // Dev convenience: any EPUB / PDF dropped into the simulator's
             // Documents/_seed/ folder gets imported on next launch.

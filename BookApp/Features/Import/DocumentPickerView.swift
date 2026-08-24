@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 import UIKit
 #endif
 
-/// File picker that defaults to iCloud Drive, accepting epub, pdf, and mobi.
+/// File picker that defaults to iCloud Drive, accepting epub and pdf.
 /// Wraps `UIDocumentPickerViewController` on iOS / iPadOS; uses
 /// `fileImporter` on macOS where the SwiftUI native picker is fine.
 struct DocumentPickerView: View {
@@ -17,8 +17,6 @@ struct DocumentPickerView: View {
     private static let acceptedTypes: [UTType] = {
         var types: [UTType] = [.pdf]
         if let epub = UTType(filenameExtension: "epub") { types.append(epub) }
-        if let mobi = UTType(filenameExtension: "mobi") { types.append(mobi) }
-        if let azw3 = UTType(filenameExtension: "azw3") { types.append(azw3) }
         return types
     }()
 

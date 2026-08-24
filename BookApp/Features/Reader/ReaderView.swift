@@ -105,7 +105,7 @@ struct ReaderView: View {
                     viewModel?.sheet = .search
                 } label: {
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(.system(.body, weight: .medium))
                         .foregroundStyle(textColor.opacity(0.85))
                 }
                 .accessibilityLabel("Search in book")
@@ -115,7 +115,7 @@ struct ReaderView: View {
                     viewModel?.sheet = .markings
                 } label: {
                     Image(systemName: "bookmark")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(.system(.body, weight: .medium))
                         .foregroundStyle(textColor.opacity(0.85))
                 }
                 .accessibilityLabel("Highlights and bookmarks")
@@ -125,7 +125,7 @@ struct ReaderView: View {
                     viewModel?.sheet = .chapters
                 } label: {
                     Image(systemName: "list.bullet")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(.system(.body, weight: .medium))
                         .foregroundStyle(textColor.opacity(0.85))
                 }
                 .accessibilityLabel("Chapters")
@@ -353,7 +353,8 @@ struct ReaderView: View {
         switch block {
         case .heading(let text):
             Text(text)
-                .font(.system(size: 26, weight: .semibold, design: .serif))
+                .font(Typography.readerHeading(settings.font,
+                                               bodySize: settings.useSystemTextSize == true ? nil : settings.fontSize))
                 .foregroundStyle(textColor)
                 .padding(.top, Theme.Spacing.l)
                 .padding(.bottom, Theme.Spacing.xs)
@@ -753,7 +754,7 @@ struct ReaderView: View {
                         }
                     } label: {
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(.caption, weight: .semibold))
                             .foregroundStyle(textColor.opacity(0.5))
                             .frame(width: 44, height: 44)
                             .contentShape(Rectangle())
@@ -770,6 +771,11 @@ struct ReaderView: View {
             .padding(.bottom, 4)
             .background(bg)
         }
+        // The transport controls live in fixed-diameter circles. They now
+        // scale with Dynamic Type, which is the point — but past
+        // accessibility2 the row stops fitting on an iPhone. Body text is
+        // unclamped and keeps growing; only this bar is capped.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 
     @ViewBuilder
@@ -848,7 +854,7 @@ struct ReaderView: View {
                     rewindSpeedSentence()
                 } label: {
                     Image(systemName: "arrow.uturn.backward")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(.callout, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
@@ -862,7 +868,7 @@ struct ReaderView: View {
                     else { startSpeedTicker(viewModel: viewModel) }
                 } label: {
                     Image(systemName: speedIsRunning ? "pause.fill" : "play.fill")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(.body, weight: .bold))
                         .foregroundStyle(isDark ? Color.black : Color.white)
                         .frame(width: 44, height: 44)
                         .background(Circle().fill(isDark ? Color.white : Color.black))
@@ -875,7 +881,7 @@ struct ReaderView: View {
                     skipSpeedForward(viewModel: viewModel)
                 } label: {
                     Image(systemName: "forward.end.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(.callout, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
@@ -895,7 +901,7 @@ struct ReaderView: View {
                     viewModel.sheet = .ttsSettings
                 } label: {
                     Image(systemName: "person.wave.2")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(.callout, weight: .semibold))
                         .foregroundStyle(textColor.opacity(0.78))
                         .frame(width: 44, height: 44)
                         .contentShape(Circle())
@@ -910,7 +916,7 @@ struct ReaderView: View {
                     ttsEngine.skipBackward()
                 } label: {
                     Image(systemName: "gobackward")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(.title3, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
@@ -927,7 +933,7 @@ struct ReaderView: View {
                     )
                 } label: {
                     Image(systemName: ttsEngine.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.system(.title3, weight: .bold))
                         .foregroundStyle(isDark ? Color.black : Color.white)
                         .frame(width: 52, height: 52)
                         .background(Circle().fill(isDark ? Color.white : Color.black))
@@ -940,7 +946,7 @@ struct ReaderView: View {
                     ttsEngine.skipForward()
                 } label: {
                     Image(systemName: "goforward")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(.title3, weight: .semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
@@ -1312,7 +1318,7 @@ private struct ModeToggleButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: mode.systemImage)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(.callout, weight: .semibold))
                 .foregroundStyle(
                     isActive
                         ? (isDark ? Color.black : Color.white)
@@ -1345,7 +1351,7 @@ private struct IconBarButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(.callout, weight: .semibold))
                 .foregroundStyle(isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.78))
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())

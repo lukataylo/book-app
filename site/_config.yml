@@ -1,0 +1,5 @@
+title: Epigrapha
+description: Books that bend to your time.
+# No theme gem, no plugins — the two pages App Review needs, rendered by
+# GitHub's own Jekyll build. Nothing here is part of the app.
+theme: jekyll-theme-minimal

@@ -71,31 +71,16 @@ final class ReaderViewModel {
 
     init(book: Book, variant: BookVariant? = nil) {
         self.book = book
-        self.currentVariant = variant ?? book.originalVariant ?? BookVariant(book: book, kind: .original, contentText: "")
-        // Best-effort sync init: legacy / test rows still carry the
-        // body text in-row. If the row has been migrated (or freshly
-        // imported via the disk-backed path) `contentText` is empty
-        // and we'll populate paragraphs in `load()`.
-        let inMemory = currentVariant.contentText
-        self.paragraphs = Self.splitParagraphs(inMemory)
-        self.blocks = Self.buildBlocks(from: paragraphs)
-        self.currentParagraph = Self.resumeParagraphIndex(
-            book: book,
-            variantID: currentVariant.id,
-            paragraphCount: paragraphs.count
-        )
-        // We're loading iff paragraphs are still empty — that means
-        // either contentText was blank (migrated / freshly imported row,
-        // body lives on disk) or the variant genuinely has no content.
-        // Either way `load()` figures it out.
-        self.isLoading = paragraphs.isEmpty
+        self.currentVariant = variant ?? book.originalVariant ?? BookVariant(book: book, kind: .original)
+        // Body text always lives on disk, so there is nothing to show
+        // synchronously — `load()` fills paragraphs in from the reader's
+        // `.task`.
+        self.isLoading = true
     }
 
-    /// Async second-stage load. Pulls the body from disk
-    /// (`BookVariant.loadText()`) when the in-row `contentText` was
-    /// empty, then re-runs paragraph splitting + resume resolution.
-    /// Idempotent — safe to call from the reader's `.task`, no-op when
-    /// the sync init already populated paragraphs.
+    /// Async load. Pulls the body from disk (`BookVariant.loadText()`),
+    /// then runs paragraph splitting + resume resolution. Idempotent —
+    /// safe to call from the reader's `.task`.
     func load() async {
         guard isLoading else { return }
         let text = await currentVariant.loadText()
@@ -254,9 +239,6 @@ final class ReaderViewModel {
     /// not a load-bearing feature.
     private func publishWidgetSnapshot(percent: Double) {
         var coverFilename = ""
-        // `coverImageData()` resolves both the legacy in-row data and
-        // the new disk-backed file, so the widget snapshot keeps
-        // working through the migration.
         if let coverData = book.coverImageData() {
             let leaf = "\(book.id.uuidString).jpg"
             if let target = WidgetSnapshot.coverURL(filename: leaf) {

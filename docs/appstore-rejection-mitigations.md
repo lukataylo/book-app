@@ -1,5 +1,11 @@
 # App Store Rejection Pre-emption — Mitigations
 
+> **Superseded (2026-08-23) by `submission-plan-2026-08.md`.** Kept for
+> the research trail. Items 1, 6, 7, 8, 9, 10 and 11 are done; item 5
+> (Readium privacy manifest) turned out to be a non-issue — the package
+> ships its own manifest. The code references throughout predate the
+> scope-down and name files that no longer exist.
+
 _Synthesis of three independent web-research passes (Dec 2025–Jun 2026 rejections for book/IP apps, AI apps, and technical/privacy + "AI-generated code" tells), cross-referenced to this codebase. Severity = likelihood × impact of an Apple rejection. Sources in the agent transcripts._
 
 ## BLOCKERS — fix before submitting

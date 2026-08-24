@@ -55,10 +55,11 @@ struct BookCardView: View {
                         .font(Typography.secondary)
                         .foregroundStyle(Theme.Palette.textSecondary)
                         .lineLimit(1)
-                    // Length tiers, quietly: every catalog title ships a
-                    // 3-min quick take and the full summary.
+                    // The summary is the tier the catalog is built around,
+                    // so that is the time on the card. The full text and
+                    // the quick take are listed on the book page.
                     if book.isSummaryEdition, book.readMinutesEstimate > 0 {
-                        Text("3–\(book.readMinutesEstimate) min")
+                        Text("\(book.readMinutesEstimate) min")
                             .font(Typography.micro)
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
                     }
@@ -84,7 +85,7 @@ struct BookCardView: View {
         var parts = [book.title]
         if !book.author.isEmpty { parts.append("by \(book.author)") }
         if book.isSummaryEdition, book.readMinutesEstimate > 0 {
-            parts.append("3 to \(book.readMinutesEstimate) minute read")
+            parts.append("\(book.readMinutesEstimate) minute summary")
         }
         if progress > 0.01 { parts.append("\(Int((progress * 100).rounded())) percent read") }
         return parts.joined(separator: ", ")

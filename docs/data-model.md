@@ -11,22 +11,25 @@ application layer using UUIDs.
                       ┌───────────────────┐
                       │      Book         │
                       │ id, title, author │
-                      │ format, cover     │
+                      │ format, hasCover  │
                       │ categoryTags      │
                       │ detectedThemes    │
                       └─────────┬─────────┘
                                 │
-        ┌──────────────┬────────┼─────────┬───────────────┐
-        ▼              ▼        ▼         ▼               ▼
-  ┌──────────┐  ┌────────────┐ ...   ┌─────────────┐  ┌───────────┐
-  │BookVariant│  │KeyLearning │       │ Annotation  │  │ReadingProg│
-  │ kind      │  │ text       │       │ locator     │  │ percent   │
-  │ contentTxt│  │ chapterRef │       │ note, color │  │ locator   │
-  │ targetPgs │  │ starred    │       │ quotedText  │  │           │
-  │ style     │  │            │       │             │  │           │
-  │ omitted   │  │            │       │             │  │           │
-  │ cost      │  │            │       │             │  │           │
-  └──────────┘  └────────────┘        └─────────────┘  └───────────┘
+        ┌──────────────┬────────┴────────┬───────────────┐
+        ▼              ▼                 ▼               ▼
+  ┌───────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐
+  │BookVariant│  │  Annotation │  │  Bookmark   │  │ReadingProg│
+  │ kind      │  │ locator     │  │ paragraph   │  │ percent   │
+  │ targetPgs │  │ note, color │  │ label       │  │ locator   │
+  │ style     │  │ quotedText  │  │ snippet     │  │           │
+  │ omitted   │  │             │  │             │  │           │
+  │ cost      │  │             │  │             │  │           │
+  └───────────┘  └─────────────┘  └─────────────┘  └───────────┘
+
+  Body text and cover bytes are NOT columns. They live on disk at
+  `<bookFolder>/variant-<id>.txt` and `<bookFolder>/cover.jpg` —
+  CloudKit stalls or silently drops multi-megabyte fields.
 
                   Singletons (one row per device, synced)
                   ┌──────────────┐ ┌──────────────┐ ┌────────────────┐
@@ -42,7 +45,7 @@ application layer using UUIDs.
 |---|---|---|
 | id | UUID | logical id |
 | title, author | String | from parser |
-| coverData | Data? | jpeg, ~50–200 KB |
+| hasCoverImage | Bool | true once a jpeg is at `BookStore.coverURL(bookID:)` |
 | formatRaw | String | enum-backed: epub / pdf / mobi |
 | originalFileBookmark | Data? | secure URL bookmark to the original file in iCloud Drive |
 | totalPagesEstimate | Int | ~250 wpw heuristic |
@@ -59,21 +62,21 @@ generated on demand.
 | field | type | notes |
 |---|---|---|
 | kind | enum | original / compressed / expanded / styled / themeOmitted |
-| contentText | String | full body (also persisted as a sibling .txt under the book folder) |
+| — | — | the body is **not** a column: `writeText` / `loadText` go to `<bookFolder>/variant-<id>.txt` |
 | targetPages | Int | what the user asked for |
-| styleReference | String | "Joan Didion" if styled |
+| styleReference | String | the requested voice, e.g. "spare and literary" |
 | omittedThemes | [String] | for theme-omission |
 | modelUsed | String | Claude / Apple FM |
 | inputTokens, outputTokens, cachedInputTokens, costUSD | Int / Double | recorded from the API response so monthly spend in Settings is exact, not estimated |
 
-### `KeyLearning`
+### `Bookmark`
 
 | field | type | notes |
 |---|---|---|
-| text | String | one or two sentences |
-| chapterRef | String | optional source chapter |
-| starred | Bool | user's pin |
-| userEdited | Bool | did the user touch this since auto-extraction? |
+| variantID | UUID? | which rendition the marker was dropped in |
+| paragraphIndex | Int | position within that variant |
+| label | String | optional; falls back to the paragraph's first sentence |
+| snippet | String | captured at bookmark time so lists don't load the body |
 
 ### `Annotation`
 

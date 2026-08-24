@@ -90,13 +90,6 @@ struct PromptTemplatesTests {
     }
 
     @Test
-    func chatWithBookKeepsAnswersGrounded() {
-        let (system, _) = PromptTemplates.chatWithBook(question: "What's the main argument?")
-        #expect(system.contains("strictly from its content"))
-        #expect(system.contains("doesn't address that"))
-    }
-
-    @Test
     func seamRewriteOutputsJSON() {
         let (system, _) = PromptTemplates.seamRewrite()
         #expect(system.contains("\"left\""))

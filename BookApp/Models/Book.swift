@@ -4,7 +4,6 @@ import SwiftData
 enum BookFormat: String, Codable, CaseIterable, Sendable {
     case epub
     case pdf
-    case mobi
     case unknown
 }
 
@@ -15,17 +14,10 @@ final class Book {
     var id: UUID = UUID()
     var title: String = ""
     var author: String = ""
-    /// Legacy in-row cover bytes. Kept for backwards compatibility with
-    /// existing CloudKit data; new books leave this `nil` and store the
-    /// cover at `BookStore.shared.coverURL(bookID:)`. `BlobMigration`
-    /// moves any non-nil values onto disk and clears them on first
-    /// launch after the upgrade — keeping a 200KB JPEG in a CloudKit
-    /// record bumps every sync into the slow path.
-    var coverData: Data?
-    /// Filename within `<bookFolder>` that holds the cover when the
-    /// new disk-backed path is in use. Empty string means "fall back to
-    /// `coverData`".
-    var coverFilename: String = ""
+    /// True once a cover image has been written to
+    /// `BookStore.shared.coverURL(bookID:)`. The URL is deterministic, so
+    /// this is the only cover state the row needs to carry.
+    var hasCoverImage: Bool = false
     var formatRaw: String = BookFormat.unknown.rawValue
     var originalFileBookmark: Data?
     var totalPagesEstimate: Int = 0
@@ -67,14 +59,12 @@ final class Book {
         title: String,
         author: String,
         format: BookFormat,
-        coverData: Data? = nil,
         originalFileBookmark: Data? = nil
     ) {
         self.id = id
         self.title = title
         self.author = author
         self.formatRaw = format.rawValue
-        self.coverData = coverData
         self.originalFileBookmark = originalFileBookmark
         self.importedAt = .now
     }
@@ -89,14 +79,12 @@ final class Book {
     }
 
     /// Cover image bytes for synchronous consumers (e.g. Now-Playing
-    /// artwork). Prefers the in-row `coverData` if a legacy / test row
-    /// has it, otherwise reads from disk. The disk read is a single
-    /// `Data(contentsOf:)` — fine for cover-sized images, but UI layers
-    /// (cards, detail page) should still go through the async
-    /// `CoverImageCache` so the JPEG decode stays off the main thread.
+    /// artwork). A single `Data(contentsOf:)` — fine for cover-sized
+    /// images, but UI layers (cards, detail page) should still go
+    /// through the async `CoverImageCache` so the JPEG decode stays off
+    /// the main thread.
     func coverImageData() -> Data? {
-        if let inRow = coverData, !inRow.isEmpty { return inRow }
-        let url = BookStore.shared.coverURL(bookID: id)
-        return try? Data(contentsOf: url)
+        guard hasCoverImage else { return nil }
+        return try? Data(contentsOf: BookStore.shared.coverURL(bookID: id))
     }
 }

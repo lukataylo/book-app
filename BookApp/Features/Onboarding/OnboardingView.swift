@@ -23,7 +23,7 @@ struct OnboardingView: View {
         Panel(
             symbol: "books.vertical.fill",
             title: "Your library, your way",
-            blurb: "Drop in EPUBs, PDFs, even MOBI. They're auto-tagged and shelved by category, ready to read."
+            blurb: "Every title ships with the full public-domain work, an original summary, and a two-minute quick take. Drop in your own EPUBs and PDFs alongside them."
         ),
         Panel(
             symbol: "wand.and.stars",

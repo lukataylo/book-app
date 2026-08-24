@@ -106,9 +106,10 @@ struct BookDetailView: View {
                         .font(.system(.subheadline))
                         .foregroundStyle(Theme.Palette.textSecondary)
                     if book.readMinutesEstimate > 0 {
-                        // Minutes, not pages: these are summaries, and "4
-                        // pages" reads as a defect rather than a feature.
-                        Text("3–\(book.readMinutesEstimate) min read")
+                        // Minutes, not pages. Each variant row below
+                        // carries its own length, so this is just the
+                        // summary — the tier the catalog is built around.
+                        Text("\(book.readMinutesEstimate) min summary")
                             .font(.system(.caption, weight: .medium))
                             .foregroundStyle(Theme.Palette.textSecondary.opacity(0.8))
                             .padding(.top, 2)
@@ -216,9 +217,15 @@ struct BookDetailView: View {
 
     private var allVariants: [BookVariant] {
         let originals = (book.variants ?? []).filter { $0.kind == .original }
-        let generated = (book.variants ?? []).filter { $0.kind != .original }
+        // Length tiers first, longest to shortest — a catalog book seeds
+        // its full text, summary and quick take within the same
+        // millisecond, so `generatedAt` orders them arbitrarily.
+        let tiers = (book.variants ?? []).filter { $0.kind == .compressed && $0.modelUsed.isEmpty }
+            .sorted { $0.targetPages > $1.targetPages }
+        let generated = (book.variants ?? [])
+            .filter { $0.kind != .original && !($0.kind == .compressed && $0.modelUsed.isEmpty) }
             .sorted { $0.generatedAt > $1.generatedAt }
-        return originals + generated
+        return originals + tiers + generated
     }
 
     // Books-style rows: text + chevron only — no leading glyph parade.
@@ -228,8 +235,9 @@ struct BookDetailView: View {
                 Text(v.label.isEmpty ? v.kind.displayName : v.label)
                     .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(Theme.Palette.textPrimary)
-                if v.kind != .original {
-                    Text(metadataLine(for: v))
+                let meta = v.kind == .original ? "" : metadataLine(for: v)
+                if !meta.isEmpty {
+                    Text(meta)
                         .font(.system(.caption2))
                         .foregroundStyle(Theme.Palette.textSecondary)
                 }
@@ -238,10 +246,16 @@ struct BookDetailView: View {
             Image(systemName: "chevron.right")
                 .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, Theme.Spacing.m)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
+        // One spoken element per row. The label already carries the
+        // length ("Full text · 4 h"), which is the whole point of this
+        // list — the same book at three lengths.
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
     }
 
     private func metadataLine(for v: BookVariant) -> String {
@@ -250,6 +264,9 @@ struct BookDetailView: View {
         if v.kind == .styled, v.modelUsed.isEmpty, !v.styleReference.isEmpty {
             return v.styleReference
         }
+        // Bundled length tiers put their duration in the label already;
+        // "5 pages" beneath "The Big Ideas · 5 min" is noise.
+        if v.kind == .compressed, v.modelUsed.isEmpty { return "" }
         var parts: [String] = []
         if v.targetPages > 0 { parts.append("\(v.targetPages) pages") }
         if !v.modelUsed.isEmpty {

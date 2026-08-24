@@ -28,18 +28,6 @@ final class BookVariant {
     var styleReference: String = ""
     var omittedThemes: [String] = []
     var contentBookmark: Data?
-    /// Legacy in-row body. Kept for backwards compatibility — new
-    /// variants leave this empty and store text at
-    /// `BookStore.shared.variantTextURL(bookID:variantID:)`.
-    /// `BlobMigration` moves any non-empty values onto disk and clears
-    /// them on first launch after the upgrade. SwiftData / CloudKit
-    /// don't tolerate megabytes of String per record well; sync stalls
-    /// or silently drops oversized fields.
-    var contentText: String = ""
-    /// Filename within `<bookFolder>` that holds the body text when the
-    /// new disk-backed path is in use. Empty string means "fall back to
-    /// `contentText`".
-    var contentFilename: String = ""
     var generatedAt: Date = Date.now
     var modelUsed: String = ""
     var inputTokens: Int = 0
@@ -52,7 +40,6 @@ final class BookVariant {
         id: UUID = UUID(),
         book: Book? = nil,
         kind: VariantKind = .original,
-        contentText: String = "",
         contentBookmark: Data? = nil,
         targetPages: Int = 0,
         styleReference: String = "",
@@ -63,7 +50,6 @@ final class BookVariant {
         self.id = id
         self.book = book
         self.kindRaw = kind.rawValue
-        self.contentText = contentText
         self.contentBookmark = contentBookmark
         self.targetPages = targetPages
         self.styleReference = styleReference
@@ -89,19 +75,25 @@ final class BookVariant {
         }
     }
 
-    /// Read the variant's body text. Prefers the in-memory
-    /// `contentText` (legacy / test path: tests construct variants with
-    /// `contentText:` and don't write to disk, and pre-migration users
-    /// still have the text in-row). Falls through to the disk file
-    /// written by `BookStore.writeVariantText` for migrated and
-    /// freshly-imported variants.
+    /// Write the variant's body text to its deterministic location under
+    /// the book folder. Returns false if the write failed, so the caller
+    /// can refuse to persist a variant nobody can read.
+    ///
+    /// Body text never lives in the SwiftData row: CloudKit silently
+    /// drops or stalls on multi-megabyte fields, and a full book is
+    /// exactly that.
+    @discardableResult
+    func writeText(_ text: String) -> Bool {
+        guard let bookID = book?.id else { return false }
+        return BookStore.shared.writeVariantText(text, bookID: bookID, variantID: id)
+    }
+
+    /// Read the variant's body text from disk.
     ///
     /// Reads are dispatched to a detached task so multi-MB books don't
     /// block the main thread on first reader open.
     @MainActor
     func loadText() async -> String {
-        let inMemory = self.contentText
-        if !inMemory.isEmpty { return inMemory }
         guard let bookID = book?.id else { return "" }
         let variantID = self.id
         return await Task.detached(priority: .userInitiated) {

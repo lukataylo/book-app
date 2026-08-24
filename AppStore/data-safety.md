@@ -25,7 +25,13 @@ Set everything else to "Data not collected".
 
 **Anthropic — User Content — App Functionality — not linked to identity,
 not used for tracking.** Sent only with the user's own Anthropic API key,
-only on explicit confirmation, and never stored by the app.
+only after explicit, named, withdrawable consent, and never stored by the
+app.
+
+> This row must actually be entered in App Store Connect. Review
+> cross-checks the nutrition label against observed network behaviour, and
+> the app does contact `api.anthropic.com`. A label claiming no
+> third-party sharing is a mismatch even though the sharing is optional.
 
 ## Privacy practices summary (the nutrition-label result)
 
@@ -38,17 +44,24 @@ only on explicit confirmation, and never stored by the app.
 
 ### What user data does the app handle?
 
+- The bundled catalog: 28 public-domain works, each with an original
+  summary and quick take (ship inside the app; nothing is fetched).
 - Books you import (stay local + iCloud private DB).
-- Reading position, highlights and key learnings (stay local + iCloud
+- Reading position, highlights and bookmarks (stay local + iCloud
   private DB).
 - Anthropic API key (Keychain, never transmitted to Epigrapha).
-- Voice / typography / margin preferences (Keychain + iCloud private DB).
+- Voice / typography / margin preferences (iCloud private DB).
 
 ### What data leaves the device?
 
 - Only the prompt + source text for a cloud transformation, sent directly
-  to `api.anthropic.com` under the user's API key. The user must confirm each cloud run. The app does not store this
-  data.
+  to `api.anthropic.com` under the user's API key, and only after the user
+  has granted permission in a dialog naming Anthropic. Until then the
+  provider reports itself unavailable and no connection is opened. The
+  permission is withdrawable in Settings → Privacy. The app does not
+  store this data.
+- Nothing else. Automatic category tagging of imported books runs
+  on-device only and never falls back to the network.
 - iCloud sync for metadata + transformation outputs to the user's private
   CloudKit database.
 

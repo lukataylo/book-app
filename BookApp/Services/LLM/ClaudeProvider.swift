@@ -38,11 +38,21 @@ final actor ClaudeProvider: LLMProvider {
         self.endpoint = Self.endpointURL
     }
 
+    /// Unavailable without a key *or* without consent, so `LLMRouter`
+    /// skips this provider the same way it skips a device with no Apple
+    /// Intelligence. Guideline 5.1.2(i): nothing reaches a third-party AI
+    /// until the user has been told, by name, that it will.
     func isAvailable() async -> Bool {
-        KeychainStore.shared.read(.anthropicAPIKey) != nil
+        CloudConsent.granted && KeychainStore.shared.read(.anthropicAPIKey) != nil
     }
 
     func complete(_ request: LLMRequest) async throws -> LLMResponse {
+        // Belt and braces: `isAvailable` already keeps the router away,
+        // but a caller holding a provider directly must not be able to
+        // transmit either. This is the last line before the network.
+        guard CloudConsent.granted else {
+            throw LLMError.consentRequired
+        }
         guard let apiKey = KeychainStore.shared.read(.anthropicAPIKey) else {
             throw LLMError.missingAPIKey
         }
@@ -58,10 +68,12 @@ final actor ClaudeProvider: LLMProvider {
             ])
         }
 
+        // No `temperature`: sampling parameters are rejected with a 400
+        // on Sonnet 5 / Opus 5. Thinking is left unset too — both models
+        // run adaptive thinking by default when the field is absent.
         let body: [String: Any] = [
             "model": request.model.rawValue,
             "max_tokens": request.maxOutputTokens,
-            "temperature": request.temperature,
             "system": systemBlocks,
             "messages": [
                 ["role": "user", "content": request.userPrompt]
@@ -89,6 +101,14 @@ final actor ClaudeProvider: LLMProvider {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
             throw LLMError.decodingFailed("not a JSON object")
+        }
+
+        // A safety classifier can decline the request: HTTP 200, empty
+        // text, `stop_reason: "refusal"`. Without this check the caller
+        // sees a silently blank transformation.
+        if (json["stop_reason"] as? String) == "refusal" {
+            let detail = (json["stop_details"] as? [String: Any])?["explanation"] as? String
+            throw LLMError.refused(detail ?? "The model declined this request.")
         }
 
         let contentArray = json["content"] as? [[String: Any]] ?? []

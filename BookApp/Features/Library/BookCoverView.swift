@@ -6,8 +6,7 @@ import SwiftUI
 ///   1. designed vector cover (`Covers.xcassets`, authored 2:3 → fills the
 ///      2:3 frame with no crop),
 ///   2. disk-backed raster via `CachedCoverImage` (off-thread decode + cache),
-///   3. legacy in-row `coverData` (also via the cache),
-///   4. generated Idea-Glyph cover.
+///   3. generated Idea-Glyph cover.
 ///
 /// Decorative for VoiceOver: the whole cover is `accessibilityHidden`, so the
 /// designed/generated artwork never leaks an asset filename or double-reads the
@@ -24,12 +23,8 @@ struct BookCoverView: View {
         #if canImport(UIKit)
         if let asset = CoverArt.designedAssetName(for: book) {
             DesignedCoverView(book: book, assetName: asset)
-        } else if !book.coverFilename.isEmpty {
-            CachedCoverImage(bookID: book.id, source: .file(BookStore.shared.coverURL(bookID: book.id))) {
-                GeneratedCoverView(book: book)
-            }
-        } else if let data = book.coverData {
-            CachedCoverImage(bookID: book.id, source: .data(data)) {
+        } else if book.hasCoverImage {
+            CachedCoverImage(bookID: book.id, url: BookStore.shared.coverURL(bookID: book.id)) {
                 GeneratedCoverView(book: book)
             }
         } else {

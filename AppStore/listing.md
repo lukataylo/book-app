@@ -21,71 +21,75 @@
 
 ## Promotional Text (170 chars, editable any time)
 
-`Compress a 400-page book to a 20-page summary. Expand notes into full chapters. Listen on-device. Speed-read with paragraph and word highlighting. Your shelf, in your pocket.`
+`Twenty-eight classics in full, each with a five-minute summary and a two-minute quick take. Pick your length. Listen on-device. Or bring your own EPUBs.`
 
-(170 chars)
+(151 chars)
 
 ## Description (4000 chars)
 
 ```
 Epigrapha turns every book on your shelf into a tool that bends around your time.
 
-Start with the big ideas
-Original 15-minute summaries of public-domain classics, written as idea-level companions with full attribution. Read the summary, keep what matters, and every reading feature works on it — reader, audio, speed reading, transformations.
+Pick your length
+Twenty-eight works of public-domain non-fiction ship complete — Meditations, Walden, On Liberty, The Wealth of Nations, The Souls of Black Folk. Each one also comes with an original five-minute summary and a two-minute quick take, written as idea-level companions with full attribution. Read the whole book, or read the shape of it on the train. Every reading feature works on all three.
 
 Compress or expand
-Have an hour, but the book takes ten? Compress it to a 20-page summary that keeps the author's voice and every key idea. Or take a five-page essay and expand it to a full chapter when you want to go deeper. Compression and expansion run on Apple's on-device intelligence when possible, and on a cloud AI model (Anthropic) when the text is long or the task is hard — you always see the model and the cost before anything runs.
+Have an hour, but the book takes ten? Compress it to a summary that keeps the author's voice and every key idea. Or take a short essay and expand it when you want to go deeper. Compression and expansion run on Apple's on-device intelligence where the hardware supports it, and on a cloud AI model (Anthropic) when the text is long or the task is hard — you always see the model and the cost before anything runs, and nothing is sent anywhere until you say so.
 
 Listen, on-device
-Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken, the page flips itself, and lock-screen controls keep working in the background. No cloud round-trip; nothing leaves the device.
+Every book becomes an audiobook using the best voice installed on your device. The current word lights up as it is spoken, the page flips itself, and lock-screen controls keep working in the background. No cloud round-trip; nothing leaves the device.
 
 Speed read
-Three modes — paragraph + word highlight, single-word focus, and Spritz-style RSVP — at any pace from 150 to 1,200 words per minute. Pause at punctuation, jump back a sentence, hand it off to TTS when you've found a passage worth hearing.
+Read at any pace from 150 to 1,200 words per minute, with the current word highlighted in place so you never lose your position. Pause at punctuation, jump back a sentence, or hand the passage over to the narrator when you find something worth hearing.
 
 Re-style
-Six books ship with a comic re-style already made, no key required: The Art of War staged as Shakespeare, Adam Smith explained by a pirate, Darwin narrated as a nature documentary, Machiavelli as a corporate all-hands memo, Marcus Aurelius as a group chat, Thoreau as a lifestyle blog. Then make your own.
-
-Make a dense academic chapter read more like a spare, literary essay. Strip every reference to a theme you're not interested in. Try a single chapter as a different voice before committing to the whole book.
+Six books ship with a re-style already made, no key required: The Art of War staged as Shakespeare, Adam Smith explained by a pirate, Darwin narrated as a nature documentary, Machiavelli as a corporate all-hands memo, Marcus Aurelius as a group chat, Thoreau as a lifestyle blog. Then make your own — a dense chapter as a spare, literary essay, or a book with every reference to a theme you do not care about stripped out.
 
 Keep what matters
 Highlight anything worth remembering as you read. It lands in the Saved tab, and one search covers your whole library — books, authors, themes and every passage you kept.
 
 Your library, in iCloud
-Your shelf, your reading position, your annotations, your transformations — all sync across iPhone, iPad and Mac. Books live in your iCloud Drive so they're yours, not ours.
+Your shelf, your reading position, your highlights and your transformations sync across your iPhone and iPad. Books live in your own iCloud Drive, so they are yours, not ours.
 
 Built around great typography
-New York for titles, San Francisco for chrome, your choice of font and theme for the page itself. Sepia, light, dark and true black. Margins, line spacing, paragraph gaps — all tunable.
+New York for titles, San Francisco for chrome, your choice of font and theme for the page itself. Sepia, light, dark and true black. Margins, line spacing and paragraph gaps are all tunable, and the reader honours your system text size.
 
 Privacy
-The cloud AI is accessed with your own Anthropic API key, which lives in your Keychain. Cloud transformations send the source text to the Anthropic API only when you confirm the run, and only for the duration of that request. Local transformations stay on your device. Nothing is uploaded to Epigrapha.
+There is no Epigrapha server and no account. Cloud AI is reached with your own Anthropic API key, which lives in your Keychain. Before any text is sent, Epigrapha asks in a dialog that names Anthropic and says exactly what will be sent — and you can withdraw that permission at any time in Settings, which switches the cloud path off entirely. Automatic category tagging runs on-device only. No analytics, no telemetry, no tracking.
 
 Supported formats
-EPUB, PDF and MOBI.
+EPUB and PDF.
 
-Epigrapha is free. No subscription, no in-app purchases, no ads, no telemetry. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
+Epigrapha is free. No subscription, no in-app purchases, no ads. Cloud transformations are optional and use your own Anthropic API key, billed directly by Anthropic.
 ```
 
-(~2,300 chars — well under limit)
+(~2,900 chars — well under limit)
 
 ## Keywords (100 chars, comma-separated, no spaces)
 
 ```
-epub,ebook,reader,audiobook,tts,speed-reading,summary,books,highlights,compress,book-notes,transform
+epub,ebook,reader,audiobook,tts,speed-reading,summary,classics,highlights,public-domain,stoic
 ```
 
-(99 chars)
+(92 chars)
+
+> No trademarked terms (no "claude", no "kindle") — 2.3.7 rejects those.
 
 ## Support URL
 
-`https://github.com/lukataylo/book-app`
+`https://lukataylo.github.io/book-app/support/`
 
 ## Marketing URL
 
-`https://github.com/lukataylo/book-app`
+`https://lukataylo.github.io/book-app/`
 
 ## Privacy Policy URL
 
-`https://github.com/lukataylo/book-app/blob/main/AppStore/privacy.md`
+`https://lukataylo.github.io/book-app/privacy/`
+
+> All three are published by `.github/workflows/pages.yml` and verified by
+> that workflow before it reports success. A GitHub blob URL was used here
+> previously; Review treats an un-rendered markdown blob as a dead policy.
 
 ## Category
 
@@ -108,36 +112,53 @@ Initial release.
 
 ```
 Hello.
-- Library: import epub or pdf from iCloud Drive, group by category.
+- Catalog: 28 public-domain works in full, each with a five-minute summary and a two-minute quick take.
+- Library: import your own EPUB or PDF from iCloud Drive, grouped by category.
 - Reader: clean reflowable text, font / margin / theme controls.
-- Listen: on-device TTS with word-level highlighting.
-- Speed read: three modes from 150 to 1,200 wpm.
+- Listen: on-device narration with word-level highlighting.
+- Speed read: 150 to 1,200 wpm with the current word highlighted in place.
 - Transform: compress, expand, re-style, omit themes.
 - Highlights: keep passages, search them across every book.
-- Sync: every book and every transformation across all your Apple devices.
+- Sync: your shelf and your reading position across iPhone and iPad.
 ```
 
 ## Screenshots brief
 
-The reviewer needs five screenshots per device (iPhone 6.7" required, iPhone
-6.1" optional, iPad 12.9" if iPad supported). Suggested order:
+Five screenshots per device (iPhone 6.9" required; iPad 13" if iPad is
+listed). App Review applies 4.3(b) from the screenshots alone in this
+category, so the set has to show the thing a summary app cannot show —
+**one book at three lengths** — before it shows anything else.
 
-1. **Library home** — empty-state version is cleanest. Title "Sharpen your mind with great books." commands the screen.
-2. **Library with books** — three filled shelves: "Top selections", "Self-improvement", "Philosophy".
-3. **Reader** — Chapter 1 of *The Psychopathology of Everyday Things* in serif, sepia theme, bottom bar visible.
-4. **Transformation Studio** — the AI panel mid-run, showing "Compressing → 28 pages, ~$0.42" and the cost preview.
-5. **Speed reader** — RSVP mode, single bold word at the optical pivot.
+1. **Book page, variants visible** — the hero shot. One title with "Full
+   text · 4 h", "The Big Ideas · 5 min" and "Quick take · 2 min" stacked
+   and tappable. This is the differentiator; lead with it.
+2. **Reader** — a real chapter of a bundled title in serif, sepia theme,
+   bottom bar visible.
+3. **Listen** — mid-playback with the spoken word highlighted and the
+   progress region showing time left.
+4. **Library** — filled shelves, so the catalog reads as a library rather
+   than a feed of cards.
+5. **Transformation Studio** — the estimate card before a run, showing the
+   model and the cost. Being explicit about cost is itself a 3.1.1 point.
 
-Caption typography: New York Bold, 56pt, off-white on the cream background, single sentence each:
+Caption typography: New York Bold, 56pt, off-white on the cream background,
+single sentence each:
 
-1. *Your shelf, ready when you are.*
-2. *Sorted automatically by category.*
-3. *Read like Apple Books — your way.*
-4. *Reshape any book to your schedule.*
-5. *Read at the speed of thought.*
+1. *One book. Three lengths. Your call.*
+2. *Read like Apple Books — your way.*
+3. *Every word lit as it's spoken.*
+4. *Twenty-eight classics, in full.*
+5. *Reshape any book to your schedule.*
 
-Avoid screenshots that show dummy text — use real public-domain Project
-Gutenberg content (e.g. *Pride and Prejudice*, *Walden*, *Meditations*).
+Only use titles that actually ship. The old brief named *The
+Psychopathology of Everyday Things* and *Pride and Prejudice* — the first
+is in copyright and neither is in the catalog. Use Meditations, Walden,
+On Liberty or The Souls of Black Folk.
+
+Regenerate with
+`xcodebuild test -only-testing:BookAppUITests/StoreShotTests`, and **erase
+the simulator first** — a stale store seeded by an older loader key will
+put withdrawn titles on the shelf.
 
 ## In-app purchase
 
@@ -155,11 +176,12 @@ Anthropic API key.
 CORE FEATURES WORK WITH NO KEY — PLEASE TEST THESE FIRST
 The app is fully usable with no API key and no payment. Without entering
 any key the reviewer can:
-  - Read the bundled public-domain book summaries, and the six comic re-styles that ship with them.
+  - Read all 28 public-domain works in full, plus the original summary and
+    quick take that ship with each, and the six re-styles.
   - Use the reader (EPUB/PDF import, fonts, themes, margins).
-  - Use on-device text-to-speech with word-level highlighting.
+  - Use on-device narration with word-level highlighting.
   - Highlight passages and find them again from the Search tab.
-  - Use speed-reading (paragraph/word, single-word, RSVP modes).
+  - Use speed reading, 150-1,200 wpm.
 None of these features require a key, an account, or a purchase. We ask
 that the reviewer test these first to confirm the app delivers value
 out of the box.
@@ -200,12 +222,36 @@ environment with capabilities not offered by apps such as Blinkist or
 Headway:
   - Import and read the user's own EPUB and PDF files.
   - Word-level highlighting synced to on-device text-to-speech.
-  - Elastic length: the same book read as a 3-minute gist, a 15-minute
-    summary, or in full.
+  - Elastic length on a single title: the same work as a two-minute quick
+    take, a five-minute summary, or the complete text — a summary app
+    ships only the summary.
   - On-device AI transformations (compress / expand / re-style) that run
     locally on supported hardware with no cloud round-trip.
 
-CONTENT
+THIRD-PARTY AI CONSENT (Guideline 5.1.2(i))
+No user content reaches Anthropic until the user grants permission in a
+dialog that names Anthropic and states what will be sent. The gate is
+enforced at the network boundary, not at the call site: ClaudeProvider
+reports itself unavailable without consent, so the router cannot select
+it and no code path can transmit by forgetting to ask. Consent is
+withdrawable at any time in Settings -> Privacy, which disables the cloud
+path entirely. Automatic category tagging of imported books runs
+on-device only and never falls back to the cloud.
+
+CONTENT AND RIGHTS
+Every catalog title is a work published before 1930 whose US copyright
+has expired; the source text comes from Project Gutenberg, Project
+Gutenberg Australia and Wikisource. The accompanying summaries are
+original prose written for this app, not extracts, and each one carries
+an attribution line naming the source work and stating that the app is
+not affiliated with the author or their estate. Cover art is original
+vector work; no jacket is reproduced. A contact route for rights concerns
+is published at https://lukataylo.github.io/book-app/support/
 The app does not generate or host adult content. User-imported books are
 the user's own files and outside our scope.
+
+ACCESSIBILITY
+The reader honours Dynamic Type, including the accessibility sizes.
+VoiceOver labels are provided for the reader, library and playback
+controls; cover art is marked decorative so it is not read aloud.
 ```

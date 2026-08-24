@@ -6,8 +6,8 @@
 
 **Books that bend to your time.**
 
-Compress a 400-page book to 20 pages. Expand 5 pages to 50.
-Listen on-device. Speed-read at 1,000 wpm. Re-style any book to read like another.
+28 public-domain classics in full, each with a 5-minute summary and a 2-minute quick take.
+Compress a 400-page book to 20. Listen on-device. Re-style any book to read like another.
 
 <sub>iOS · iPadOS · SwiftUI · SwiftData + CloudKit · Apple Foundation Models · Claude</sub>
 
@@ -25,9 +25,10 @@ Most reading apps assume you have time for the whole book. Epigrapha doesn't.
 
 **Read · Save** — the core loop:
 
-- **Read.** A summary-first catalog of original "The Big Ideas in …" editions of
-  public-domain non-fiction (~15 min each, clean-room prose with attribution),
-  alongside everything you import yourself.
+- **Read.** 28 public-domain works in full — Meditations, Walden, On Liberty,
+  The Wealth of Nations — each paired with an original "The Big Ideas in …"
+  summary (~5 min, clean-room prose with attribution) and a ~2-minute quick
+  take. Pick your length on the book page. Plus everything you import yourself.
 - **Save.** Highlights and extracted key learnings from every book, collected in
   one searchable tab.
 
@@ -39,8 +40,8 @@ And the original toolkit applies to all of it:
   public-domain authors and genre registers only; naming a living author invites
   right-of-publicity claims.
 - **Elastic length.** Compress a 400-page treatise into a 20-page summary that keeps the author's voice. Or expand a five-page essay into a chapter. The model preserves tone, structure and key arguments.
-- **Listen on-device.** Every book becomes an audiobook with the system's premium voices. The current word lights up as it's spoken; the page flips itself.
-- **Speed-read three ways.** Paragraph + word highlighting, single-word focus, or Spritz-style RSVP at any pace from 150 to 1,200 wpm.
+- **Listen on-device.** Every book becomes an audiobook using the best voice installed on the device. The current word lights up as it's spoken; the page flips itself.
+- **Speed-read.** The current word highlighted in place at any pace from 150 to 1,200 wpm, so you keep your position in the paragraph.
 - **Re-style.** Make a dense academic chapter sound more like Joan Didion. Strip references to a theme you don't care about.
 - **Pull key learnings.** 5 to 15 takeaways per book in seconds. Edit, star, export.
 - **Yours.** Books in your iCloud Drive. Anthropic API key in your Keychain. No backend.
@@ -62,7 +63,8 @@ On first launch:
 1. Open *Settings → AI* and paste your Anthropic API key. It's stored in the
    iOS Keychain — never on disk in plain text, never in the project.
 2. Tap **Import a book** on the home screen and pick an `.epub` or `.pdf`
-   from iCloud Drive.
+   from iCloud Drive. (Other formats need converting first — Calibre does
+   this for free.)
 
 Get a Claude API key at <https://console.anthropic.com/>.
 
@@ -75,15 +77,15 @@ Get a Claude API key at <https://console.anthropic.com/>.
 | EPUB | In-house parser over `ReadiumZIPFoundation` |
 | PDF | PDFKit |
 | TTS | `AVSpeechSynthesizer` with word-range highlighting |
-| Local LLM | Apple Foundation Models (with MLX-Swift fallback hook) |
-| Cloud LLM | Claude Sonnet 4.6 / Opus 4.7 via Anthropic Messages API + ephemeral prompt caching |
+| Local LLM | Apple Foundation Models |
+| Cloud LLM | Claude Sonnet 5 / Opus 5 via Anthropic Messages API + ephemeral prompt caching |
 
 See [docs/architecture.md](docs/architecture.md) for the full picture.
 
 ## Topics
 
 `ios` · `swiftui` · `ipados` · `swiftdata` · `cloudkit` · `epub-reader` ·
-`pdf-reader` · `text-to-speech` · `speed-reading` · `claude-api` ·
+`pdf-reader` · `text-to-speech` · `speed-reading` · `public-domain` ·
 `anthropic` · `apple-foundation-models` · `book-summarizer` · `rsvp`
 
 ## License

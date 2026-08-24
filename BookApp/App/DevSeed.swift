@@ -2,7 +2,7 @@
 import Foundation
 import SwiftData
 
-/// Debug-only first-launch seeder. Looks for EPUB / PDF / MOBI files in
+/// Debug-only first-launch seeder. Looks for EPUB / PDF files in
 /// `Documents/_seed/` and imports them through the normal pipeline. Used by
 /// the simulator preview workflow — drop files into the sandbox via
 /// `xcrun simctl get_app_container ... data` and the next launch picks
@@ -37,7 +37,7 @@ enum DevSeed {
             return
         }
 
-        let supported: Set<String> = ["epub", "pdf", "mobi", "azw3"]
+        let supported: Set<String> = ["epub", "pdf"]
         let candidates = entries
             .filter { supported.contains($0.pathExtension.lowercased()) }
             .sorted { $0.lastPathComponent < $1.lastPathComponent }

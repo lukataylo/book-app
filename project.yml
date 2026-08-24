@@ -39,12 +39,6 @@ packages:
   ReadiumZIPFoundation:
     url: https://github.com/readium/ZIPFoundation.git
     from: "3.0.0"
-  # MLXSwift is opt-in. Add it after running:
-  #   xcodebuild -downloadComponent MetalToolchain
-  # then uncomment below + the dependency in the BookApp target.
-  # MLXSwift:
-  #   url: https://github.com/ml-explore/mlx-swift-examples
-  #   from: "2.0.0"
 
 targets:
   BookApp:
@@ -60,6 +54,7 @@ targets:
           - "Supporting/BookApp.entitlements"
           - "Supporting/PrivacyInfo.xcprivacy"   # added below as explicit resource
           - "Resources/SummaryPacks"  # added below as folder reference
+          - "Resources/FullTexts"     # added below as folder reference
       # Privacy manifest — required by App Review since 2024. Apple wants
       # this at the bundle root, so we add it as an explicit resource
       # rather than letting it drop into a Supporting/ subfolder.
@@ -72,6 +67,13 @@ targets:
         type: folder
         buildPhase: resources
         optional: true
+      # The public-domain source text behind each summary, seeded as the
+      # book's `.original` variant. Folder-reference so `Bundle.main`
+      # resolves `FullTexts/<slug>.txt` at runtime.
+      - path: BookApp/Resources/FullTexts
+        type: folder
+        buildPhase: resources
+        optional: true
       # Snapshot model is shared with the widget extension (which needs
       # the same file in its target).
       - path: BookAppWidget/WidgetSnapshot.swift
@@ -79,8 +81,6 @@ targets:
       - package: ReadiumZIPFoundation
         product: ReadiumZIPFoundation
       - target: BookAppWidget
-      # - package: MLXSwift
-      #   product: MLXLLM
     settings:
       base:
         SWIFT_OBJC_BRIDGING_HEADER: ""

@@ -2,37 +2,31 @@ import Foundation
 
 enum LLMTask: Sendable {
     case categoryTagging
-    case keyLearningsExtraction
-    case knowledgeCards
-    case actionPlan
-    case quizGeneration
     case shortSummary
     case compression(targetRatio: Double)
     case expansion(targetRatio: Double)
     case styleTransfer(reference: String)
     case themeOmission(themes: [String])
     case combined(style: String?, themes: [String], targetRatio: Double?)
-    case chatWithBook(question: String)
 }
 
 enum LLMProviderID: String, Sendable, Codable {
     case foundationModels
-    case mlx
     case anthropic
 }
 
 enum LLMModel: String, Sendable, Codable {
-    case appleFoundation     = "apple-foundation"
-    case claudeSonnet4_6     = "claude-sonnet-4-6"
-    case claudeOpus4_7       = "claude-opus-4-7"
-    case claudeHaiku4_5      = "claude-haiku-4-5-20251001"
+    case appleFoundation = "apple-foundation"
+    case claudeHaiku4_5  = "claude-haiku-4-5"
+    case claudeSonnet5   = "claude-sonnet-5"
+    case claudeOpus5     = "claude-opus-5"
 
     var displayName: String {
         switch self {
         case .appleFoundation: return "Apple Foundation Models"
-        case .claudeSonnet4_6: return "Claude Sonnet 4.6"
-        case .claudeOpus4_7:   return "Claude Opus 4.7"
         case .claudeHaiku4_5:  return "Claude Haiku 4.5"
+        case .claudeSonnet5:   return "Claude Sonnet 5"
+        case .claudeOpus5:     return "Claude Opus 5"
         }
     }
 
@@ -47,10 +41,10 @@ enum LLMModel: String, Sendable, Codable {
     /// Used only for cost estimates; cloud spend is recorded from API responses.
     var price: (inputPerM: Double, outputPerM: Double) {
         switch self {
-        case .appleFoundation:            return (0, 0)
-        case .claudeHaiku4_5:             return (1.0, 5.0)
-        case .claudeSonnet4_6:            return (3.0, 15.0)
-        case .claudeOpus4_7:              return (15.0, 75.0)
+        case .appleFoundation: return (0, 0)
+        case .claudeHaiku4_5:  return (1.0, 5.0)
+        case .claudeSonnet5:   return (3.0, 15.0)
+        case .claudeOpus5:     return (5.0, 25.0)
         }
     }
 }
@@ -60,6 +54,8 @@ struct LLMRequest: Sendable {
     var userPrompt: String
     var cachedSourceText: String?
     var maxOutputTokens: Int
+    /// Only reaches the on-device model. Sampling parameters are rejected
+    /// with a 400 by Sonnet 5 / Opus 5, so `ClaudeProvider` drops it.
     var temperature: Double
     var model: LLMModel
 
@@ -94,20 +90,24 @@ struct LLMResponse: Sendable {
 enum LLMError: Error, LocalizedError {
     case noProviderAvailable
     case missingAPIKey
+    case consentRequired
     case providerUnavailable(String)
     case rateLimited
     case decodingFailed(String)
     case http(Int, String)
+    case refused(String)
     case cancelled
 
     var errorDescription: String? {
         switch self {
         case .noProviderAvailable:        return "No language model is available on this device or account."
         case .missingAPIKey:              return "Add your Anthropic API key in Settings → AI."
+        case .consentRequired:            return "This run needs your permission to send the text to Anthropic."
         case .providerUnavailable(let m): return "Provider unavailable: \(m)"
         case .rateLimited:                return "Rate limited. Try again in a moment."
         case .decodingFailed(let m):      return "Couldn't decode the model's response: \(m)"
         case .http(let code, let body):   return "HTTP \(code): \(body)"
+        case .refused(let why):           return "The model declined this request: \(why)"
         case .cancelled:                  return "Request cancelled."
         }
     }

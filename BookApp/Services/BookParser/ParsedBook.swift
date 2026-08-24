@@ -56,14 +56,12 @@ enum ParserError: Error, LocalizedError {
     case unsupportedFormat(String)
     case fileUnreadable(String)
     case decodingFailed(String)
-    case mobiConversionFailed(String)
 
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat(let f):     return "Unsupported format: \(f)"
         case .fileUnreadable(let m):        return "Couldn't read file: \(m)"
         case .decodingFailed(let m):        return "Couldn't decode book: \(m)"
-        case .mobiConversionFailed(let m):  return "MOBI conversion failed: \(m)"
         }
     }
 }

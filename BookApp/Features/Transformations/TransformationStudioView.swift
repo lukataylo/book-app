@@ -147,7 +147,7 @@ struct TransformationStudioView: View {
                 beginRun()
             }
         } message: {
-            Text("To perform this cloud transformation, the source text of this book will be sent to Anthropic (api.anthropic.com), using your own Anthropic API key. Local, on-device transformations never leave your device. You'll only be asked once.")
+            Text("If this run uses the cloud, the source text of this book is sent to Anthropic (api.anthropic.com) under your own API key. That happens when on-device AI isn't available on this device, or can't finish the job. On-device runs never leave your device, and nothing is sent to Epigrapha. You'll only be asked once — you can withdraw it in Settings → Privacy.")
         }
         .onAppear {
             guard !didSeedLength else { return }
@@ -374,7 +374,11 @@ struct TransformationStudioView: View {
             else  { omittedThemes.append(theme) }
         } label: {
             HStack(spacing: 4) {
-                if on { Image(systemName: "xmark").font(.system(.caption2, weight: .bold)) }
+                if on {
+                    Image(systemName: "xmark")
+                        .font(.system(.caption2, weight: .bold))
+                        .accessibilityHidden(true)
+                }
                 Text(theme).font(.system(.caption, weight: .medium))
                 if isCustom {
                     // Pencil hint distinguishes user-typed chips from
@@ -383,6 +387,7 @@ struct TransformationStudioView: View {
                     Image(systemName: "pencil")
                         .font(.system(.caption2, weight: .semibold))
                         .opacity(0.6)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.horizontal, 12)
@@ -399,6 +404,13 @@ struct TransformationStudioView: View {
             )
         }
         .buttonStyle(.plain)
+        // Without this VoiceOver reads "xmark, Stoicism, pencil, button"
+        // and never says whether the theme is being omitted. It is a
+        // toggle, so announce it as one.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(theme)
+        .accessibilityHint("Omit this theme from the result")
+        .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
     }
 
     @ViewBuilder
@@ -407,6 +419,7 @@ struct TransformationStudioView: View {
             Image(systemName: "plus")
                 .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textSecondary)
+                .accessibilityHidden(true)
             TextField("Add a theme", text: $customThemeDraft)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -459,8 +472,8 @@ struct TransformationStudioView: View {
                 Spacer()
                 Picker("", selection: $modelOverride) {
                     Text("Auto").tag(Optional<LLMModel>.none)
-                    Text("Sonnet 4.6").tag(Optional(LLMModel.claudeSonnet4_6))
-                    Text("Opus 4.7").tag(Optional(LLMModel.claudeOpus4_7))
+                    Text("Sonnet 5").tag(Optional(LLMModel.claudeSonnet5))
+                    Text("Opus 5").tag(Optional(LLMModel.claudeOpus5))
                     Text("Haiku 4.5").tag(Optional(LLMModel.claudeHaiku4_5))
                     Text("On-device").tag(Optional(LLMModel.appleFoundation))
                 }
@@ -477,7 +490,7 @@ struct TransformationStudioView: View {
     // MARK: - Estimate / progress
 
     private func estimateCard(_ e: CostEstimate) -> some View {
-        let isLocal = e.model.providerID == .foundationModels || e.model.providerID == .mlx
+        let isLocal = e.model.providerID == .foundationModels
         let estimatedSecs = isLocal ? Double(e.chunkCount) * 8.0 : Double(e.chunkCount) * 1.5
         return VStack(alignment: .leading, spacing: 8) {
             Text("Estimate")
@@ -695,10 +708,10 @@ struct TransformationStudioView: View {
     private func defaultModelLocal(for request: TransformationRequest) -> LLMModel {
         if localAvailable { return .appleFoundation }
         switch request.kind {
-        case .styled:        return .claudeOpus4_7
-        case .expanded where request.targetRatio >= 3: return .claudeOpus4_7
+        case .styled:        return .claudeOpus5
+        case .expanded where request.targetRatio >= 3: return .claudeOpus5
         case .compressed where request.targetRatio >= 0.30: return .appleFoundation
-        default:             return .claudeSonnet4_6
+        default:             return .claudeSonnet5
         }
     }
 
@@ -720,9 +733,16 @@ struct TransformationStudioView: View {
 
     private func startRun() {
         // Guideline 5.1.2(i): name the third party and get explicit consent
-        // before any book text is transmitted. Cloud (Anthropic) runs only;
-        // on-device transforms never trigger the gate.
-        if resolvedModel.providerID == .anthropic, !CloudConsent.granted {
+        // before any book text is transmitted.
+        //
+        // The test is "could this run reach Anthropic", not "is Anthropic
+        // the preferred model". `LLMRouter` falls through to the cloud
+        // whenever the on-device model is unavailable *or* fails mid-run,
+        // so keying the gate off the preferred model let a local-looking
+        // run transmit the book. A stored API key is what makes cloud
+        // reachable at all; without one there is nothing to consent to.
+        let cloudReachable = KeychainStore.shared.read(.anthropicAPIKey) != nil
+        if cloudReachable, !CloudConsent.granted {
             showCloudConsent = true
             return
         }

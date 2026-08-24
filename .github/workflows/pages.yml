@@ -1,0 +1,83 @@
+name: Pages
+
+# App Review rejects a dead Privacy Policy URL, and the app links to one
+# from Settings → About. This publishes it, so the link in the binary and
+# the link in App Store Connect resolve to the same page as the repo.
+#
+# The policy itself stays authored in AppStore/privacy.md — the build
+# copies it in with front matter rather than keeping a second copy that
+# can drift.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "AppStore/privacy.md"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a half-finished deploy: a partially published site is a
+# dead privacy URL, which is the thing this exists to prevent.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fold the policy into the site
+        run: |
+          set -euo pipefail
+          {
+            echo "---"
+            echo "layout: default"
+            echo "title: Privacy Policy"
+            echo "permalink: /privacy/"
+            echo "---"
+            echo
+            tail -n +2 AppStore/privacy.md   # drop the duplicate H1
+          } > site/privacy.md
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./site
+          destination: ./_site
+
+      - name: Fail if the privacy page is empty
+        run: |
+          set -euo pipefail
+          test -s _site/privacy/index.html
+          grep -qi "anthropic" _site/privacy/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify the published URLs resolve
+        run: |
+          set -euo pipefail
+          for path in privacy support; do
+            code=$(curl -sL -o /dev/null -w '%{http_code}' \
+              "https://lukataylo.github.io/book-app/$path/")
+            echo "$path -> $code"
+            [ "$code" = "200" ]
+          done

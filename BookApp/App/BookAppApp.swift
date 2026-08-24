@@ -32,11 +32,6 @@ struct BookAppApp: App {
             self.containerError = "Epigrapha couldn't load its data store. Reinstalling the app usually fixes this. If the problem persists, file a bug at github.com/lukataylo/book-app/issues."
             self.storeWasReset = false
         }
-        // Subscribe to MetricKit for crash + hang diagnostics. Apple
-        // delivers payloads roughly once a day; we drop them into the
-        // app's caches folder so the user can export them from Settings
-        // without us shipping a third-party crash SDK.
-        MetricsLog.shared.start()
     }
 
     var body: some Scene {

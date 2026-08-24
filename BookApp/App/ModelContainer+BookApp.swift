@@ -65,11 +65,7 @@ extension ModelContainer {
             // Re-seeding is gated on UserDefaults flags that outlive the
             // store, so they have to be cleared too or the fresh store
             // stays empty forever.
-            for key in ["SummaryPacks.loadedSlugs-v3", "SeedBooks.completed-v1",
-                        "Annotations.backfill-v1", "CoverArt.seedBackfill-v1",
-                        "BlobMigration.completed-v1"] {
-                UserDefaults.standard.removeObject(forKey: key)
-            }
+            SummaryPackLoader.resetSeedFlag()
             return ((try? bookApp()), true)
         }
     }

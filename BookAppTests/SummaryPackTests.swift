@@ -72,7 +72,6 @@ struct SummaryPackTests {
             #expect(gistWords >= 200 && gistWords <= 450, "\(pack.slug): quick take out of range (\(gistWords) words)")
             #expect(!gist.contains("# "), "\(pack.slug): quick take must be plain paragraphs")
             #expect(pack.learnings.count >= 8, "\(pack.slug): needs ≥ 8 learnings")
-            #expect(pack.readMinutes > 0)
             #expect(!pack.categories.isEmpty)
             #expect(!pack.themes.isEmpty)
         }

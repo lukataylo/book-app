@@ -1,5 +1,11 @@
 # Independent Pre-Submission Review
 
+> **Superseded (2026-08-23) by `submission-plan-2026-08.md`.** Kept for
+> the research trail. This audit predates the scope-down: it reviews
+> Daily Review, Remember decks and an ~80-title catalog, none of which
+> ship. Its live findings (reset leaking on-disk files, Dynamic Type,
+> release `print`) have since been fixed.
+
 _Fresh, adversarial audit at HEAD `98e510f` by an independent reviewer (did not write the code). Read-only._
 
 ## Verdict: GO to upload — the risk is conditional approval, not technical

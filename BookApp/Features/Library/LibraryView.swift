@@ -352,7 +352,7 @@ struct LibraryView: View {
             Text("Your shelf is empty")
                 .font(.system(.title2, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
-            Text("Import an epub, pdf, or mobi to get started.")
+            Text("Import an EPUB or PDF to get started.")
                 .font(.system(.subheadline))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .multilineTextAlignment(.center)

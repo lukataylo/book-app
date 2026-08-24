@@ -13,9 +13,15 @@ struct SettingsView: View {
 
     @State private var confirmReset = false
     @State private var resetDone = false
+    @State private var cloudConsent: Bool = CloudConsent.granted
 
-    private static let privacyPolicyURL = URL(string: "https://lukataylo.github.io/book-app/privacy")
-    private static let supportURL = URL(string: "mailto:luka.dadiani@me.com")
+    // Published by .github/workflows/pages.yml. Trailing slashes match the
+    // Jekyll permalinks exactly — App Review follows these links, and a
+    // redirect that fails is the same as a dead page.
+    private static let privacyPolicyURL = URL(string: "https://lukataylo.github.io/book-app/privacy/")
+    // A support *page*, not a mailto: — Review expects somewhere a user can
+    // land, and a mailto put a personal address in the shipped binary.
+    private static let supportURL = URL(string: "https://lukataylo.github.io/book-app/support/")
 
     var body: some View {
         NavigationStack {
@@ -123,13 +129,18 @@ struct SettingsView: View {
                 }
 
                 Section("Privacy") {
-                    Text("Cloud transformations send the source book to Anthropic for that request only. Local transformations stay on-device. The first cloud run asks your permission before any text leaves your device.")
+                    // Guideline 5.1.2(i) consent has to be withdrawable,
+                    // not just grantable — and the Studio's consent sheet
+                    // tells the user this control is here. Turning it off
+                    // makes `ClaudeProvider` report unavailable, so the
+                    // router stops routing anything to the cloud at all.
+                    Toggle("Allow sending text to Anthropic", isOn: $cloudConsent)
+                        .onChange(of: cloudConsent) { _, allowed in
+                            CloudConsent.granted = allowed
+                        }
+                    Text("Cloud transformations send the source book to Anthropic (api.anthropic.com) for that request only, under your own API key. On-device transformations never leave your device, and nothing is ever sent to Epigrapha. Turn this off and cloud features stop entirely — on-device features keep working.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                }
-
-                Section("Diagnostics") {
-                    DiagnosticsRow()
                 }
 
                 Section("Data") {
@@ -158,6 +169,7 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .onAppear {
+                cloudConsent = CloudConsent.granted
                 recomputeSpend()
                 hasKey = KeychainStore.shared.read(.anthropicAPIKey) != nil
             }
@@ -196,10 +208,8 @@ struct SettingsView: View {
         // Reclaim the on-disk blobs (covers, variant text, images, originals)
         // so they don't leak across resets.
         BookStore.shared.deleteAllBookFiles()
-        for key in ["SummaryPacks.loadedSlugs-v2", "SeedBooks.completed-v1",
-                    "CoverArt.seedBackfill-v1"] {
-            UserDefaults.standard.removeObject(forKey: key)
-        }
+        // The loader owns its own key — see SummaryPackLoader.resetSeedFlag.
+        SummaryPackLoader.resetSeedFlag()
         resetDone = true
     }
 
@@ -230,72 +240,4 @@ struct SettingsView: View {
         let m = mins % 60
         return m == 0 ? "\(h) h" : "\(h)h \(m)m"
     }
-}
-
-/// Lightweight surface for the locally-stored MetricKit payloads — lets
-/// the user see whether the app has captured any crashes/hangs and share
-/// them out for a bug report. Apple delivers payloads in a daily batch,
-/// so an empty list here usually just means "no incidents in the last
-/// 24h", not "diagnostics aren't working".
-private struct DiagnosticsRow: View {
-    @State private var files: [URL] = []
-    @State private var shareItem: URL?
-
-    var body: some View {
-        Group {
-            if files.isEmpty {
-                Text("No diagnostics captured. MetricKit reports arrive in a daily batch, so check back tomorrow if the app crashed today.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(files, id: \.self) { url in
-                    Button {
-                        shareItem = url
-                    } label: {
-                        HStack {
-                            Image(systemName: "doc.text")
-                            Text(url.lastPathComponent)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer()
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(.secondary)
-                        }
-                        .font(.callout)
-                    }
-                    .buttonStyle(.plain)
-                }
-                Button(role: .destructive) {
-                    MetricsLog.clearAll()
-                    refresh()
-                } label: {
-                    Label("Clear diagnostics", systemImage: "trash")
-                }
-            }
-        }
-        .onAppear { refresh() }
-        .sheet(item: $shareItem) { url in
-            ShareSheet(items: [url])
-        }
-    }
-
-    private func refresh() {
-        files = MetricsLog.storedFiles()
-    }
-}
-
-/// Minimal UIActivityViewController bridge — used by DiagnosticsRow to
-/// hand a payload file off to Mail / Messages / Files for a bug report.
-private struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
-}
-
-extension URL: @retroactive Identifiable {
-    public var id: String { absoluteString }
 }

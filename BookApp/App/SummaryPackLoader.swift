@@ -20,16 +20,32 @@ import SwiftData
 enum SummaryPackLoader {
 
     private static let resourceFolder = "SummaryPacks"
+    private static let fullTextFolder = "FullTexts"
     // Bumping this key re-runs the per-pack pass over books that are
     // already seeded, which is the only way the existing-book branch ever
     // executes — `pending` filters loaded slugs out before anything else
     // runs. Bump it whenever a pack gains something that has to reach
     // existing installs: a designed cover, a quick take, a re-style.
     //
-    // v3: designed covers now ship for all 28 titles, so every already-
-    // seeded book needs its `artSlug` backfilled and its bundled
-    // re-styles attached. The content-by-title guard prevents duplicates.
-    private static let loadedSlugsKey = "SummaryPacks.loadedSlugs-v3"
+    // v4: the public-domain source text now ships alongside the summary.
+    // The book it belongs to changes shape — the full text takes the
+    // `.original` slot and the summary moves to `.compressed` — so every
+    // already-seeded book has to be revisited. The content-by-title
+    // guard prevents duplicates.
+    nonisolated static let loadedSlugsKey = "SummaryPacks.loadedSlugs-v4"
+
+    /// Clear the re-seed guard so the catalog comes back on next launch.
+    ///
+    /// Settings → Reset all content used to hardcode its own copy of this
+    /// key. The two drifted (`-v2` against a loader on `-v4`), which meant
+    /// a reset wiped the library and then blocked the re-seed — leaving an
+    /// app that was empty forever and could only be recovered by deleting
+    /// it. Owning the key here makes that class of bug impossible.
+    /// `nonisolated` because store recovery runs before the main actor is
+    /// available — it only touches UserDefaults, which is thread-safe.
+    nonisolated static func resetSeedFlag() {
+        UserDefaults.standard.removeObject(forKey: loadedSlugsKey)
+    }
 
     static func runIfNeeded(modelContext: ModelContext) async {
         guard let folderURL = bundledFolderURL() else { return }
@@ -153,6 +169,43 @@ enum SummaryPackLoader {
     /// Label prefix identifying the bundled short-length variant.
     static let quickTakeLabel = "Quick take · 3 min"
 
+    /// Average adult reading speed. Used for every variant's label so the
+    /// time shown is derived from the words actually shipped, not a
+    /// number typed into a JSON file.
+    static let wordsPerMinute = 250
+
+    static func minutes(forWords words: Int) -> Int {
+        max(1, Int((Double(words) / Double(wordsPerMinute)).rounded()))
+    }
+
+    /// "5 min" / "1 h 12 min" — the same shape used on the book page.
+    static func durationLabel(forWords words: Int) -> String {
+        let mins = minutes(forWords: words)
+        if mins < 60 { return "\(mins) min" }
+        let h = mins / 60, m = mins % 60
+        return m == 0 ? "\(h) h" : "\(h) h \(m) min"
+    }
+
+    static func wordCount(_ text: String) -> Int {
+        text.split(whereSeparator: { $0.isWhitespace }).count
+    }
+
+    /// The bundled public-domain source text for a pack, if one ships.
+    /// Not every title has one — Gutenberg carries no Moral Letters, for
+    /// instance — so a missing file is a normal outcome, and that book
+    /// simply keeps the summary in the `.original` slot.
+    static func fullText(for slug: String) -> String? {
+        guard let url = Bundle.main.url(
+            forResource: slug, withExtension: "txt", subdirectory: fullTextFolder
+        ) ?? Bundle.main.resourceURL?
+            .appendingPathComponent(fullTextFolder, isDirectory: true)
+            .appendingPathComponent("\(slug).txt")
+        else { return nil }
+        guard let text = try? String(contentsOf: url, encoding: .utf8),
+              !text.isEmpty else { return nil }
+        return text
+    }
+
     /// Returns true when the pack's records were saved (or already exist).
     /// Internal (not private) so the idempotency contract is unit-testable.
     @discardableResult
@@ -186,6 +239,7 @@ enum SummaryPackLoader {
                 insertStyled(voice, attribution: pack.attribution, book: existing, context: context)
                 try? context.save()
             }
+            attachFullText(pack: pack, book: existing, context: context)
             return true
         }
 
@@ -193,22 +247,48 @@ enum SummaryPackLoader {
         book.isSummaryEdition = true
         book.artSlug = artSlug
         book.sourceAttribution = pack.attribution
-        book.readMinutesEstimate = pack.readMinutes
         book.categoryTags = pack.categories
         book.detectedThemes = pack.themes
 
         // The attribution travels with the text itself, but as the closing
         // paragraph — leading with it made Listen mode narrate legal
         // boilerplate before the first idea.
-        let contentText = pack.summary + "\n\n" + pack.attribution
-        let words = contentText.split(whereSeparator: { $0.isWhitespace }).count
-        book.totalWordsEstimate = words
-        book.totalPagesEstimate = max(words / 250, 1)
+        let summaryText = pack.summary + "\n\n" + pack.attribution
+        let summaryWords = wordCount(summaryText)
+        // What the shelf advertises is the summary — that is the tier the
+        // catalog is built around. Derived from the words actually
+        // shipped, so it can't drift from the text the way a hand-typed
+        // `read_minutes` did.
+        book.readMinutesEstimate = minutes(forWords: summaryWords)
         context.insert(book)
 
-        let variant = BookVariant(book: book, kind: .original, contentText: contentText)
-        variant.label = "Summary"
-        context.insert(variant)
+        // The source work takes the `.original` slot: the summary is a
+        // compression of it, not the other way round. Length estimates
+        // follow the original, because that is what the Transformation
+        // Studio's slider compresses from.
+        let source = fullText(for: pack.slug)
+        let originalWords = source.map(wordCount) ?? summaryWords
+        book.totalWordsEstimate = originalWords
+        book.totalPagesEstimate = max(originalWords / wordsPerMinute, 1)
+
+        if let source {
+            let full = BookVariant(book: book, kind: .original)
+            full.label = "Full text · \(durationLabel(forWords: originalWords))"
+            full.writeText(source)
+            context.insert(full)
+
+            let summary = BookVariant(book: book, kind: .compressed, targetPages: max(summaryWords / wordsPerMinute, 1))
+            summary.label = "The Big Ideas · \(durationLabel(forWords: summaryWords))"
+            summary.writeText(summaryText)
+            context.insert(summary)
+        } else {
+            // No source text ships for this title, so the summary keeps
+            // the `.original` slot — `book.originalVariant` is never nil.
+            let summary = BookVariant(book: book, kind: .original)
+            summary.label = "The Big Ideas · \(durationLabel(forWords: summaryWords))"
+            summary.writeText(summaryText)
+            context.insert(summary)
+        }
 
         // The ~3-minute "quick take" — the catalog's second length tier,
         // listed alongside the full summary in the book's variants.
@@ -251,14 +331,43 @@ enum SummaryPackLoader {
         }
     }
 
+    /// Upgrade path for books seeded before the source text shipped.
+    ///
+    /// The summary used to hold the `.original` slot; now the work itself
+    /// does, and the summary becomes the compressed tier beside it. Both
+    /// halves are idempotent — a book that has already been converted has
+    /// an `.original` whose label starts with "Full text", and re-running
+    /// leaves it untouched.
+    static func attachFullText(pack: SummaryPack, book: Book, context: ModelContext) {
+        guard let source = fullText(for: pack.slug) else { return }
+        let variants = book.variants ?? []
+        guard !variants.contains(where: { $0.label.hasPrefix("Full text") }) else { return }
+
+        let originalWords = wordCount(source)
+        book.totalWordsEstimate = originalWords
+        book.totalPagesEstimate = max(originalWords / wordsPerMinute, 1)
+
+        // Demote the incumbent original — same row, so the user's
+        // highlights and reading position in the summary survive.
+        if let summary = variants.first(where: { $0.kind == .original }) {
+            let summaryWords = wordCount(pack.summary + "\n\n" + pack.attribution)
+            summary.kind = .compressed
+            summary.targetPages = max(summaryWords / wordsPerMinute, 1)
+            summary.label = "The Big Ideas · \(durationLabel(forWords: summaryWords))"
+            book.readMinutesEstimate = minutes(forWords: summaryWords)
+        }
+
+        let full = BookVariant(book: book, kind: .original)
+        full.label = "Full text · \(durationLabel(forWords: originalWords))"
+        full.writeText(source)
+        context.insert(full)
+        try? context.save()
+    }
+
     private static func insertQuickTake(_ gist: String, attribution: String, book: Book, context: ModelContext) {
-        let variant = BookVariant(
-            book: book,
-            kind: .compressed,
-            contentText: gist + "\n\n" + attribution,
-            targetPages: 2
-        )
+        let variant = BookVariant(book: book, kind: .compressed, targetPages: 2)
         variant.label = quickTakeLabel
+        variant.writeText(gist + "\n\n" + attribution)
         context.insert(variant)
     }
 
@@ -268,13 +377,9 @@ enum SummaryPackLoader {
         book: Book,
         context: ModelContext
     ) {
-        let variant = BookVariant(
-            book: book,
-            kind: .styled,
-            contentText: voice.text + "\n\n" + attribution,
-            styleReference: voice.style
-        )
+        let variant = BookVariant(book: book, kind: .styled, styleReference: voice.style)
         variant.label = voice.label
+        variant.writeText(voice.text + "\n\n" + attribution)
         context.insert(variant)
     }
 
@@ -298,7 +403,6 @@ struct SummaryPack: Decodable, Sendable {
     let sourceYear: Int
     let categories: [String]
     let themes: [String]
-    let readMinutes: Int
     let attribution: String
     let summary: String
     /// ~3-minute "quick take" gist — the catalog's short length tier.

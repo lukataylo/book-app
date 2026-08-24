@@ -4,7 +4,7 @@ import SwiftData
 /// Orchestrates the full import flow:
 ///
 /// 1. Copy file → iCloud-backed Documents container
-/// 2. Run the right parser (or convert MOBI → EPUB first)
+/// 2. Run the right parser
 /// 3. Persist `Book` + `BookVariant(.original)` in SwiftData
 /// 4. Kick off a background local-LLM job to auto-tag categories + themes
 ///
@@ -14,7 +14,6 @@ import SwiftData
 final class ImportService {
     private let modelContext: ModelContext
     private let store = BookStore.shared
-    private let router = LLMRouter.shared
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -24,12 +23,14 @@ final class ImportService {
         case unknownFormat(String)
         case parserFailed(Error)
         case persistFailed(Error)
+        case couldNotWrite
 
         var errorDescription: String? {
             switch self {
             case .unknownFormat(let ext): return "Unknown format: .\(ext)"
             case .parserFailed(let e):    return "Couldn't read book: \(e.localizedDescription)"
             case .persistFailed(let e):   return "Couldn't save: \(e.localizedDescription)"
+            case .couldNotWrite:          return "Couldn't write the book to storage. Check available space."
             }
         }
     }
@@ -45,30 +46,15 @@ final class ImportService {
         let bookID = UUID()
         let (storedURL, bookmark) = try store.ingestOriginal(from: sourceURL, bookID: bookID, format: format)
 
-        // MOBI: convert to EPUB once, then treat the EPUB as the canonical original.
+        // `parsedURL` / `parsedFormat` used to differ from the stored
+        // file: MOBI was converted to a sibling EPUB first, and the book
+        // was recorded as an EPUB. With that gone the file we store is
+        // the file we parse.
         let parser: BookParser
-        let parsedURL: URL
-        let parsedFormat: BookFormat
         switch format {
-        case .epub:
-            parser = EPUBParser()
-            parsedURL = storedURL
-            parsedFormat = .epub
-        case .pdf:
-            parser = PDFParser()
-            parsedURL = storedURL
-            parsedFormat = .pdf
-        case .mobi:
-            do {
-                let epubURL = try await MOBIConverter().convert(storedURL)
-                parser = EPUBParser()
-                parsedURL = epubURL
-                parsedFormat = .epub
-            } catch {
-                throw ImportError.parserFailed(error)
-            }
-        case .unknown:
-            throw ImportError.unknownFormat(sourceURL.pathExtension)
+        case .epub:    parser = EPUBParser()
+        case .pdf:     parser = PDFParser()
+        case .unknown: throw ImportError.unknownFormat(sourceURL.pathExtension)
         }
 
         // EPUBParser streams image bytes directly into the book's
@@ -78,7 +64,7 @@ final class ImportService {
         let imagesDir = store.imagesFolder(for: bookID)
         let parsed: ParsedBook
         do {
-            parsed = try await parser.parse(fileURL: parsedURL, imagesDirectory: imagesDir)
+            parsed = try await parser.parse(fileURL: storedURL, imagesDirectory: imagesDir)
         } catch {
             throw ImportError.parserFailed(error)
         }
@@ -94,25 +80,20 @@ final class ImportService {
 
         // Cover and body text live on disk under `<bookFolder>` so the
         // SwiftData record stays small and CloudKit sync isn't dragging
-        // a 200KB JPEG plus megabytes of text on every change. The
-        // legacy in-row fields are left empty for new imports — older
-        // installs may still have data in them and `BlobMigration`
-        // moves it onto disk on next launch.
+        // a 200KB JPEG plus megabytes of text on every change.
+        var wroteCover = false
         if let coverData = parsed.coverData, !coverData.isEmpty {
-            store.writeCover(coverData, bookID: bookID)
+            wroteCover = store.writeCover(coverData, bookID: bookID)
         }
 
         let book = Book(
             id: bookID,
             title: parsed.title,
             author: parsed.author,
-            format: parsedFormat,
-            coverData: nil,
+            format: format,
             originalFileBookmark: bookmark
         )
-        if parsed.coverData != nil {
-            book.coverFilename = "cover.jpg"
-        }
+        book.hasCoverImage = wroteCover
         book.totalPagesEstimate = parsed.totalPagesEstimate
         book.totalWordsEstimate = parsed.totalWords
         book.languageCode = parsed.languageCode
@@ -120,18 +101,15 @@ final class ImportService {
         let variant = BookVariant(
             book: book,
             kind: .original,
-            contentText: "",
             contentBookmark: bookmark
         )
         // Write the body text now that we know the variant's ID, so
         // the file matches the deterministic URL `loadText()` resolves.
-        if store.writeVariantText(parsed.fullText, bookID: bookID, variantID: variant.id) {
-            variant.contentFilename = "variant-\(variant.id.uuidString).txt"
-        } else {
-            // Disk write failed (rare; permissions, full disk). Keep
-            // the body in-row as a fallback so the book is still
-            // readable, even if CloudKit balks.
-            variant.contentText = parsed.fullText
+        // A failed write means an unreadable book, so refuse the import
+        // rather than inserting a row with nothing behind it.
+        guard store.writeVariantText(parsed.fullText, bookID: bookID, variantID: variant.id) else {
+            store.deleteBookFolder(for: bookID)
+            throw ImportError.couldNotWrite
         }
 
         modelContext.insert(book)
@@ -165,23 +143,28 @@ final class ImportService {
         switch url.pathExtension.lowercased() {
         case "epub":              return .epub
         case "pdf":               return .pdf
-        case "mobi", "azw", "azw3": return .mobi
         default:                  return .unknown
         }
     }
 
-    /// Best-effort auto-tagging. Runs the local LLM, parses the JSON reply,
-    /// re-fetches the book from SwiftData (so we don't write to an
-    /// orphaned instance if the user deleted the book during the call)
-    /// and writes back to the same context. Silent on failure — tags can
-    /// be edited manually later.
+    /// Best-effort auto-tagging, **on-device only**.
+    ///
+    /// This deliberately calls `LocalProvider` instead of going through
+    /// `LLMRouter`: the router would fall through to Anthropic on any
+    /// device without Apple Intelligence, which would put a sample of a
+    /// book the user just imported onto the network with no prompt and no
+    /// UI at all. Tagging is a convenience that already fails silently, so
+    /// it is never worth a transmission — on a device that can't do it
+    /// locally, the book simply arrives untagged and the user can edit the
+    /// tags by hand.
     private func autoTag(bookID: UUID, sample: String, title: String, author: String) async {
         let (system, user) = PromptTemplates.categoryTagging(title: title, author: author, sample: sample)
         let req = LLMRequest(system: system, user: user, maxOutputTokens: 512,
                              temperature: 0.2, model: .appleFoundation)
+        let local = LocalProvider()
+        guard await local.isAvailable() else { return }
         do {
-            let resp = try await router.run(.categoryTagging, request: req,
-                                            sourceTokens: Chunker.tokenEstimate(sample))
+            let resp = try await local.complete(req)
             applyTags(toBookID: bookID, from: resp.text)
         } catch {
             // Tagging is best-effort — silently fail.

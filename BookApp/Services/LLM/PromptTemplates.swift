@@ -51,27 +51,6 @@ enum PromptTemplates {
         return (system, user)
     }
 
-    static func keyLearnings(book: String, count: Int = 10) -> (system: String, user: String) {
-        let system = """
-        Extract \(count) key learnings from the book provided.
-
-        Each learning is one or two crisp sentences capturing an idea the \
-        reader should retain. Prefer:
-        - Specific propositions over platitudes ("Cruelty inflicted in one \
-        decisive stroke is forgiven faster than cruelty drawn out" beats \
-        "Be careful with cruelty").
-        - Direct paraphrase of the author's argument over your interpretation.
-        - Active voice, present tense.
-
-        Output strictly valid JSON, an array of objects:
-        [{"text": "...", "chapter": "..."}, ...]
-
-        - "chapter" is the chapter title or roman-numeral if present in the \
-        source; empty string otherwise. Do not invent chapter labels.
-        - No commentary, no markdown code fences. JSON only.
-        """
-        return (system, "Book content:\n\(book)")
-    }
 
     /// Map step prompt — applied per chunk during compression / expansion /
     /// style transfer. `targetRatio` is the desired output length as a
@@ -217,19 +196,4 @@ enum PromptTemplates {
         return (system, "Manuscript follows.")
     }
 
-    static func chatWithBook(question: String) -> (system: String, user: String) {
-        let system = """
-        Answer the user's question about the book strictly from its content.
-
-        Rules:
-        - Quote or paraphrase the relevant passage when you can; cite the \
-        chapter or section name if the source provides one.
-        - If the answer isn't in the book, say so plainly: "The book \
-        doesn't address that." Do not speculate or fill in from general \
-        knowledge.
-        - Keep the response under 200 words unless the user asks for more.
-        - Match the user's register — concise question → concise answer.
-        """
-        return (system, "Question: \(question)")
-    }
 }

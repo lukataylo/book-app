@@ -169,7 +169,6 @@ final class TransformationEngine {
         let newVariant = BookVariant(
             book: book,
             kind: request.kind,
-            contentText: "",
             targetPages: targetPages,
             styleReference: request.styleReference,
             omittedThemes: request.omittedThemes,
@@ -180,17 +179,11 @@ final class TransformationEngine {
         newVariant.outputTokens = totalOutput
         newVariant.costUSD = totalCost
 
-        // Body text lives on disk so this row stays sync-friendly. Keep
-        // the bookmark for legacy resume paths but route reads through
-        // the deterministic `variantTextURL`.
-        if let (_, bookmark) = try? store.saveVariant(text: merged, bookID: book.id, variantID: newVariant.id) {
-            newVariant.contentBookmark = bookmark
-            newVariant.contentFilename = "variant-\(newVariant.id.uuidString).txt"
-        } else {
-            // Disk write failed — keep the body in-row so the variant
-            // is still readable.
-            newVariant.contentText = merged
-        }
+        // Body text lives on disk so this row stays sync-friendly.
+        // A variant whose text can't be written is a variant nobody can
+        // read, so fail the run rather than persisting an empty shell.
+        let (_, bookmark) = try store.saveVariant(text: merged, bookID: book.id, variantID: newVariant.id)
+        newVariant.contentBookmark = bookmark
 
         context.insert(newVariant)
         try context.save()
@@ -215,10 +208,10 @@ final class TransformationEngine {
             return .appleFoundation
         }
         switch request.kind {
-        case .styled:        return .claudeOpus4_7
-        case .expanded where request.targetRatio >= 3: return .claudeOpus4_7
+        case .styled:        return .claudeOpus5
+        case .expanded where request.targetRatio >= 3: return .claudeOpus5
         case .compressed where request.targetRatio >= 0.30: return .appleFoundation
-        default:             return .claudeSonnet4_6
+        default:             return .claudeSonnet5
         }
     }
 

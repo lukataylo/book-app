@@ -436,18 +436,38 @@ final class TTSEngine: NSObject {
                    AVSpeechUtteranceMaximumSpeechRate)
     }
 
+    /// Best installed voice for a language tag, highest quality first.
+    ///
+    /// `AVSpeechSynthesisVoice(language:)` returns the *default* voice,
+    /// which is the compact one — the flat, robotic tier — even when the
+    /// user has a Premium (Siri) voice installed. It also has a known
+    /// iOS 26 regression where it ignores the voice chosen in
+    /// Accessibility settings. Ranking the installed set ourselves avoids
+    /// both, and is the single cheapest audible improvement available.
+    static func bestVoice(matching prefix: String) -> AVSpeechSynthesisVoice? {
+        AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.hasPrefix(prefix) }
+            .max { $0.quality.rawValue < $1.quality.rawValue }
+    }
+
+    /// True when every installed voice for the user's language is the
+    /// compact tier. Settings uses this to offer the one-tap route to
+    /// iOS's voice downloads, which is where the good voices actually
+    /// live — most people never discover that screen.
+    static var onlyCompactVoicesInstalled: Bool {
+        let lang = String(AVSpeechSynthesisVoice.currentLanguageCode().prefix(2))
+        let installed = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix(lang) }
+        return !installed.isEmpty && installed.allSatisfy { $0.quality == .default }
+    }
+
     private func resolvedVoice() -> AVSpeechSynthesisVoice? {
         if !settings.voiceIdentifier.isEmpty,
            let v = AVSpeechSynthesisVoice(identifier: settings.voiceIdentifier) {
             return v
         }
-        if let v = AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode()) {
-            return v
-        }
-        if let english = AVSpeechSynthesisVoice.speechVoices()
-            .first(where: { $0.language.hasPrefix("en") }) {
-            return english
-        }
+        let current = AVSpeechSynthesisVoice.currentLanguageCode()
+        if let v = Self.bestVoice(matching: String(current.prefix(2))) { return v }
+        if let english = Self.bestVoice(matching: "en") { return english }
         return AVSpeechSynthesisVoice.speechVoices().first
     }
 

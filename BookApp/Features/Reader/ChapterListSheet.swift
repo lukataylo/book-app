@@ -47,7 +47,7 @@ struct ChapterListSheet: View {
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.system(.caption2, weight: .semibold))
                                     .foregroundStyle(Theme.Palette.textSecondary.opacity(0.5))
                             }
                             .padding(.vertical, 4)

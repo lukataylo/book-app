@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Last updated: 2026-05-05*
+*Last updated: 2026-08-23*
 
 Epigrapha is a single-developer app that runs entirely on your device and in
 your iCloud account. There is no Epigrapha server.
@@ -12,9 +12,11 @@ We do not run analytics. We do not have a backend.
 
 ## What stays on your device
 
+- The bundled catalog: 28 public-domain works, each with an original
+  summary and a quick take
 - Book files you import (EPUB / PDF)
 - Generated transformations (compressed, expanded, re-styled variants)
-- Annotations, highlights, key learnings, reading progress
+- Highlights, bookmarks, reading progress
 - Reader / TTS / speed-reader settings
 - Your Anthropic API key — stored in the iOS Keychain, **never written to
   disk in plain text and never sent to any server other than Anthropic's API
@@ -45,12 +47,20 @@ is processed by Anthropic per their published data-handling policy:
 never receives a copy** — the request goes directly from your device to
 Anthropic.
 
-You can use Epigrapha without sending anything to Anthropic — every cloud
-request requires explicit confirmation, and the on-device features
-(reader, TTS, speed reading, key-learnings
-extraction and on-device transformations on Apple Intelligence devices)
-work entirely offline. There is **no account, no sign-in, and no
-tracking** of any kind.
+Nothing is sent to Anthropic until you have granted permission in a
+dialog that names Anthropic and says what will be sent. Until then, the
+cloud path is switched off in code, not merely hidden: the app refuses to
+open a connection at all. You can withdraw that permission at any time in
+**Settings → Privacy**, which switches it off again.
+
+You can use Epigrapha without ever sending anything to Anthropic. The
+catalog, the reader, text-to-speech, speed reading, highlights, search,
+and on-device transformations (on Apple Intelligence hardware) all work
+offline and need no key. Automatic category tagging of imported books
+runs on-device only — on a device without Apple Intelligence, books
+simply arrive untagged rather than being sent anywhere.
+
+There is **no account, no sign-in, and no tracking** of any kind.
 
 ## Audiobook playback (TTS)
 

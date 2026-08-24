@@ -71,21 +71,14 @@ Edit the script if you want to adjust the palette or the mark.
 
 ## Local LLM
 
-The app tries Apple Foundation Models first
-(`SystemLanguageModel.default.availability == .available`). If that's not
-available — older iPhones, Intel Macs — the router falls back to MLX-Swift
-if you've opted into it.
+The app uses Apple Foundation Models when the device has them
+(`SystemLanguageModel.default.availability == .available`, iOS 26+ on
+Apple Intelligence hardware).
 
-To opt in:
-
-1. Run `xcodebuild -downloadComponent MetalToolchain` once.
-2. Uncomment the `MLXSwift` package + dependency in `project.yml`.
-3. Re-run `xcodegen generate`.
-
-Without MLX and without Apple Foundation Models, every task that the
-router would have routed locally falls through to the cloud (Claude). It
-still works; you'll just see slightly higher cloud cost on the things
-that would normally have been free.
+Everywhere else — older iPhones, or iOS 18/25 — every task the router
+would have run locally falls through to the cloud (Claude). It still
+works; you'll just see cloud cost on the things that would otherwise
+have been free.
 
 ## Tests
 

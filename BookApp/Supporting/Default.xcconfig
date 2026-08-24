@@ -8,3 +8,4 @@
 // CODE_SIGN_IDENTITY, etc. If not, these stay empty and code signing
 // uses Xcode's defaults — fine for the simulator, fails for real devices.
 DEVELOPMENT_TEAM = $(LOCAL_DEVELOPMENT_TEAM)
+
