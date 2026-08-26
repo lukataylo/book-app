@@ -307,11 +307,18 @@ struct BookDetailView: View {
     /// The first two body paragraphs, skipping markdown headings and the
     /// trailing attribution. Returns "" when the text has no prose yet, so
     /// the caller can omit the section entirely.
+    /// Routes through the reader's normaliser instead of splitting on
+    /// `\n\n` here.
+    ///
+    /// Every Project Gutenberg edition — and any EPUB built from one —
+    /// is hard-wrapped at ~70 columns, so a paragraph carries lone
+    /// newlines *inside* it. Splitting only on blank lines leaves those
+    /// in place and SwiftUI renders them as visible breaks mid-sentence.
+    /// `splitParagraphs` already unwraps them for the reader; the blurb
+    /// was the one surface that re-implemented the split and missed it.
     static func openingParagraphs(of text: String, limit: Int = 2) -> String {
-        text
-            .components(separatedBy: "\n\n")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty && !$0.hasPrefix("#") }
+        ReaderViewModel.splitParagraphs(text)
+            .filter { !$0.hasPrefix("# ") && !$0.hasPrefix("[img:") }
             .prefix(limit)
             .joined(separator: "\n\n")
     }
